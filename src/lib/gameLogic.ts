@@ -30,11 +30,11 @@ export function getShuffledTiles(puzzle: Puzzle): string[] {
 
 export function findCategoryByItems(puzzle: Puzzle, items: string[]): Category | null {
   const sortedItems = [...items].sort()
-  
+
   return puzzle.categories.find(category => {
     const sortedCategoryItems = [...category.items].sort()
     return sortedItems.length === sortedCategoryItems.length &&
-           sortedItems.every((item, index) => item === sortedCategoryItems[index])
+      sortedItems.every((item, index) => item === sortedCategoryItems[index])
   }) || null
 }
 
@@ -95,24 +95,24 @@ export function makeGuess(
     guessHistory: newGuessHistory
   }
 
-  return { newGameState, isCorrect, category }
+  return { newGameState, isCorrect, category: category || undefined }
 }
 
 export function getAvailableTiles(gameState: GameState): string[] {
   if (!gameState.puzzle) return []
-  
+
   const solvedItems = gameState.solvedGroups.flatMap(group => group.category.items)
   return getAllTiles(gameState.puzzle).filter(item => !solvedItems.includes(item))
 }
 
 export function canSelectTile(gameState: GameState, tile: string): boolean {
   if (gameState.gameStatus !== 'playing') return false
-  
+
   const availableTiles = getAvailableTiles(gameState)
   const isAvailable = availableTiles.includes(tile)
   const isAlreadySelected = gameState.selectedTiles.includes(tile)
   const hasRoomForSelection = gameState.selectedTiles.length < TILES_PER_GROUP
-  
+
   return isAvailable && (!isAlreadySelected || hasRoomForSelection)
 }
 
@@ -142,8 +142,8 @@ export function toggleTileSelection(gameState: GameState, tile: string): GameSta
 }
 
 export function canSubmitGuess(gameState: GameState): boolean {
-  return gameState.gameStatus === 'playing' && 
-         gameState.selectedTiles.length === TILES_PER_GROUP
+  return gameState.gameStatus === 'playing' &&
+    gameState.selectedTiles.length === TILES_PER_GROUP
 }
 
 export function getRemainingAttempts(gameState: GameState): number {
