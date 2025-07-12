@@ -66,6 +66,69 @@ Key features:
 - Validation functions to prevent duplicate items/categories
 - Anonymous session tracking (no user accounts required)
 
+## Database Constraints
+
+The database enforces data integrity through constraints, triggers, and validation functions at multiple levels.
+
+### Categories Table
+
+**Data Normalization (BEFORE INSERT/UPDATE trigger):**
+- Category names: automatically converted to UPPER() and TRIM()
+- Items: automatically converted to UPPER() and TRIM()
+- Prevents empty category names
+- Prevents empty items
+
+**Structure Constraints:**
+- `difficulty`: Must be 1, 2, 3, or 4
+- `items`: Must contain exactly 4 items
+- `name`, `difficulty`, `items`: NOT NULL required
+- No duplicate items within same category
+- Assignment: Can only be assigned to queue_id OR puzzle_id, not both
+
+**Puzzle Validation (AFTER INSERT/UPDATE trigger):**
+- Puzzles must have exactly 4 categories
+- Puzzles must have exactly one category of each difficulty (1, 2, 3, 4)
+- No duplicate items across categories within same puzzle
+- Exactly 16 total items per puzzle
+
+### Puzzle Queue Table
+
+**Structure Constraints:**
+- `puzzle_number`: Unique, auto-assigned via trigger
+- `queue_position`: Unique
+- `id`, `puzzle_number`, `queue_position`: NOT NULL required
+
+**Auto-numbering:**
+- Trigger automatically assigns next available puzzle_number on INSERT
+
+### Puzzles Table
+
+**Structure Constraints:**
+- `date`: Unique (one puzzle per day)
+- `id`, `puzzle_number`, `date`: NOT NULL required
+
+### Anonymous Sessions Table
+
+**Structure Constraints:**
+- `attempts_used`: Must be between 0 and 4
+- `session_id`: NOT NULL required (primary key)
+
+### Anonymous Guesses Table
+
+**Structure Constraints:**
+- `attempt_number`: Must be between 1 and 4
+- `guessed_items`: Must contain exactly 4 items
+- `item_difficulties`: Must contain exactly 4 items
+- `id`, `attempt_number`, `guessed_items`, `is_correct`, `item_difficulties`: NOT NULL required
+
+### Validation Functions
+
+**normalize_and_validate_category()**: Enforces category-level rules
+**validate_puzzle_composition()**: Enforces puzzle-level rules across categories
+**assign_puzzle_number()**: Auto-assigns incremental puzzle numbers
+
+These constraints ensure data integrity and prevent invalid game states from being created in the database.
+
 ## Game Mechanics
 
 ### Tile Selection
