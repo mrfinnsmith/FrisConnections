@@ -1,0 +1,161 @@
+import { GameState, Puzzle, Category, GuessResult, SolvedGroup, TILES_PER_GROUP, MAX_ATTEMPTS } from '@/types/game'
+
+export function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array]
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  }
+  return shuffled
+}
+
+export function createInitialGameState(puzzle: Puzzle): GameState {
+  return {
+    puzzle,
+    selectedTiles: [],
+    solvedGroups: [],
+    attemptsUsed: 0,
+    gameStatus: 'playing',
+    guessHistory: []
+  }
+}
+
+export function getAllTiles(puzzle: Puzzle): string[] {
+  return puzzle.categories.flatMap(category => category.items)
+}
+
+export function getShuffledTiles(puzzle: Puzzle): string[] {
+  return shuffleArray(getAllTiles(puzzle))
+}
+
+export function findCategoryByItems(puzzle: Puzzle, items: string[]): Category | null {
+  const sortedItems = [...items].sort()
+  
+  return puzzle.categories.find(category => {
+    const sortedCategoryItems = [...category.items].sort()
+    return sortedItems.length === sortedCategoryItems.length &&
+           sortedItems.every((item, index) => item === sortedCategoryItems[index])
+  }) || null
+}
+
+export function makeGuess(
+  gameState: GameState,
+  selectedItems: string[]
+): { newGameState: GameState; isCorrect: boolean; category?: Category } {
+  if (!gameState.puzzle || selectedItems.length !== TILES_PER_GROUP) {
+    return { newGameState: gameState, isCorrect: false }
+  }
+
+  const category = findCategoryByItems(gameState.puzzle, selectedItems)
+  const isCorrect = category !== null
+  const attemptNumber = gameState.attemptsUsed + 1
+
+  // Get item difficulties for the guess
+  const itemDifficulties = selectedItems.map(item => {
+    const cat = gameState.puzzle!.categories.find(c => c.items.includes(item))
+    return cat?.difficulty || 1
+  })
+
+  const guessResult: GuessResult = {
+    items: selectedItems,
+    isCorrect,
+    category: category || undefined,
+    attemptNumber,
+    itemDifficulties
+  }
+
+  const newGuessHistory = [...gameState.guessHistory, guessResult]
+  let newSolvedGroups = [...gameState.solvedGroups]
+  let newGameStatus = gameState.gameStatus
+
+  if (isCorrect && category) {
+    // Add to solved groups
+    newSolvedGroups.push({
+      category,
+      solvedAt: Date.now()
+    })
+
+    // Check if all groups are solved
+    if (newSolvedGroups.length === gameState.puzzle.categories.length) {
+      newGameStatus = 'won'
+    }
+  } else {
+    // Check if max attempts reached
+    if (attemptNumber >= MAX_ATTEMPTS) {
+      newGameStatus = 'lost'
+    }
+  }
+
+  const newGameState: GameState = {
+    ...gameState,
+    selectedTiles: [],
+    solvedGroups: newSolvedGroups,
+    attemptsUsed: attemptNumber,
+    gameStatus: newGameStatus,
+    guessHistory: newGuessHistory
+  }
+
+  return { newGameState, isCorrect, category }
+}
+
+export function getAvailableTiles(gameState: GameState): string[] {
+  if (!gameState.puzzle) return []
+  
+  const solvedItems = gameState.solvedGroups.flatMap(group => group.category.items)
+  return getAllTiles(gameState.puzzle).filter(item => !solvedItems.includes(item))
+}
+
+export function canSelectTile(gameState: GameState, tile: string): boolean {
+  if (gameState.gameStatus !== 'playing') return false
+  
+  const availableTiles = getAvailableTiles(gameState)
+  const isAvailable = availableTiles.includes(tile)
+  const isAlreadySelected = gameState.selectedTiles.includes(tile)
+  const hasRoomForSelection = gameState.selectedTiles.length < TILES_PER_GROUP
+  
+  return isAvailable && (!isAlreadySelected || hasRoomForSelection)
+}
+
+export function toggleTileSelection(gameState: GameState, tile: string): GameState {
+  if (!canSelectTile(gameState, tile)) return gameState
+
+  const isSelected = gameState.selectedTiles.includes(tile)
+  let newSelectedTiles: string[]
+
+  if (isSelected) {
+    // Deselect the tile
+    newSelectedTiles = gameState.selectedTiles.filter(t => t !== tile)
+  } else {
+    // Select the tile (if we have room)
+    if (gameState.selectedTiles.length < TILES_PER_GROUP) {
+      newSelectedTiles = [...gameState.selectedTiles, tile]
+    } else {
+      // Can't select more tiles
+      return gameState
+    }
+  }
+
+  return {
+    ...gameState,
+    selectedTiles: newSelectedTiles
+  }
+}
+
+export function canSubmitGuess(gameState: GameState): boolean {
+  return gameState.gameStatus === 'playing' && 
+         gameState.selectedTiles.length === TILES_PER_GROUP
+}
+
+export function getRemainingAttempts(gameState: GameState): number {
+  return Math.max(0, MAX_ATTEMPTS - gameState.attemptsUsed)
+}
+
+export function formatDate(dateString: string): string {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+}
