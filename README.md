@@ -52,82 +52,117 @@ src/
 
 ## Database Schema
 
-The game uses five main tables in Supabase:
+The game uses six main tables in Supabase:
 
-- **puzzle_queue**: Staging area for puzzles before publication
-- **puzzles**: Published daily puzzles with dates
+### Core Tables
+
+- **puzzles**: Published daily puzzles with auto-assigned numbers
 - **categories**: Four categories per puzzle with difficulty and items
+- **puzzle_queue**: Queue management for publishing puzzles
+- **category_staging**: Temporary staging for CSV imports
+
+### Session Tracking
+
 - **anonymous_sessions**: Track individual game sessions
 - **anonymous_guesses**: Record each guess attempt
 
-Key features:
-- Automatic puzzle numbering with triggers
-- Queue-based daily puzzle assignment
-- Validation functions to prevent duplicate items/categories
-- Anonymous session tracking (no user accounts required)
+## Content Management Workflow
 
-## Database Constraints
+### Step 1: Prepare CSV File
 
-The database enforces data integrity through constraints, triggers, and validation functions at multiple levels.
+Create a CSV file with this exact format:
 
-### Categories Table
+```csv
+name,difficulty,item1,item2,item3,item4
+SF Hills,1,Twin Peaks,Nob Hill,Russian Hill,Telegraph Hill
+Food Invented in SF,3,Irish Coffee,Sourdough,Mission Burrito,Cioppino
+Tech Companies,2,Oracle,Salesforce,Uber,Twitter
+MUNI Lines,4,N Judah,L Taraval,K Ingleside,M Ocean View
+```
 
-**Data Normalization (BEFORE INSERT/UPDATE trigger):**
-- Category names: automatically converted to UPPER() and TRIM()
-- Items: automatically converted to UPPER() and TRIM()
-- Prevents empty category names
-- Prevents empty items
+**CSV Requirements:**
+- Difficulty: 1=Yellow (easiest), 2=Green, 3=Blue, 4=Purple (hardest)
+- Exactly 4 items per category
+- Category names should be unique and descriptive
+- Items should be single words or short phrases
 
-**Structure Constraints:**
-- `difficulty`: Must be 1, 2, 3, or 4
-- `items`: Must contain exactly 4 items
-- `name`, `difficulty`, `items`: NOT NULL required
-- No duplicate items within same category
-- Assignment: Can only be assigned to queue_id OR puzzle_id, not both
+### Step 2: Import CSV to Staging Table
 
-**Puzzle Validation (AFTER INSERT/UPDATE trigger):**
-- Puzzles must have exactly 4 categories
-- Puzzles must have exactly one category of each difficulty (1, 2, 3, 4)
-- No duplicate items across categories within same puzzle
-- Exactly 16 total items per puzzle
+1. Go to Supabase dashboard → Table Editor → category_staging table
+2. Click Insert → Import Data from CSV
+3. Upload your CSV file
+4. Verify the import completed successfully
 
-### Puzzle Queue Table
+### Step 3: Move Categories from Staging to Categories Table
 
-**Structure Constraints:**
-- `puzzle_number`: Unique, auto-assigned via trigger
-- `queue_position`: Unique
-- `id`, `puzzle_number`, `queue_position`: NOT NULL required
+```sql
+-- Transfer categories from staging to main categories table
+INSERT INTO categories (name, difficulty, items, puzzle_id)
+SELECT 
+    name,
+    difficulty,
+    ARRAY[item1, item2, item3, item4] as items,
+    NULL as puzzle_id
+FROM category_staging
+WHERE name IS NOT NULL;
 
-**Auto-numbering:**
-- Trigger automatically assigns next available puzzle_number on INSERT
+-- Clear staging table after successful transfer
+TRUNCATE category_staging;
+```
 
-### Puzzles Table
+### Step 4: Create Puzzles from Categories
 
-**Structure Constraints:**
-- `date`: Unique (one puzzle per day)
-- `id`, `puzzle_number`, `date`: NOT NULL required
+**Plan Your Puzzle:**
+- Pick exactly 4 categories with different difficulty levels (1, 2, 3, 4)
+- Check for duplicate items across the 4 categories
 
-### Anonymous Sessions Table
+**Create Puzzle and Assign Categories:**
 
-**Structure Constraints:**
-- `attempts_used`: Must be between 0 and 4
-- `session_id`: NOT NULL required (primary key)
+```sql
+-- Create new puzzle
+INSERT INTO puzzles (puzzle_number) 
+VALUES ((SELECT COALESCE(MAX(puzzle_number), 0) + 1 FROM puzzles));
 
-### Anonymous Guesses Table
+-- Get the puzzle ID you just created
+SELECT id FROM puzzles ORDER BY created_at DESC LIMIT 1;
 
-**Structure Constraints:**
-- `attempt_number`: Must be between 1 and 4
-- `guessed_items`: Must contain exactly 4 items
-- `item_difficulties`: Must contain exactly 4 items
-- `id`, `attempt_number`, `guessed_items`, `is_correct`, `item_difficulties`: NOT NULL required
+-- Assign 4 categories to this puzzle (replace IDs with your chosen categories)
+UPDATE categories 
+SET puzzle_id = YOUR_PUZZLE_ID 
+WHERE id IN (cat1_id, cat2_id, cat3_id, cat4_id);
+```
 
-### Validation Functions
+**Validation:**
+The database automatically validates:
+- Exactly 4 categories per puzzle
+- One category of each difficulty (1,2,3,4)  
+- No duplicate items across categories
+- Exactly 16 total items
 
-**normalize_and_validate_category()**: Enforces category-level rules
-**validate_puzzle_composition()**: Enforces puzzle-level rules across categories
-**assign_puzzle_number()**: Auto-assigns incremental puzzle numbers
+### Step 5: Add Puzzle to Queue
 
-These constraints ensure data integrity and prevent invalid game states from being created in the database.
+```sql
+-- Add puzzle to publishing queue (queue_position auto-assigned)
+INSERT INTO puzzle_queue (puzzle_id, published) 
+VALUES (YOUR_PUZZLE_ID, false);
+```
+
+### Step 6: Publish Daily Puzzle
+
+```sql
+-- Automatically assign next puzzle for daily play
+SELECT assign_daily_puzzle();
+```
+
+## Database Functions
+
+### Core Functions
+
+- **`get_daily_puzzle()`**: Returns the current published puzzle with all categories
+- **`assign_daily_puzzle()`**: Moves next queued puzzle to published status
+- **`validate_puzzle_composition()`**: Validates puzzle integrity on category assignment
+- **`normalize_and_validate_category()`**: Auto-formats and validates category data
+- **`auto_assign_queue_position()`**: Auto-assigns queue position when adding puzzles to queue
 
 ## Game Mechanics
 
@@ -174,7 +209,7 @@ These constraints ensure data integrity and prevent invalid game states from bei
 
 3. **Set up Supabase**
    - Create a new Supabase project
-   - Run the SQL schema from `docs/tech-spec.md` to create tables and functions
+   - Run the SQL schema to create tables and functions
    - Get your project URL and anon key from Settings > API
 
 4. **Configure environment variables**
@@ -187,14 +222,73 @@ These constraints ensure data integrity and prevent invalid game states from bei
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
    ```
 
-5. **Add sample puzzle data**
-   Insert test data into your Supabase database (see database setup in tech spec)
-
-6. **Run the development server**
+5. **Run the development server**
    ```bash
    npm run dev
    ```
    Open [http://localhost:3000](http://localhost:3000) in your browser
+
+## Database Constraints
+
+### Categories Table
+
+**Data Normalization:**
+- Category names and items automatically converted to UPPER() and TRIM()
+- Prevents empty category names and items
+
+**Structure Constraints:**
+- `difficulty`: Must be 1, 2, 3, or 4
+- `items`: Must contain exactly 4 items
+- `name`, `difficulty`, `items`: NOT NULL required
+- No duplicate items within same category
+
+**Puzzle Validation:**
+- Puzzles must have exactly 4 categories
+- Puzzles must have exactly one category of each difficulty (1, 2, 3, 4)
+- No duplicate items across categories within same puzzle
+- Exactly 16 total items per puzzle
+
+### Puzzle Queue Table
+
+**Structure Constraints:**
+- `puzzle_id`: Primary key, references puzzles table
+- `queue_position`: Unique positioning for queue order
+- `published`: Boolean flag for publication status
+
+## Content Guidelines
+
+**Category Creation Best Practices:**
+- **Yellow (1) - #F9DF6F**: Obvious connections everyone will know (SF Hills, SF Sports Teams)
+- **Green (2) - #A0C35A**: Moderate difficulty requiring some local knowledge (SF Neighborhoods, MUNI Lines)
+- **Blue (3) - #B0C4EF**: Harder connections requiring specific SF knowledge (Foods Invented in SF, SF Movies)
+- **Purple (4) - #BA81C5**: Wordplay, double meanings, very SF-specific (Tech terms with SF meanings)
+
+**Common Mistakes to Avoid:**
+- Items that could belong to multiple categories
+- Overly obscure references (aim for 80% recognition rate)
+- Category names that give away the connection too easily
+- Items that are too long for mobile display
+
+## Queue Management
+
+**View Queue Status:**
+```sql
+SELECT pq.puzzle_id, pq.queue_position, pq.published,
+       p.puzzle_number,
+       COUNT(c.id) as category_count,
+       STRING_AGG(c.name, ', ' ORDER BY c.difficulty) as categories
+FROM puzzle_queue pq
+JOIN puzzles p ON pq.puzzle_id = p.id
+LEFT JOIN categories c ON p.id = c.puzzle_id
+GROUP BY pq.puzzle_id, pq.queue_position, pq.published, p.puzzle_number
+ORDER BY pq.queue_position;
+```
+
+**Reorder Queue:**
+```sql
+-- Update queue positions manually
+UPDATE puzzle_queue SET queue_position = NEW_POSITION WHERE puzzle_id = PUZZLE_ID;
+```
 
 ## Features Implemented
 
@@ -213,10 +307,10 @@ These constraints ensure data integrity and prevent invalid game states from bei
 - Difficulty-based color coding
 - Smooth animations and transitions
 
-✅ **Game Logic**
-- Four attempt limit
-- Category grouping and validation
-- Progress tracking and statistics
+✅ **Content Management**
+- CSV import workflow via staging table
+- Automated data validation and normalization
+- Queue-based puzzle publishing system
 
 ## Features Not Yet Implemented
 
