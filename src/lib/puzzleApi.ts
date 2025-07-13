@@ -2,32 +2,32 @@ import { supabase } from './supabase'
 import { Puzzle } from '@/types/game'
 
 export async function getTodaysPuzzle(): Promise<Puzzle | null> {
-  const today = new Date().toISOString().split('T')[0]
-  
   try {
-    const { data: puzzle, error } = await supabase
-      .from('puzzles')
-      .select(`
-        id,
-        date,
-        puzzle_number,
-        categories (
-          id,
-          name,
-          difficulty,
-          items
-        )
-      `)
-      .eq('date', today)
-      .eq('published', true)
-      .single()
+    const { data, error } = await supabase.rpc('get_daily_puzzle')
 
     if (error) {
       console.error('Error fetching puzzle:', error)
       return null
     }
 
-    return puzzle as Puzzle
+    if (!data || data.length === 0) {
+      return null
+    }
+
+    // Transform the data into the expected Puzzle format
+    const puzzleData = data[0]
+    const puzzle: Puzzle = {
+      id: puzzleData.puzzle_id,
+      puzzle_number: puzzleData.puzzle_number,
+      categories: data.map((row: any) => ({
+        id: row.category_id,
+        name: row.category_name,
+        difficulty: row.difficulty,
+        items: row.items
+      }))
+    }
+
+    return puzzle
   } catch (error) {
     console.error('Error fetching puzzle:', error)
     return null
