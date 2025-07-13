@@ -10,7 +10,7 @@ export async function getTodaysPuzzle(): Promise<Puzzle | null> {
       return null
     }
 
-    if (!data || data.length === 0) {
+    if (!data || data.length !== 4) {
       return null
     }
 
@@ -18,6 +18,7 @@ export async function getTodaysPuzzle(): Promise<Puzzle | null> {
     const puzzleData = data[0]
     const puzzle: Puzzle = {
       id: puzzleData.puzzle_id,
+      date: new Date().toISOString().split('T')[0],
       puzzle_number: puzzleData.puzzle_number,
       categories: data.map((row: any) => ({
         id: row.category_id,

@@ -23,7 +23,7 @@ Players have 4 attempts to make incorrect guesses before the game ends.
 
 - **Frontend**: Next.js 14 with App Router, TypeScript, Tailwind CSS
 - **Database**: Supabase (PostgreSQL)
-- **Deployment**: Vercel (planned)
+- **Deployment**: Vercel
 - **State Management**: React built-in hooks
 
 ## Project Structure
@@ -58,7 +58,7 @@ The game uses six main tables in Supabase:
 
 - **puzzles**: Published daily puzzles with auto-assigned numbers
 - **categories**: Four categories per puzzle with difficulty and items
-- **puzzle_queue**: Queue management for publishing puzzles
+- **puzzle_queue**: Queue management for publishing puzzles with archiving
 - **category_staging**: Temporary staging for CSV imports
 
 ### Session Tracking
@@ -143,14 +143,14 @@ The database automatically validates:
 
 ```sql
 -- Add puzzle to publishing queue (queue_position auto-assigned)
-INSERT INTO puzzle_queue (puzzle_id, published) 
-VALUES (YOUR_PUZZLE_ID, false);
+INSERT INTO puzzle_queue (puzzle_id, published, archived) 
+VALUES (YOUR_PUZZLE_ID, false, false);
 ```
 
 ### Step 6: Publish Daily Puzzle
 
 ```sql
--- Automatically assign next puzzle for daily play
+-- Automatically assign next puzzle for daily play and archive previous puzzle
 SELECT assign_daily_puzzle();
 ```
 
@@ -158,11 +158,24 @@ SELECT assign_daily_puzzle();
 
 ### Core Functions
 
-- **`get_daily_puzzle()`**: Returns the current published puzzle with all categories
-- **`assign_daily_puzzle()`**: Moves next queued puzzle to published status
+- **`get_daily_puzzle()`**: Returns the current published puzzle with all categories (validates exactly 1 published puzzle)
+- **`assign_daily_puzzle()`**: Unpublishes current puzzle, archives it, then publishes next queued puzzle
 - **`validate_puzzle_composition()`**: Validates puzzle integrity on category assignment
 - **`normalize_and_validate_category()`**: Auto-formats and validates category data
 - **`auto_assign_queue_position()`**: Auto-assigns queue position when adding puzzles to queue
+
+## Daily Puzzle System
+
+The puzzle queue operates as a simple advancing queue:
+
+1. Only **one puzzle** has `published = true` at any time (or zero if queue is empty)
+2. `assign_daily_puzzle()` function:
+   - Unpublishes current puzzle (`published = false`)
+   - Archives unpublished puzzle (`archived = true`) to prevent re-publishing
+   - Publishes next puzzle in queue order (if available)
+3. `get_daily_puzzle()` returns the single published puzzle
+4. If no puzzles are published or multiple puzzles are published, site shows "no puzzle available"
+5. Archived puzzles can never be published again, preventing accidental re-publishing
 
 ## Game Mechanics
 
@@ -253,7 +266,8 @@ SELECT assign_daily_puzzle();
 **Structure Constraints:**
 - `puzzle_id`: Primary key, references puzzles table
 - `queue_position`: Unique positioning for queue order
-- `published`: Boolean flag for publication status
+- `published`: Boolean flag for current publication status
+- `archived`: Boolean flag preventing re-publication
 
 ## Content Guidelines
 
@@ -273,14 +287,14 @@ SELECT assign_daily_puzzle();
 
 **View Queue Status:**
 ```sql
-SELECT pq.puzzle_id, pq.queue_position, pq.published,
+SELECT pq.puzzle_id, pq.queue_position, pq.published, pq.archived,
        p.puzzle_number,
        COUNT(c.id) as category_count,
        STRING_AGG(c.name, ', ' ORDER BY c.difficulty) as categories
 FROM puzzle_queue pq
 JOIN puzzles p ON pq.puzzle_id = p.id
 LEFT JOIN categories c ON p.id = c.puzzle_id
-GROUP BY pq.puzzle_id, pq.queue_position, pq.published, p.puzzle_number
+GROUP BY pq.puzzle_id, pq.queue_position, pq.published, pq.archived, p.puzzle_number
 ORDER BY pq.queue_position;
 ```
 
@@ -299,7 +313,7 @@ UPDATE puzzle_queue SET queue_position = NEW_POSITION WHERE puzzle_id = PUZZLE_I
 
 ✅ **Database Integration**
 - Supabase connection for puzzle fetching
-- Daily puzzle assignment system
+- Daily puzzle assignment system with archiving
 - Robust database schema with validation
 
 ✅ **Responsive Design**
@@ -310,7 +324,7 @@ UPDATE puzzle_queue SET queue_position = NEW_POSITION WHERE puzzle_id = PUZZLE_I
 ✅ **Content Management**
 - CSV import workflow via staging table
 - Automated data validation and normalization
-- Queue-based puzzle publishing system
+- Queue-based puzzle publishing system with archive protection
 
 ## Features Not Yet Implemented
 
@@ -318,7 +332,6 @@ UPDATE puzzle_queue SET queue_position = NEW_POSITION WHERE puzzle_id = PUZZLE_I
 🔲 **Social Sharing**: Emoji grid generation and clipboard sharing
 🔲 **Daily Puzzle Assignment**: Automated cron job for new puzzles
 🔲 **Admin Interface**: Content management for adding new puzzles
-🔲 **Production Deployment**: Vercel hosting configuration
 🔲 **Analytics**: Puzzle difficulty calibration and user metrics
 
 ## Customization for Other Cities
