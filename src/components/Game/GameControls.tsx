@@ -10,29 +10,29 @@ interface GameControlsProps {
   onDeselectAll: () => void
 }
 
-export default function GameControls({ 
-  gameState, 
-  onSubmit, 
-  onShuffle, 
-  onDeselectAll 
+export default function GameControls({
+  gameState,
+  onSubmit,
+  onShuffle,
+  onDeselectAll
 }: GameControlsProps) {
   const canSubmit = canSubmitGuess(gameState)
   const remainingAttempts = getRemainingAttempts(gameState)
   const hasSelection = gameState.selectedTiles.length > 0
   const isPlaying = gameState.gameStatus === 'playing'
-  
+
   return (
     <div className="space-y-4">
       {/* Game Status */}
       <div className="text-center">
-        <p className="text-lg font-medium text-gray-700">
+        <p className="text-lg font-medium" style={{ color: 'var(--text-primary)' }}>
           Mistakes remaining: {remainingAttempts}
         </p>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
           Groups found: {gameState.solvedGroups.length} of {gameState.puzzle?.categories.length || 4}
         </p>
       </div>
-      
+
       {/* Control Buttons */}
       <div className="flex justify-center gap-3">
         <button
@@ -42,7 +42,7 @@ export default function GameControls({
         >
           Shuffle
         </button>
-        
+
         <button
           className="game-button secondary"
           onClick={onDeselectAll}
@@ -50,7 +50,7 @@ export default function GameControls({
         >
           Deselect All
         </button>
-        
+
         <button
           className="game-button primary"
           onClick={onSubmit}
@@ -59,11 +59,11 @@ export default function GameControls({
           Submit
         </button>
       </div>
-      
+
       {/* Selection Info */}
       {gameState.selectedTiles.length > 0 && (
         <div className="text-center">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
             Selected: {gameState.selectedTiles.length}/4 tiles
           </p>
         </div>

@@ -6,6 +6,35 @@
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 255, 255, 255;
   --background-end-rgb: 255, 255, 255;
+  
+  /* Surface colors - for backgrounds */
+  --surface-primary: #ffffff;
+  --surface-secondary: #f8f9fa;
+  --surface-interactive: #f1f3f4;
+  --surface-interactive-hover: #e8eaed;
+  --surface-selected: #e3f2fd;
+  --surface-selected-hover: #bbdefb;
+  
+  /* Border colors */
+  --border-primary: #dadce0;
+  --border-interactive: #9aa0a6;
+  --border-selected: #1976d2;
+  
+  /* Text colors */
+  --text-primary: #202124;
+  --text-secondary: #5f6368;
+  --text-on-selected: #1565c0;
+  
+  /* Game-specific colors */
+  --game-surface: var(--surface-interactive);
+  --game-surface-hover: var(--surface-interactive-hover);
+  --game-surface-selected: var(--surface-selected);
+  --game-surface-selected-hover: var(--surface-selected-hover);
+  --game-border: var(--border-primary);
+  --game-border-hover: var(--border-interactive);
+  --game-border-selected: var(--border-selected);
+  --game-text: var(--text-primary);
+  --game-text-selected: var(--text-on-selected);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -13,95 +42,247 @@
     --foreground-rgb: 255, 255, 255;
     --background-start-rgb: 0, 0, 0;
     --background-end-rgb: 0, 0, 0;
+    
+    /* Surface colors - dark variants */
+    --surface-primary: #121212;
+    --surface-secondary: #1e1e1e;
+    --surface-interactive: #2d2d2d;
+    --surface-interactive-hover: #3c3c3c;
+    --surface-selected: #1a237e;
+    --surface-selected-hover: #283593;
+    
+    /* Border colors - dark variants */
+    --border-primary: #5f6368;
+    --border-interactive: #9aa0a6;
+    --border-selected: #3f51b5;
+    
+    /* Text colors - dark variants */
+    --text-primary: #e8eaed;
+    --text-secondary: #9aa0a6;
+    --text-on-selected: #c5cae9;
   }
 }
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
+  background: linear-gradient(to bottom,
       transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+      rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
   font-family: system-ui, -apple-system, sans-serif;
 }
 
 @layer components {
   .game-tile {
-    @apply w-full h-16 bg-gray-100 border-2 border-gray-300 rounded-lg 
-           flex items-center justify-center text-sm font-medium
-           transition-all duration-200 cursor-pointer
-           hover:bg-gray-200 hover:border-gray-400
-           active:scale-95;
+    width: 100%;
+    height: 4rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 200ms;
+    cursor: pointer;
+    
+    background-color: var(--game-surface);
+    border: 2px solid var(--game-border);
+    color: var(--game-text);
   }
-  
+
+  .game-tile:hover {
+    background-color: var(--game-surface-hover);
+    border-color: var(--game-border-hover);
+  }
+
+  .game-tile:active {
+    transform: scale(0.95);
+  }
+
   .game-tile.selected {
-    @apply bg-blue-100 border-blue-400 text-blue-800;
+    background-color: var(--game-surface-selected);
+    border-color: var(--game-border-selected);
+    color: var(--game-text-selected);
   }
-  
+
+  .game-tile.selected:hover {
+    background-color: var(--game-surface-selected-hover);
+  }
+
   .game-tile.solved {
-    @apply cursor-default;
+    cursor: default;
   }
-  
+
   .game-tile.solved.difficulty-1 {
-    @apply bg-yellow-400 border-yellow-500 text-yellow-900;
+    --game-surface: #fef3c7;
+    --game-border: #f59e0b;
+    --game-text: #92400e;
   }
-  
+
   .game-tile.solved.difficulty-2 {
-    @apply bg-green-400 border-green-500 text-green-900;
+    --game-surface: #d1fae5;
+    --game-border: #10b981;
+    --game-text: #065f46;
   }
-  
+
   .game-tile.solved.difficulty-3 {
-    @apply bg-blue-400 border-blue-500 text-blue-900;
+    --game-surface: #dbeafe;
+    --game-border: #3b82f6;
+    --game-text: #1e40af;
   }
-  
+
   .game-tile.solved.difficulty-4 {
-    @apply bg-purple-400 border-purple-500 text-purple-900;
+    --game-surface: #e9d5ff;
+    --game-border: #8b5cf6;
+    --game-text: #6b21a8;
   }
-  
+
+  @media (prefers-color-scheme: dark) {
+    .game-tile.solved.difficulty-1 {
+      --game-surface: #451a03;
+      --game-border: #f59e0b;
+      --game-text: #fed7aa;
+    }
+    
+    .game-tile.solved.difficulty-2 {
+      --game-surface: #064e3b;
+      --game-border: #10b981;
+      --game-text: #a7f3d0;
+    }
+    
+    .game-tile.solved.difficulty-3 {
+      --game-surface: #1e3a8a;
+      --game-border: #3b82f6;
+      --game-text: #bfdbfe;
+    }
+    
+    .game-tile.solved.difficulty-4 {
+      --game-surface: #581c87;
+      --game-border: #8b5cf6;
+      --game-text: #e9d5ff;
+    }
+  }
+
   .game-tile:disabled {
-    @apply cursor-not-allowed opacity-50;
+    cursor: not-allowed;
+    opacity: 0.5;
   }
-  
+
   .game-button {
-    @apply px-6 py-2 rounded-lg font-medium transition-all duration-200
-           border-2 focus:outline-none focus:ring-2 focus:ring-offset-2;
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: all 200ms;
+    border: 2px solid;
+    
+    background-color: var(--game-surface);
+    border-color: var(--game-border);
+    color: var(--game-text);
   }
-  
+
   .game-button.primary {
-    @apply bg-blue-600 text-white border-blue-600 
-           hover:bg-blue-700 hover:border-blue-700
-           focus:ring-blue-500;
+    background-color: var(--surface-primary);
+    border-color: var(--text-primary);
+    color: var(--text-primary);
   }
-  
+
+  .game-button.primary:hover {
+    background-color: var(--text-primary);
+    color: var(--surface-primary);
+  }
+
   .game-button.secondary {
-    @apply bg-gray-200 text-gray-800 border-gray-300
-           hover:bg-gray-300 hover:border-gray-400
-           focus:ring-gray-500;
+    background-color: transparent;
+    border-color: var(--border-primary);
+    color: var(--text-secondary);
   }
-  
+
+  .game-button.secondary:hover {
+    background-color: var(--surface-interactive);
+    border-color: var(--border-interactive);
+  }
+
   .game-button:disabled {
-    @apply opacity-50 cursor-not-allowed hover:bg-gray-200 hover:border-gray-300;
+    opacity: 0.5;
+    cursor: not-allowed;
   }
-  
+
+  .game-button:disabled:hover {
+    background-color: var(--game-surface);
+    border-color: var(--game-border);
+  }
+
+  .game-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--border-selected);
+  }
+
   .solved-group {
-    @apply p-4 rounded-lg mb-2 animate-bounce-in;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+    animation: bounceIn 0.6s ease-out;
   }
-  
+
   .solved-group.difficulty-1 {
-    @apply bg-yellow-400 text-yellow-900;
+    background-color: #fef3c7;
+    color: #92400e;
   }
-  
+
   .solved-group.difficulty-2 {
-    @apply bg-green-400 text-green-900;
+    background-color: #d1fae5;
+    color: #065f46;
   }
-  
+
   .solved-group.difficulty-3 {
-    @apply bg-blue-400 text-blue-900;
+    background-color: #dbeafe;
+    color: #1e40af;
   }
-  
+
   .solved-group.difficulty-4 {
-    @apply bg-purple-400 text-purple-900;
+    background-color: #e9d5ff;
+    color: #6b21a8;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .solved-group.difficulty-1 {
+      background-color: #451a03;
+      color: #fed7aa;
+    }
+    
+    .solved-group.difficulty-2 {
+      background-color: #064e3b;
+      color: #a7f3d0;
+    }
+    
+    .solved-group.difficulty-3 {
+      background-color: #1e3a8a;
+      color: #bfdbfe;
+    }
+    
+    .solved-group.difficulty-4 {
+      background-color: #581c87;
+      color: #e9d5ff;
+    }
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+  }
+
+  @keyframes bounceIn {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { transform: scale(1.05); }
+    70% { transform: scale(0.9); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .animate-shake {
+    animation: shake 0.5s ease-in-out;
+  }
+
+  .animate-bounce-in {
+    animation: bounceIn 0.6s ease-out;
   }
 }
