@@ -23,7 +23,8 @@ export default function GameBoard({ puzzle }: GameBoardProps) {
   const [gameState, setGameState] = useState<GameState>(() => createInitialGameState(puzzle))
   const [tiles, setTiles] = useState<string[]>(() => getShuffledTiles(puzzle))
   const [feedbackMessage, setFeedbackMessage] = useState<string>('')
-  const [showShakeAnimation, setShowShakeAnimation] = useState(false)
+  const [animatingTiles, setAnimatingTiles] = useState<string[]>([])
+  const [animationType, setAnimationType] = useState<'shake' | 'bounce' | null>(null)
   const [showResultsModal, setShowResultsModal] = useState(false)
 
   // Load saved progress on mount
@@ -54,18 +55,33 @@ export default function GameBoard({ puzzle }: GameBoardProps) {
 
     if (isCorrect && category) {
       setFeedbackMessage(`Correct! "${category.name}"`)
+      
+      // Start bounce animation for selected tiles
+      setAnimatingTiles(gameState.selectedTiles)
+      setAnimationType('bounce')
+      
+      // Update game state immediately
       setGameState(newGameState)
 
-      // Remove solved tiles from the tile grid
-      setTiles(prevTiles =>
-        prevTiles.filter(tile => !category.items.includes(tile))
-      )
+      // Remove tiles after animation completes (400ms + max delay)
+      setTimeout(() => {
+        setTiles(prevTiles =>
+          prevTiles.filter(tile => !category.items.includes(tile))
+        )
+        setAnimatingTiles([])
+        setAnimationType(null)
+      }, 700)
     } else {
-      setShowShakeAnimation(true)
+      // Start shake animation for selected tiles
+      setAnimatingTiles(gameState.selectedTiles)
+      setAnimationType('shake')
       setGameState(newGameState)
 
       // Clear shake animation after duration
-      setTimeout(() => setShowShakeAnimation(false), 500)
+      setTimeout(() => {
+        setAnimatingTiles([])
+        setAnimationType(null)
+      }, 300)
     }
 
     // Clear feedback message after 2 seconds
@@ -100,13 +116,13 @@ export default function GameBoard({ puzzle }: GameBoardProps) {
       <SolvedGroups solvedGroups={gameState.solvedGroups} />
 
       {/* Tile Grid */}
-      <div className={showShakeAnimation ? 'animate-shake' : ''}>
-        <TileGrid
-          gameState={gameState}
-          tiles={tiles}
-          onTileClick={handleTileClick}
-        />
-      </div>
+      <TileGrid
+        gameState={gameState}
+        tiles={tiles}
+        onTileClick={handleTileClick}
+        animatingTiles={animatingTiles}
+        animationType={animationType}
+      />
 
       {/* Game Controls */}
       <GameControls

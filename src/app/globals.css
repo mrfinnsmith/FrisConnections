@@ -157,14 +157,25 @@ body {
     opacity: 0.5;
   }
 
-  /* Shake animation for incorrect guesses */
   .game-tile.shake {
-    animation: shake 0.5s ease-in-out;
+    animation: shake ease-in 0.2s 1.5;
   }
 
-  /* Bounce animation for correct guesses */
   .game-tile.bounce {
-    animation: bounce 0.3s ease-in-out;
+    animation: bounce ease-in 0.3s 1;
+    animation-fill-mode: forwards;
+  }
+
+  .game-tile.bounce-delay-1 {
+    animation-delay: 0.1s;
+  }
+
+  .game-tile.bounce-delay-2 {
+    animation-delay: 0.2s;
+  }
+
+  .game-tile.bounce-delay-3 {
+    animation-delay: 0.3s;
   }
 
   .game-button {
@@ -221,7 +232,7 @@ body {
     padding: 1rem;
     border-radius: 0.5rem;
     margin-bottom: 0.5rem;
-    animation: bounceIn 0.6s ease-out;
+    animation: pulse linear 0.3s 1;
     text-transform: uppercase;
     font-weight: 700;
     text-align: center;
@@ -248,75 +259,40 @@ body {
   }
 
   @keyframes shake {
-
-    0%,
-    100% {
+    0%, 100% {
       transform: translateX(0);
     }
-
     25% {
       transform: translateX(-5px);
     }
-
     75% {
       transform: translateX(5px);
     }
   }
 
   @keyframes bounce {
-
-    0%,
-    100% {
+    0%, 100% {
       transform: translateY(0);
     }
-
     50% {
       transform: translateY(-10px);
     }
   }
 
-  @keyframes bounceIn {
+  @keyframes pulse {
     0% {
-      transform: scale(0.3);
-      opacity: 0;
+      transform: scaleY(1) scaleX(1);
+      z-index: 4;
     }
-
-    @keyframes pop {
-      0% {
-        transform: scale(1);
-        opacity: 1;
-      }
-
-      100% {
-        transform: scale(0);
-        opacity: 0;
-      }
+    40% {
+      transform: scaleY(1.2) scaleX(1.2);
     }
-
-    .mistake-dot-disappear {
-      animation: pop ease-in 0.4s 1;
-      animation-fill-mode: forwards;
-    }
-
-    50% {
-      transform: scale(1.05);
-    }
-
     70% {
-      transform: scale(0.9);
+      transform: scaleY(1.2) scaleX(1.2);
     }
-
     100% {
-      transform: scale(1);
-      opacity: 1;
+      transform: scaleY(1) scaleX(1);
+      z-index: 4;
     }
-  }
-
-  .animate-shake {
-    animation: shake 0.5s ease-in-out;
-  }
-
-  .animate-bounce-in {
-    animation: bounceIn 0.6s ease-out;
   }
 }
