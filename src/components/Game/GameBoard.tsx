@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { GameState, Puzzle } from '@/types/game'
-import { 
-  createInitialGameState, 
-  getShuffledTiles, 
+import {
+  createInitialGameState,
+  getShuffledTiles,
   toggleTileSelection,
   makeGuess,
   shuffleArray
@@ -13,6 +13,7 @@ import { saveGameProgress, loadGameProgress } from '@/lib/localStorage'
 import TileGrid from './TileGrid'
 import GameControls from './GameControls'
 import SolvedGroups from './SolvedGroups'
+import ResultsModal from './ResultsModal'
 
 interface GameBoardProps {
   puzzle: Puzzle
@@ -23,6 +24,7 @@ export default function GameBoard({ puzzle }: GameBoardProps) {
   const [tiles, setTiles] = useState<string[]>(() => getShuffledTiles(puzzle))
   const [feedbackMessage, setFeedbackMessage] = useState<string>('')
   const [showShakeAnimation, setShowShakeAnimation] = useState(false)
+  const [showResultsModal, setShowResultsModal] = useState(false)
 
   // Load saved progress on mount
   useEffect(() => {
@@ -49,24 +51,24 @@ export default function GameBoard({ puzzle }: GameBoardProps) {
 
   const handleSubmit = () => {
     const { newGameState, isCorrect, category } = makeGuess(gameState, gameState.selectedTiles)
-    
+
     if (isCorrect && category) {
       setFeedbackMessage(`Correct! "${category.name}"`)
       setGameState(newGameState)
-      
+
       // Remove solved tiles from the tile grid
-      setTiles(prevTiles => 
+      setTiles(prevTiles =>
         prevTiles.filter(tile => !category.items.includes(tile))
       )
     } else {
       setFeedbackMessage('Not quite right. Try again!')
       setShowShakeAnimation(true)
       setGameState(newGameState)
-      
+
       // Clear shake animation after duration
       setTimeout(() => setShowShakeAnimation(false), 500)
     }
-    
+
     // Clear feedback message after 2 seconds
     setTimeout(() => setFeedbackMessage(''), 2000)
   }
@@ -114,7 +116,7 @@ export default function GameBoard({ puzzle }: GameBoardProps) {
 
       {/* Tile Grid */}
       <div className={showShakeAnimation ? 'animate-shake' : ''}>
-        <TileGrid 
+        <TileGrid
           gameState={gameState}
           tiles={tiles}
           onTileClick={handleTileClick}
@@ -147,13 +149,25 @@ export default function GameBoard({ puzzle }: GameBoardProps) {
         </div>
       )}
 
+      {/* View Results Button */}
+      {(gameState.gameStatus === 'won' || gameState.gameStatus === 'lost') && (
+        <div className="mt-4 text-center">
+          <button
+            onClick={() => setShowResultsModal(true)}
+            className="px-6 py-2 bg-white border border-gray-300 rounded-full font-medium hover:bg-gray-50"
+          >
+            View Results
+          </button>
+        </div>
+      )}
+
       {/* Game Over - Show All Answers */}
       {gameState.gameStatus === 'lost' && (
         <div className="mt-6 p-4 bg-gray-100 rounded-lg">
           <h3 className="font-bold text-lg mb-3 text-center">All Groups:</h3>
           <div className="space-y-2">
             {puzzle.categories.map((category) => (
-              <div 
+              <div
                 key={category.id}
                 className={`p-3 rounded difficulty-${category.difficulty} text-center`}
               >
@@ -164,6 +178,13 @@ export default function GameBoard({ puzzle }: GameBoardProps) {
           </div>
         </div>
       )}
+
+      {/* Results Modal */}
+      <ResultsModal
+        gameState={gameState}
+        isOpen={showResultsModal}
+        onClose={() => setShowResultsModal(false)}
+      />
     </div>
   )
 }

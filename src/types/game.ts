@@ -54,10 +54,10 @@ export interface GameProgress {
 }
 
 export const DIFFICULTY_COLORS = {
-  1: '#f59e0b', // Yellow
-  2: '#10b981', // Green  
-  3: '#3b82f6', // Blue
-  4: '#8b5cf6'  // Purple
+  1: '#f9df6d', // Yellow
+  2: '#a0c35a', // Green  
+  3: '#b0c4ef', // Blue
+  4: '#ba81c5'  // Purple
 } as const
 
 export const DIFFICULTY_EMOJI = {
