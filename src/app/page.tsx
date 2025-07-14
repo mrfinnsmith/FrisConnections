@@ -1,6 +1,8 @@
 import GameBoard from '@/components/Game/GameBoard'
 import { getTodaysPuzzle } from '@/lib/puzzleApi'
 
+export const revalidate = 3600
+
 export default async function Home() {
   const puzzle = await getTodaysPuzzle()
 
@@ -27,9 +29,9 @@ export default async function Home() {
           Create four groups to solve the puzzle!
         </p>
       </div>
-      
+
       <GameBoard puzzle={puzzle} />
-      
+
       <div className="text-center text-xs text-gray-400 mt-8">
         <p>© 2024 Frisconnections - A San Francisco word puzzle game</p>
       </div>
