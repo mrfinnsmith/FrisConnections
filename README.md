@@ -24,30 +24,44 @@ Players have 4 attempts to make incorrect guesses before the game ends.
 - **Frontend**: Next.js 14 with App Router, TypeScript, Tailwind CSS
 - **Database**: Supabase (PostgreSQL)
 - **Deployment**: Vercel
+- **Automation**: GitHub Actions for daily puzzle scheduling
 - **State Management**: React built-in hooks
 
 ## Project Structure
 
 ```
-src/
-├── app/
-│   ├── globals.css          # Global styles and game-specific CSS classes
-│   ├── layout.tsx           # Root layout with header
-│   └── page.tsx             # Main game page (fetches daily puzzle)
-├── components/Game/
-│   ├── GameBoard.tsx        # Main game orchestrator component
-│   ├── GameControls.tsx     # Submit, shuffle, deselect buttons
-│   ├── SolvedGroups.tsx     # Display solved categories
-│   └── TileGrid.tsx         # 4x4 grid of selectable word tiles
-├── lib/
-│   ├── gameLogic.ts         # Core game state management and logic
-│   ├── localStorage.ts      # Browser storage for progress and stats
-│   ├── puzzleApi.ts         # Supabase puzzle fetching functions
-│   └── supabase.ts          # Supabase client configuration
-├── types/
-│   └── game.ts              # TypeScript interfaces for game data
-└── data/
-    └── mockPuzzle.ts        # Sample puzzle data for testing
+.
+├── .github/
+│   └── workflows/
+│       └── daily-puzzle.yml # GitHub Actions workflow for daily automation
+├── docs/                    # Project documentation
+├── src/
+│   ├── app/
+│   │   ├── api/
+│   │   │   └── advance-puzzle/
+│   │   │       └── route.ts # API endpoint for puzzle advancement
+│   │   ├── globals.css      # Global styles and game-specific CSS classes
+│   │   ├── layout.tsx       # Root layout with header
+│   │   └── page.tsx         # Main game page (fetches daily puzzle)
+│   ├── components/
+│   │   └── Game/
+│   │       ├── GameBoard.tsx    # Main game orchestrator component
+│   │       ├── GameControls.tsx # Submit, shuffle, deselect buttons
+│   │       ├── SolvedGroups.tsx # Display solved categories
+│   │       └── TileGrid.tsx     # 4x4 grid of selectable word tiles
+│   ├── data/
+│   │   └── mockPuzzle.ts    # Sample puzzle data for testing
+│   ├── lib/
+│   │   ├── gameLogic.ts     # Core game state management and logic
+│   │   ├── localStorage.ts  # Browser storage for progress and stats
+│   │   ├── puzzleApi.ts     # Supabase puzzle fetching functions
+│   │   └── supabase.ts      # Supabase client configuration
+│   └── types/
+│       └── game.ts          # TypeScript interfaces for game data
+├── next.config.js           # Next.js configuration
+├── package.json             # Dependencies and scripts
+├── tailwind.config.js       # Tailwind CSS configuration
+└── tsconfig.json            # TypeScript configuration
 ```
 
 ## Database Schema
@@ -65,6 +79,58 @@ The game uses six main tables in Supabase:
 
 - **anonymous_sessions**: Track individual game sessions
 - **anonymous_guesses**: Record each guess attempt
+
+## Automated Daily Puzzle System
+
+The daily puzzle system automatically advances to the next puzzle at 12:00 AM Pacific time (8:00 AM UTC) using GitHub Actions.
+
+### How It Works
+
+1. **GitHub Actions Workflow** (`.github/workflows/daily-puzzle.yml`):
+   - Runs on a cron schedule: `0 8 * * *` (12 AM Pacific)
+   - Can also be triggered manually from the GitHub Actions tab
+   - Makes a POST request to the `/api/advance-puzzle` endpoint
+
+2. **API Endpoint** (`src/app/api/advance-puzzle/route.ts`):
+   - Receives the POST request from GitHub Actions
+   - Calls the Supabase `assign_daily_puzzle()` function
+   - Returns success/error status
+
+3. **Database Function** (`assign_daily_puzzle()`):
+   - Archives the current published puzzle
+   - Publishes the next puzzle in the queue
+   - Maintains exactly one published puzzle at all times
+
+### GitHub Secrets Configuration
+
+The automation requires three GitHub repository secrets:
+
+- **`NEXT_PUBLIC_SUPABASE_URL`**: The Supabase project URL (e.g., `https://your-project.supabase.co`)
+  - Used by the API endpoint to connect to the database
+  - Must match the URL in your local `.env.local` file
+
+- **`NEXT_PUBLIC_SUPABASE_ANON_KEY`**: The Supabase anonymous/public API key
+  - Allows the API endpoint to authenticate with Supabase
+  - Must match the anon key in your local `.env.local` file
+
+- **`APP_DOMAIN`**: The production domain name (e.g., `frisconnections.lol`)
+  - Used by GitHub Actions to know which URL to call
+  - Should not include `https://` prefix
+
+### Manual Trigger
+
+To manually advance the puzzle:
+1. Go to GitHub repository → Actions tab
+2. Click "Daily Puzzle Advance" workflow
+3. Click "Run workflow" button
+4. Confirm the run
+
+### Monitoring
+
+Check the GitHub Actions tab to verify:
+- Daily runs are executing successfully
+- Any errors in the automation process
+- Manual trigger functionality
 
 ## Content Management Workflow
 
@@ -147,12 +213,9 @@ INSERT INTO puzzle_queue (puzzle_id, published, archived)
 VALUES (YOUR_PUZZLE_ID, false, false);
 ```
 
-### Step 6: Publish Daily Puzzle
+### Step 6: Automatic Publishing
 
-```sql
--- Automatically assign next puzzle for daily play and archive previous puzzle
-SELECT assign_daily_puzzle();
-```
+Puzzles are automatically published at 12 AM Pacific daily via GitHub Actions. No manual intervention required.
 
 ## Database Functions
 
@@ -205,6 +268,7 @@ The puzzle queue operates as a simple advancing queue:
 ### Prerequisites
 - Node.js 18+
 - Supabase account
+- GitHub repository
 - Git
 
 ### Installation
@@ -235,7 +299,13 @@ The puzzle queue operates as a simple advancing queue:
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
    ```
 
-5. **Run the development server**
+5. **Configure GitHub Secrets**
+   In your GitHub repository, go to Settings → Secrets and variables → Actions, then add:
+   - `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase project URL
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anon key  
+   - `APP_DOMAIN`: Your production domain (e.g., `frisconnections.lol`)
+
+6. **Run the development server**
    ```bash
    npm run dev
    ```
@@ -326,11 +396,15 @@ UPDATE puzzle_queue SET queue_position = NEW_POSITION WHERE puzzle_id = PUZZLE_I
 - Automated data validation and normalization
 - Queue-based puzzle publishing system with archive protection
 
+✅ **Automated Daily Puzzle Assignment**
+- GitHub Actions workflow for scheduled puzzle advancement
+- API endpoint for puzzle progression
+- Manual trigger capability for testing and emergency use
+
 ## Features Not Yet Implemented
 
 🔲 **Session Tracking**: Recording guesses and sessions in database
 🔲 **Social Sharing**: Emoji grid generation and clipboard sharing
-🔲 **Daily Puzzle Assignment**: Automated cron job for new puzzles
 🔲 **Admin Interface**: Content management for adding new puzzles
 🔲 **Analytics**: Puzzle difficulty calibration and user metrics
 
@@ -358,6 +432,12 @@ The game mechanics and technical infrastructure remain the same - only the conte
 - Built-in API routes for backend functionality
 - Modern React patterns with TypeScript support
 - Optimized for Vercel deployment
+
+### Why GitHub Actions for Scheduling?
+- Free tier includes 2,000 minutes/month (sufficient for daily tasks)
+- Version controlled automation
+- Easy manual triggering for testing
+- No additional service dependencies
 
 ### Why Local Storage?
 - No user accounts required (lower barrier to play)
