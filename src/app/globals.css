@@ -1,3 +1,28 @@
+/* DARK MODE IMPLEMENTATION NOTE
+* 
+* Dark mode was temporarily removed from this CSS file. Previously, it worked by:
+* 1. Defining light mode CSS variables in the :root selector
+* 2. Using @media (prefers-color-scheme: dark) to override those same variables with dark values
+* 3. All components automatically switched themes since they reference var(--variable-name)
+*
+* Current behavior: Only light mode colors are defined, so the game always uses light theme
+* regardless of browser/OS dark mode preference.
+*
+* TO RE-IMPLEMENT DARK MODE:
+* 1. Add back the @media (prefers-color-scheme: dark) block after the :root block
+* 2. Override these variables with dark versions:
+*    --surface-primary, --surface-secondary, --surface-interactive, etc.
+*    --text-primary, --text-secondary, --text-on-selected
+*    --border-primary, --border-interactive, --border-selected
+* 3. CRITICAL: Test all difficulty level colors for contrast against dark backgrounds:
+*    --level-easy (#f9df6d), --level-medium (#a0c35a), 
+*    --level-hard (#b0c4ef), --level-expert (#ba81c5)
+*    These may need darker variants (--level-easy-dark, etc.) in dark mode
+* 4. Test tile readability: selected state, hover states, solved state colors
+*
+* The infrastructure is already here - just need to define dark color values and test contrast.
+*/
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,25 +31,25 @@
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 255, 255, 255;
   --background-end-rgb: 255, 255, 255;
-  
+
   /* Surface colors - for backgrounds */
   --surface-primary: #ffffff;
-  --surface-secondary: #f8f9fa;
-  --surface-interactive: #f1f3f4;
-  --surface-interactive-hover: #e8eaed;
-  --surface-selected: #e3f2fd;
-  --surface-selected-hover: #bbdefb;
-  
+  --surface-secondary: #f8f8f8;
+  --surface-interactive: #efefe6;
+  --surface-interactive-hover: #cfcfbf;
+  --surface-selected: #5a594e;
+  --surface-selected-hover: #787668;
+
   /* Border colors */
   --border-primary: #dadce0;
   --border-interactive: #9aa0a6;
   --border-selected: #1976d2;
-  
+
   /* Text colors */
-  --text-primary: #202124;
+  --text-primary: #121212;
   --text-secondary: #5f6368;
-  --text-on-selected: #1565c0;
-  
+  --text-on-selected: #ffffff;
+
   /* Game-specific colors */
   --game-surface: var(--surface-interactive);
   --game-surface-hover: var(--surface-interactive-hover);
@@ -35,39 +60,23 @@
   --game-border-selected: var(--border-selected);
   --game-text: var(--text-primary);
   --game-text-selected: var(--text-on-selected);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-    
-    /* Surface colors - dark variants */
-    --surface-primary: #121212;
-    --surface-secondary: #1e1e1e;
-    --surface-interactive: #2d2d2d;
-    --surface-interactive-hover: #3c3c3c;
-    --surface-selected: #1a237e;
-    --surface-selected-hover: #283593;
-    
-    /* Border colors - dark variants */
-    --border-primary: #5f6368;
-    --border-interactive: #9aa0a6;
-    --border-selected: #3f51b5;
-    
-    /* Text colors - dark variants */
-    --text-primary: #e8eaed;
-    --text-secondary: #9aa0a6;
-    --text-on-selected: #c5cae9;
-  }
+  /* Difficulty level colors */
+  --level-easy: #f9df6d;
+  --level-medium: #a0c35a;
+  --level-hard: #b0c4ef;
+  --level-expert: #ba81c5;
+
+  /* Difficulty level colors - dark variants */
+  --level-easy-dark: #847306;
+  --level-medium-dark: #267c30;
+  --level-hard-dark: #346eb7;
+  --level-expert-dark: #861cab;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
+  background: rgb(var(--background-start-rgb));
   font-family: system-ui, -apple-system, sans-serif;
 }
 
@@ -75,15 +84,21 @@ body {
   .game-tile {
     width: 100%;
     height: 4rem;
-    border-radius: 0.5rem;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 0.875rem;
-    font-weight: 500;
+    font-weight: 700;
+    text-transform: uppercase;
     transition: all 200ms;
     cursor: pointer;
-    
+    position: relative;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+
     background-color: var(--game-surface);
     border: 2px solid var(--game-border);
     color: var(--game-text);
@@ -113,58 +128,42 @@ body {
   }
 
   .game-tile.solved.difficulty-1 {
-    --game-surface: #fef3c7;
-    --game-border: #f59e0b;
-    --game-text: #92400e;
+    background-color: var(--level-easy);
+    border-color: #f59e0b;
+    color: #92400e;
   }
 
   .game-tile.solved.difficulty-2 {
-    --game-surface: #d1fae5;
-    --game-border: #10b981;
-    --game-text: #065f46;
+    background-color: var(--level-medium);
+    border-color: #10b981;
+    color: #065f46;
   }
 
   .game-tile.solved.difficulty-3 {
-    --game-surface: #dbeafe;
-    --game-border: #3b82f6;
-    --game-text: #1e40af;
+    background-color: var(--level-hard);
+    border-color: #3b82f6;
+    color: #1e40af;
   }
 
   .game-tile.solved.difficulty-4 {
-    --game-surface: #e9d5ff;
-    --game-border: #8b5cf6;
-    --game-text: #6b21a8;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .game-tile.solved.difficulty-1 {
-      --game-surface: #451a03;
-      --game-border: #f59e0b;
-      --game-text: #fed7aa;
-    }
-    
-    .game-tile.solved.difficulty-2 {
-      --game-surface: #064e3b;
-      --game-border: #10b981;
-      --game-text: #a7f3d0;
-    }
-    
-    .game-tile.solved.difficulty-3 {
-      --game-surface: #1e3a8a;
-      --game-border: #3b82f6;
-      --game-text: #bfdbfe;
-    }
-    
-    .game-tile.solved.difficulty-4 {
-      --game-surface: #581c87;
-      --game-border: #8b5cf6;
-      --game-text: #e9d5ff;
-    }
+    background-color: var(--level-expert);
+    border-color: #8b5cf6;
+    color: #6b21a8;
   }
 
   .game-tile:disabled {
     cursor: not-allowed;
     opacity: 0.5;
+  }
+
+  /* Shake animation for incorrect guesses */
+  .game-tile.shake {
+    animation: shake 0.5s ease-in-out;
+  }
+
+  /* Bounce animation for correct guesses */
+  .game-tile.bounce {
+    animation: bounce 0.3s ease-in-out;
   }
 
   .game-button {
@@ -173,7 +172,8 @@ body {
     font-weight: 500;
     transition: all 200ms;
     border: 2px solid;
-    
+    cursor: pointer;
+
     background-color: var(--game-surface);
     border-color: var(--game-border);
     color: var(--game-text);
@@ -221,61 +221,77 @@ body {
     border-radius: 0.5rem;
     margin-bottom: 0.5rem;
     animation: bounceIn 0.6s ease-out;
+    text-transform: uppercase;
+    font-weight: 700;
+    text-align: center;
   }
 
   .solved-group.difficulty-1 {
-    background-color: #fef3c7;
+    background-color: var(--level-easy);
     color: #92400e;
   }
 
   .solved-group.difficulty-2 {
-    background-color: #d1fae5;
+    background-color: var(--level-medium);
     color: #065f46;
   }
 
   .solved-group.difficulty-3 {
-    background-color: #dbeafe;
+    background-color: var(--level-hard);
     color: #1e40af;
   }
 
   .solved-group.difficulty-4 {
-    background-color: #e9d5ff;
+    background-color: var(--level-expert);
     color: #6b21a8;
   }
 
-  @media (prefers-color-scheme: dark) {
-    .solved-group.difficulty-1 {
-      background-color: #451a03;
-      color: #fed7aa;
+  @keyframes shake {
+
+    0%,
+    100% {
+      transform: translateX(0);
     }
-    
-    .solved-group.difficulty-2 {
-      background-color: #064e3b;
-      color: #a7f3d0;
+
+    25% {
+      transform: translateX(-5px);
     }
-    
-    .solved-group.difficulty-3 {
-      background-color: #1e3a8a;
-      color: #bfdbfe;
-    }
-    
-    .solved-group.difficulty-4 {
-      background-color: #581c87;
-      color: #e9d5ff;
+
+    75% {
+      transform: translateX(5px);
     }
   }
 
-  @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    75% { transform: translateX(5px); }
+  @keyframes bounce {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-10px);
+    }
   }
 
   @keyframes bounceIn {
-    0% { transform: scale(0.3); opacity: 0; }
-    50% { transform: scale(1.05); }
-    70% { transform: scale(0.9); }
-    100% { transform: scale(1); opacity: 1; }
+    0% {
+      transform: scale(0.3);
+      opacity: 0;
+    }
+
+    50% {
+      transform: scale(1.05);
+    }
+
+    70% {
+      transform: scale(0.9);
+    }
+
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
   }
 
   .animate-shake {
