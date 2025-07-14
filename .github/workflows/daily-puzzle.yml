@@ -1,0 +1,15 @@
+name: Daily Puzzle Advance
+
+on:
+  schedule:
+    - cron: '0 8 * * *'  # 12:00 AM Pacific (8:00 AM UTC)
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  advance-puzzle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Advance daily puzzle
+        run: |
+          curl -X POST https://${{ secrets.APP_DOMAIN }}/api/advance-puzzle \
+            -H "Content-Type: application/json"
