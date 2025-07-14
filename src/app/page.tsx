@@ -20,21 +20,14 @@ export default async function Home() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="text-center">
-        <p className="text-gray-600 mb-4">
-          Find groups of four items that share something in common.
-        </p>
-        <p className="text-sm text-gray-500">
-          Create four groups to solve the puzzle!
+        <p className="text-gray-700 mb-4">
+          Create four groups of four!
         </p>
       </div>
 
       <GameBoard puzzle={puzzle} />
-
-      <div className="text-center text-xs text-gray-400 mt-8">
-        <p>© 2024 Frisconnections - A San Francisco word puzzle game</p>
-      </div>
     </div>
   )
 }

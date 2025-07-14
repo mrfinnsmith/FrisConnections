@@ -20,21 +20,26 @@ export default function GameControls({
   const remainingAttempts = getRemainingAttempts(gameState)
   const hasSelection = gameState.selectedTiles.length > 0
   const isPlaying = gameState.gameStatus === 'playing'
+  const mistakesMade = 4 - remainingAttempts
 
   return (
-    <div className="space-y-4">
-      {/* Game Status */}
+    <div className="space-y-6">
+      {/* Mistakes Display */}
       <div className="text-center">
-        <p className="text-lg font-medium" style={{ color: 'var(--text-primary)' }}>
-          Mistakes remaining: {remainingAttempts}
-        </p>
-        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-          Groups found: {gameState.solvedGroups.length} of {gameState.puzzle?.categories.length || 4}
-        </p>
+        <p className="text-sm text-gray-600 mb-2">Mistakes Remaining:</p>
+        <div className="flex justify-center gap-1">
+          {Array.from({ length: 4 }, (_, i) => (
+            <div
+              key={i}
+              className={`w-3 h-3 rounded-full ${i < remainingAttempts ? 'bg-gray-600' : 'mistake-dot-disappear'
+                }`}
+            />
+          ))}
+        </div>
       </div>
 
       {/* Control Buttons */}
-      <div className="flex justify-center gap-3">
+      <div className="flex justify-center gap-2">
         <button
           className="game-button secondary"
           onClick={onShuffle}
@@ -59,15 +64,6 @@ export default function GameControls({
           Submit
         </button>
       </div>
-
-      {/* Selection Info */}
-      {gameState.selectedTiles.length > 0 && (
-        <div className="text-center">
-          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-            Selected: {gameState.selectedTiles.length}/4 tiles
-          </p>
-        </div>
-      )}
     </div>
   )
 }

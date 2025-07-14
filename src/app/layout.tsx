@@ -28,14 +28,19 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8 max-w-2xl">
-          <header className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+      <body className="min-h-screen bg-white">
+        <div className="container mx-auto px-4 py-6 max-w-2xl">
+          <header className="text-center mb-6">
+            <h1 className="text-4xl font-bold text-black mb-1">
               Frisconnections
             </h1>
-            <p className="text-gray-600">
-              A daily San Francisco-themed word puzzle
+            <p className="text-gray-600 text-sm">
+              {new Date().toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                timeZone: 'America/Los_Angeles'
+              })}
             </p>
           </header>
           <main>

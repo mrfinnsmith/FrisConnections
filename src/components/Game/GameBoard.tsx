@@ -61,7 +61,6 @@ export default function GameBoard({ puzzle }: GameBoardProps) {
         prevTiles.filter(tile => !category.items.includes(tile))
       )
     } else {
-      setFeedbackMessage('Not quite right. Try again!')
       setShowShakeAnimation(true)
       setGameState(newGameState)
 
@@ -96,20 +95,6 @@ export default function GameBoard({ puzzle }: GameBoardProps) {
 
   return (
     <div className="w-full max-w-lg mx-auto">
-      {/* Puzzle Info */}
-      <div className="text-center mb-6">
-        <h2 className="text-xl font-semibold text-gray-800">
-          Puzzle #{puzzle.puzzle_number}
-        </h2>
-        <p className="text-gray-600 text-sm">
-          {new Date(puzzle.date).toLocaleDateString('en-US', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          })}
-        </p>
-      </div>
 
       {/* Solved Groups */}
       <SolvedGroups solvedGroups={gameState.solvedGroups} />
