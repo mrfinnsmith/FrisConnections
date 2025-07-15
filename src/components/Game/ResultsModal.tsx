@@ -1,6 +1,7 @@
 'use client'
 
 import { GameState, DIFFICULTY_COLORS } from '@/types/game'
+import { useState } from 'react'
 
 interface ResultsModalProps {
   gameState: GameState
@@ -17,6 +18,35 @@ export default function ResultsModal({ gameState, isOpen, onClose }: ResultsModa
     currentStreak: 0,
     maxStreak: gameState.guessHistory.length
   }
+
+  const generateShareText = (): string => {
+    const { puzzle, guessHistory } = gameState
+    if (!puzzle) return ''
+
+    const emojiGrid = guessHistory.map(guess =>
+      guess.itemDifficulties.map(difficulty => {
+        if (difficulty === 1) return '🟨'
+        if (difficulty === 2) return '🟩'
+        if (difficulty === 3) return '🟦'
+        if (difficulty === 4) return '🟪'
+      }).join('')
+    ).join('\n')
+
+    return `Frisconnections\nPuzzle #${puzzle.puzzle_number}\n${emojiGrid}\n\nhttps://frisconnections.lol`
+  }
+
+  const handleShare = async () => {
+    const shareText = generateShareText()
+    try {
+      await navigator.clipboard.writeText(shareText)
+      setShowCopiedMessage(true)
+      setTimeout(() => setShowCopiedMessage(false), 2000)
+    } catch (err) {
+      console.error('Failed to copy to clipboard:', err)
+    }
+  }
+
+  const [showCopiedMessage, setShowCopiedMessage] = useState(false)
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -69,12 +99,12 @@ export default function ResultsModal({ gameState, isOpen, onClose }: ResultsModa
           ))}
         </div>
 
-        {/* Close Button */}
+        {/* Share Button */}
         <button
-          onClick={onClose}
+          onClick={handleShare}
           className="w-full bg-black text-white py-3 rounded-full font-medium"
         >
-          Share Your Results
+          {showCopiedMessage ? 'Copied!' : 'Share Your Results'}
         </button>
       </div>
     </div>
