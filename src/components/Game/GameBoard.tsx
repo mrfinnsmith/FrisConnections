@@ -9,7 +9,8 @@ import {
   makeGuess,
   shuffleArray
 } from '@/lib/gameLogic'
-import { saveGameProgress, loadGameProgress } from '@/lib/localStorage'
+import { saveGameProgress, loadGameProgress, getOrCreateSessionId } from '@/lib/localStorage'
+import { createSession, getSessionExists } from '@/lib/sessionApi'
 import TileGrid from './TileGrid'
 import GameControls from './GameControls'
 import SolvedGroups from './SolvedGroups'
@@ -26,32 +27,61 @@ export default function GameBoard({ puzzle }: GameBoardProps) {
   const [animatingTiles, setAnimatingTiles] = useState<string[]>([])
   const [animationType, setAnimationType] = useState<'shake' | 'bounce' | null>(null)
   const [showResultsModal, setShowResultsModal] = useState(false)
+  const [sessionInitialized, setSessionInitialized] = useState(false)
 
-  // Load saved progress on mount
+  // Initialize session tracking
   useEffect(() => {
+    const initializeSession = async () => {
+      const sessionId = getOrCreateSessionId()
+      
+      // Check if session already exists for this puzzle
+      const sessionExists = await getSessionExists(sessionId, puzzle.id)
+      
+      if (!sessionExists) {
+        // Create new session
+        await createSession(sessionId, puzzle.id)
+      }
+
+      // Update game state with session ID
+      setGameState(prevState => ({
+        ...prevState,
+        sessionId
+      }))
+      
+      setSessionInitialized(true)
+    }
+
+    initializeSession()
+  }, [puzzle.id])
+
+  // Load saved progress on mount (after session is initialized)
+  useEffect(() => {
+    if (!sessionInitialized) return
+
     const savedProgress = loadGameProgress(puzzle.id)
     if (savedProgress) {
       setGameState(prevState => ({
         ...prevState,
         ...savedProgress,
-        puzzle // Ensure puzzle is set
+        puzzle, // Ensure puzzle is set
+        sessionId: prevState.sessionId // Keep the session ID
       }))
     }
-  }, [puzzle.id])
+  }, [puzzle.id, sessionInitialized])
 
   // Save progress when game state changes
   useEffect(() => {
-    if (gameState.puzzle) {
+    if (gameState.puzzle && sessionInitialized) {
       saveGameProgress(puzzle.id, gameState)
     }
-  }, [gameState, puzzle.id])
+  }, [gameState, puzzle.id, sessionInitialized])
 
   const handleTileClick = (tile: string) => {
     setGameState(prevState => toggleTileSelection(prevState, tile))
   }
 
-  const handleSubmit = () => {
-    const { newGameState, isCorrect, category } = makeGuess(gameState, gameState.selectedTiles)
+  const handleSubmit = async () => {
+    const { newGameState, isCorrect, category } = await makeGuess(gameState, gameState.selectedTiles)
 
     if (isCorrect && category) {
       setFeedbackMessage(`Correct! "${category.name}"`)

@@ -1,4 +1,5 @@
 import { GameState, Puzzle, Category, GuessResult, SolvedGroup, TILES_PER_GROUP, MAX_ATTEMPTS } from '@/types/game'
+import { recordGuess, updateSession, completeSession } from './sessionApi'
 
 export function shuffleArray<T>(array: T[]): T[] {
   const shuffled = [...array]
@@ -9,14 +10,15 @@ export function shuffleArray<T>(array: T[]): T[] {
   return shuffled
 }
 
-export function createInitialGameState(puzzle: Puzzle): GameState {
+export function createInitialGameState(puzzle: Puzzle, sessionId?: string): GameState {
   return {
     puzzle,
     selectedTiles: [],
     solvedGroups: [],
     attemptsUsed: 0,
     gameStatus: 'playing',
-    guessHistory: []
+    guessHistory: [],
+    sessionId
   }
 }
 
@@ -38,10 +40,10 @@ export function findCategoryByItems(puzzle: Puzzle, items: string[]): Category |
   }) || null
 }
 
-export function makeGuess(
+export async function makeGuess(
   gameState: GameState,
   selectedItems: string[]
-): { newGameState: GameState; isCorrect: boolean; category?: Category } {
+): Promise<{ newGameState: GameState; isCorrect: boolean; category?: Category }> {
   if (!gameState.puzzle || selectedItems.length !== TILES_PER_GROUP) {
     return { newGameState: gameState, isCorrect: false }
   }
@@ -93,6 +95,34 @@ export function makeGuess(
     attemptsUsed: attemptNumber,
     gameStatus: newGameStatus,
     guessHistory: newGuessHistory
+  }
+
+  // Record guess in database if session tracking is enabled
+  if (gameState.sessionId) {
+    await recordGuess({
+      session_id: gameState.sessionId,
+      puzzle_id: gameState.puzzle.id,
+      guessed_items: selectedItems,
+      item_difficulties: itemDifficulties,
+      is_correct: isCorrect,
+      category_id: category?.id,
+      attempt_number: attemptNumber
+    })
+
+    // Update session progress
+    await updateSession(gameState.sessionId, {
+      attempts_used: attemptNumber,
+      solved_categories: newSolvedGroups.map(sg => sg.category.id)
+    })
+
+    // Complete session if game is over
+    if (newGameStatus === 'won' || newGameStatus === 'lost') {
+      await completeSession(
+        gameState.sessionId,
+        attemptNumber,
+        newSolvedGroups.map(sg => sg.category.id)
+      )
+    }
   }
 
   return { newGameState, isCorrect, category: category || undefined }

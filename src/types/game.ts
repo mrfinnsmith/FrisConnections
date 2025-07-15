@@ -5,6 +5,7 @@ export interface GameState {
   attemptsUsed: number
   gameStatus: 'playing' | 'won' | 'lost'
   guessHistory: GuessResult[]
+  sessionId?: string
 }
 
 export interface Puzzle {
@@ -51,6 +52,27 @@ export interface GameProgress {
   gameStatus: 'playing' | 'won' | 'lost'
   guessHistory: GuessResult[]
   timestamp: number
+}
+
+// New session tracking types
+export interface SessionData {
+  session_id: string
+  puzzle_id: number
+  completed: boolean
+  attempts_used: number
+  solved_categories: number[]
+  start_time: string
+  end_time?: string
+}
+
+export interface GuessData {
+  session_id: string
+  puzzle_id: number
+  guessed_items: string[]
+  item_difficulties: number[]
+  is_correct: boolean
+  category_id?: number
+  attempt_number: number
 }
 
 export const DIFFICULTY_COLORS = {
