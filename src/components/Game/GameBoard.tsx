@@ -9,7 +9,6 @@ import {
   makeGuess,
   shuffleArray
 } from '@/lib/gameLogic'
-import { saveGameProgress, loadGameProgress, getOrCreateSessionId } from '@/lib/localStorage'
 import { createSession, getSessionExists } from '@/lib/sessionApi'
 import TileGrid from './TileGrid'
 import GameControls from './GameControls'
