@@ -1,5 +1,5 @@
 import { GameState, Puzzle, Category, GuessResult, SolvedGroup, TILES_PER_GROUP, MAX_ATTEMPTS } from '@/types/game'
-import { recordGuess, updateSession, completeSession } from './sessionApi'
+import { recordGuess, updateSession, completeSession } from './session_api'
 
 export function shuffleArray<T>(array: T[]): T[] {
   const shuffled = [...array]

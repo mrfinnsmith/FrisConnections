@@ -9,7 +9,7 @@ import {
   makeGuess,
   shuffleArray
 } from '@/lib/gameLogic'
-import { createSession, getSessionExists } from '@/lib/sessionApi'
+import { createSession, getSessionExists } from '@/lib/session_api'
 import TileGrid from './TileGrid'
 import GameControls from './GameControls'
 import SolvedGroups from './SolvedGroups'
