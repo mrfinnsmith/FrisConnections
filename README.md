@@ -47,6 +47,7 @@ Players have 4 attempts to make incorrect guesses before the game ends.
 │   │   └── Game/
 │   │       ├── GameBoard.tsx    # Main game orchestrator component
 │   │       ├── GameControls.tsx # Submit, shuffle, deselect buttons
+│   │       ├── ResultsModal.tsx # Game results and sharing modal
 │   │       ├── SolvedGroups.tsx # Display solved categories
 │   │       └── TileGrid.tsx     # 4x4 grid of selectable word tiles
 │   ├── data/
@@ -55,6 +56,7 @@ Players have 4 attempts to make incorrect guesses before the game ends.
 │   │   ├── gameLogic.ts     # Core game state management and logic
 │   │   ├── localStorage.ts  # Browser storage for progress and stats
 │   │   ├── puzzleApi.ts     # Supabase puzzle fetching functions
+│   │   ├── sessionApi.ts    # Anonymous session tracking functions
 │   │   └── supabase.ts      # Supabase client configuration
 │   └── types/
 │       └── game.ts          # TypeScript interfaces for game data
@@ -79,6 +81,17 @@ The game uses six main tables in Supabase:
 
 - **anonymous_sessions**: Track individual game sessions
 - **anonymous_guesses**: Record each guess attempt
+
+### Anonymous Session Tracking Details
+
+The session tracking system operates automatically in the background:
+
+- **Session Creation**: New anonymous session created when user starts a puzzle
+- **Guess Recording**: Every guess attempt stored with items, difficulty, and result
+- **Session Updates**: Progress tracked in real-time (attempts used, categories solved)
+- **Session Completion**: Final stats recorded when game ends (win/loss)
+- **Privacy**: Uses browser-generated UUIDs, no personal identification
+- **Analytics Ready**: Data structure supports future difficulty analysis and usage metrics
 
 ## Automated Daily Puzzle System
 
@@ -406,9 +419,16 @@ UPDATE puzzle_queue SET queue_position = NEW_POSITION WHERE puzzle_id = PUZZLE_I
 - Clipboard sharing with puzzle number and website URL
 - NYT Connections-style share format
 
+✅ **Session Tracking**
+- Anonymous guess and session recording in database
+- Automatic session creation on puzzle start
+- Real-time guess recording and session updates
+- Privacy-focused: no personal data, browser-based session IDs only
+
 ## Features Not Yet Implemented
 
-🔲 **Session Tracking**: Recording guesses and sessions in database
+🔲 **User Stats Display**: Show real localStorage stats instead of fake data in results modal
+🔲 **Stats Updates**: Connect game completion to localStorage stats tracking
 🔲 **Admin Interface**: Content management for adding new puzzles
 🔲 **Analytics**: Puzzle difficulty calibration and user metrics
 
