@@ -91,8 +91,6 @@ export default function GameBoard({ puzzle }: GameBoardProps) {
     const { newGameState, isCorrect, category } = await makeGuess(gameState, gameState.selectedTiles)
 
     if (isCorrect && category) {
-      setFeedbackMessage(`Correct! "${category.name}"`)
-
       // Start bounce animation for selected tiles
       setAnimatingTiles(gameState.selectedTiles)
       setAnimationType('bounce')
