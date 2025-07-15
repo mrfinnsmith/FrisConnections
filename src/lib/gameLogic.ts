@@ -50,7 +50,8 @@ export async function makeGuess(
 
   const category = findCategoryByItems(gameState.puzzle, selectedItems)
   const isCorrect = category !== null
-  const attemptNumber = gameState.attemptsUsed + 1
+  const newAttemptsUsed = isCorrect ? gameState.attemptsUsed : gameState.attemptsUsed + 1
+  const attemptNumber = newAttemptsUsed
 
   // Get item difficulties for the guess
   const itemDifficulties = selectedItems.map(item => {
@@ -83,7 +84,7 @@ export async function makeGuess(
     }
   } else {
     // Check if max attempts reached
-    if (attemptNumber >= MAX_ATTEMPTS) {
+    if (newAttemptsUsed >= MAX_ATTEMPTS) {
       newGameStatus = 'lost'
     }
   }
@@ -92,7 +93,7 @@ export async function makeGuess(
     ...gameState,
     selectedTiles: [],
     solvedGroups: newSolvedGroups,
-    attemptsUsed: attemptNumber,
+    attemptsUsed: newAttemptsUsed,
     gameStatus: newGameStatus,
     guessHistory: newGuessHistory
   }
@@ -111,7 +112,7 @@ export async function makeGuess(
 
     // Update session progress
     await updateSession(gameState.sessionId, {
-      attempts_used: attemptNumber,
+      attempts_used: newAttemptsUsed,
       solved_categories: newSolvedGroups.map(sg => sg.category.id)
     })
 
@@ -119,7 +120,7 @@ export async function makeGuess(
     if (newGameStatus === 'won' || newGameStatus === 'lost') {
       await completeSession(
         gameState.sessionId,
-        attemptNumber,
+        newAttemptsUsed,
         newSolvedGroups.map(sg => sg.category.id)
       )
     }
