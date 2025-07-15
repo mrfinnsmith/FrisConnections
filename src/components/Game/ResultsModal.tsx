@@ -2,6 +2,7 @@
 
 import { GameState, DIFFICULTY_COLORS } from '@/types/game'
 import { useState } from 'react'
+import { getUserStats } from '@/lib/localStorage'
 
 interface ResultsModalProps {
   gameState: GameState
@@ -12,11 +13,16 @@ interface ResultsModalProps {
 export default function ResultsModal({ gameState, isOpen, onClose }: ResultsModalProps) {
   if (!isOpen || !gameState.puzzle) return null
 
+  const userStats = getUserStats()
+  const winPercentage = userStats.gamesPlayed > 0
+    ? Math.round((userStats.gamesWon / userStats.gamesPlayed) * 100)
+    : 0
+
   const stats = {
-    completed: gameState.guessHistory.length,
-    winPercentage: Math.round((gameState.gameStatus === 'won' ? 1 : 0) * 100),
-    currentStreak: 0,
-    maxStreak: gameState.guessHistory.length
+    completed: userStats.gamesPlayed,
+    winPercentage: winPercentage,
+    currentStreak: userStats.currentStreak,
+    maxStreak: userStats.maxStreak
   }
 
   const generateShareText = (): string => {

@@ -15,6 +15,7 @@ import TileGrid from './TileGrid'
 import GameControls from './GameControls'
 import SolvedGroups from './SolvedGroups'
 import ResultsModal from './ResultsModal'
+import { saveGameProgress, loadGameProgress, getOrCreateSessionId, updateUserStats } from '@/lib/localStorage'
 
 interface GameBoardProps {
   puzzle: Puzzle
@@ -33,10 +34,10 @@ export default function GameBoard({ puzzle }: GameBoardProps) {
   useEffect(() => {
     const initializeSession = async () => {
       const sessionId = getOrCreateSessionId()
-      
+
       // Check if session already exists for this puzzle
       const sessionExists = await getSessionExists(sessionId, puzzle.id)
-      
+
       if (!sessionExists) {
         // Create new session
         await createSession(sessionId, puzzle.id)
@@ -47,7 +48,7 @@ export default function GameBoard({ puzzle }: GameBoardProps) {
         ...prevState,
         sessionId
       }))
-      
+
       setSessionInitialized(true)
     }
 
@@ -69,6 +70,13 @@ export default function GameBoard({ puzzle }: GameBoardProps) {
     }
   }, [puzzle.id, sessionInitialized])
 
+  // Update stats when game completes
+  useEffect(() => {
+    if (gameState.gameStatus === 'won' || gameState.gameStatus === 'lost') {
+      updateUserStats(gameState.gameStatus === 'won', puzzle.date)
+    }
+  }, [gameState.gameStatus, puzzle.date])
+
   // Save progress when game state changes
   useEffect(() => {
     if (gameState.puzzle && sessionInitialized) {
@@ -85,11 +93,11 @@ export default function GameBoard({ puzzle }: GameBoardProps) {
 
     if (isCorrect && category) {
       setFeedbackMessage(`Correct! "${category.name}"`)
-      
+
       // Start bounce animation for selected tiles
       setAnimatingTiles(gameState.selectedTiles)
       setAnimationType('bounce')
-      
+
       // Update game state immediately
       setGameState(newGameState)
 
