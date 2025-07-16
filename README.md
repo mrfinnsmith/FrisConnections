@@ -240,6 +240,93 @@ Puzzles are automatically published at 12 AM Pacific daily via GitHub Actions. N
 - **`normalize_and_validate_category()`**: Auto-formats and validates category data
 - **`auto_assign_queue_position()`**: Auto-assigns queue position when adding puzzles to queue
 
+## Analytics Queries
+
+### Session Completion Analysis
+
+View player completion rates and game outcomes for a specific puzzle:
+
+```sql
+-- Session completion analysis for specific puzzle
+-- Change the puzzle_id below (1) to analyze different puzzles
+WITH session_stats AS (
+    SELECT 
+        session_id,
+        attempts_used,
+        COALESCE(array_length(solved_categories, 1), 0) as categories_solved_count,
+        completed,
+        CASE 
+            WHEN completed = false THEN 'incomplete'
+            WHEN completed = true AND COALESCE(array_length(solved_categories, 1), 0) = 4 THEN 'completed_successfully'
+            WHEN completed = true AND COALESCE(array_length(solved_categories, 1), 0) < 4 THEN 'failed_too_many_wrong'
+        END as session_outcome
+    FROM anonymous_sessions
+    WHERE puzzle_id = 1
+),
+outcome_counts AS (
+    SELECT 
+        session_outcome,
+        COUNT(*) as count
+    FROM session_stats
+    GROUP BY session_outcome
+),
+total_sessions AS (
+    SELECT COUNT(*) as total FROM session_stats
+)
+SELECT 
+    oc.session_outcome,
+    oc.count,
+    ROUND((oc.count::decimal / ts.total * 100), 2) as percentage
+FROM outcome_counts oc
+CROSS JOIN total_sessions ts
+ORDER BY oc.count DESC;
+```
+
+For all puzzles combined, remove the WHERE clause:
+```sql
+-- Uncomment this version to get stats across ALL puzzles:
+-- FROM anonymous_sessions
+-- -- WHERE puzzle_id = 1
+```
+
+Results show:
+- **incomplete**: Players who haven't finished
+- **completed_successfully**: Players who solved all 4 categories
+- **failed_too_many_wrong**: Players who used all attempts without winning
+
+### Category Difficulty Analysis
+
+#### Success Rate by Category
+```sql
+-- Success Rate: All guesses involving each category's items
+-- Change puzzle_id = 4 to analyze different puzzles, or remove WHERE clause for all puzzles
+WITH category_attempts AS (
+    SELECT 
+        c.id,
+        c.name,
+        c.difficulty,
+        -- Count correct guesses for this category
+        (SELECT COUNT(*) FROM anonymous_guesses 
+         WHERE puzzle_id = 4 AND category_id = c.id AND is_correct = true) as correct_guesses,
+        -- Count incorrect guesses that contain any items from this category
+        (SELECT COUNT(*) FROM anonymous_guesses 
+         WHERE puzzle_id = 4 AND is_correct = false AND guessed_items && c.items) as incorrect_guesses
+    FROM categories c
+    WHERE c.puzzle_id = 4
+)
+SELECT 
+    name as category_name,
+    difficulty as designed_difficulty,
+    correct_guesses,
+    incorrect_guesses,
+    (correct_guesses + incorrect_guesses) as total_attempts,
+    ROUND(
+        (correct_guesses::decimal / NULLIF(correct_guesses + incorrect_guesses, 0) * 100), 2
+    ) as success_rate_percent
+FROM category_attempts
+ORDER BY success_rate_percent DESC;
+```
+
 ## Daily Puzzle System
 
 The puzzle queue operates as a simple advancing queue:
