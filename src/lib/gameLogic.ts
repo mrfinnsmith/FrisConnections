@@ -144,7 +144,7 @@ export function canSelectTile(gameState: GameState, tile: string): boolean {
   const isAlreadySelected = gameState.selectedTiles.includes(tile)
   const hasRoomForSelection = gameState.selectedTiles.length < TILES_PER_GROUP
 
-  return isAvailable && (!isAlreadySelected || hasRoomForSelection)
+  return isAvailable && (isAlreadySelected || hasRoomForSelection)
 }
 
 export function toggleTileSelection(gameState: GameState, tile: string): GameState {
