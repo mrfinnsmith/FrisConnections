@@ -18,7 +18,9 @@ export function createInitialGameState(puzzle: Puzzle, sessionId?: string): Game
     attemptsUsed: 0,
     gameStatus: 'playing',
     guessHistory: [],
-    sessionId
+    sessionId,
+    showToast: false,
+    toastMessage: ""
   }
 }
 
@@ -40,6 +42,19 @@ export function findCategoryByItems(puzzle: Puzzle, items: string[]): Category |
   }) || null
 }
 
+export function checkOneAway(puzzle: Puzzle, selectedItems: string[]): boolean {
+  for (const category of puzzle.categories) {
+    const matchCount = selectedItems.filter(item => 
+      category.items.includes(item)
+    ).length;
+    
+    if (matchCount === 3) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export async function makeGuess(
   gameState: GameState,
   selectedItems: string[]
@@ -50,6 +65,7 @@ export async function makeGuess(
 
   const category = findCategoryByItems(gameState.puzzle, selectedItems)
   const isCorrect = category !== null
+  const isOneAway = !isCorrect && checkOneAway(gameState.puzzle, selectedItems)
   const newAttemptsUsed = isCorrect ? gameState.attemptsUsed : gameState.attemptsUsed + 1
   const attemptNumber = newAttemptsUsed
 
@@ -62,6 +78,7 @@ export async function makeGuess(
   const guessResult: GuessResult = {
     items: selectedItems,
     isCorrect,
+    isOneAway,
     category: category || undefined,
     attemptNumber,
     itemDifficulties
@@ -95,7 +112,9 @@ export async function makeGuess(
     solvedGroups: newSolvedGroups,
     attemptsUsed: newAttemptsUsed,
     gameStatus: newGameStatus,
-    guessHistory: newGuessHistory
+    guessHistory: newGuessHistory,
+    showToast: isOneAway,
+    toastMessage: isOneAway ? "One away..." : ""
   }
 
   // Record guess in database if session tracking is enabled

@@ -6,6 +6,8 @@ export interface GameState {
   gameStatus: 'playing' | 'won' | 'lost'
   guessHistory: GuessResult[]
   sessionId?: string
+  showToast: boolean
+  toastMessage: string
 }
 
 export interface Puzzle {
@@ -30,6 +32,7 @@ export interface SolvedGroup {
 export interface GuessResult {
   items: string[]
   isCorrect: boolean
+  isOneAway?: boolean
   category?: Category
   attemptNumber: number
   itemDifficulties: number[]

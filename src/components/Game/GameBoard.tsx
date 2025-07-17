@@ -1,5 +1,6 @@
 'use client'
 
+import { Toast } from './Toast'
 import { useState, useEffect } from 'react'
 import { GameState, Puzzle } from '@/types/game'
 import {
@@ -28,6 +29,13 @@ export default function GameBoard({ puzzle }: GameBoardProps) {
   const [animationType, setAnimationType] = useState<'shake' | 'bounce' | null>(null)
   const [showResultsModal, setShowResultsModal] = useState(false)
   const [sessionInitialized, setSessionInitialized] = useState(false)
+  const handleToastComplete = () => {
+    setGameState(prev => ({
+      ...prev,
+      showToast: false,
+      toastMessage: ""
+    }))
+  }
 
   // Initialize session tracking
   useEffect(() => {
@@ -220,6 +228,12 @@ export default function GameBoard({ puzzle }: GameBoardProps) {
         gameState={gameState}
         isOpen={showResultsModal}
         onClose={() => setShowResultsModal(false)}
+      />
+      {/* Toast */}
+      <Toast
+        message={gameState.toastMessage}
+        isVisible={gameState.showToast}
+        onComplete={handleToastComplete}
       />
     </div>
   )

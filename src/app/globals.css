@@ -259,21 +259,28 @@ body {
   }
 
   @keyframes shake {
-    0%, 100% {
+
+    0%,
+    100% {
       transform: translateX(0);
     }
+
     25% {
       transform: translateX(-5px);
     }
+
     75% {
       transform: translateX(5px);
     }
   }
 
   @keyframes bounce {
-    0%, 100% {
+
+    0%,
+    100% {
       transform: translateY(0);
     }
+
     50% {
       transform: translateY(-10px);
     }
@@ -284,15 +291,55 @@ body {
       transform: scaleY(1) scaleX(1);
       z-index: 4;
     }
+
     40% {
       transform: scaleY(1.2) scaleX(1.2);
     }
+
     70% {
       transform: scaleY(1.2) scaleX(1.2);
     }
+
     100% {
       transform: scaleY(1) scaleX(1);
       z-index: 4;
     }
+  }
+
+  .toast-portal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 102;
+    pointer-events: none;
+  }
+
+  .game-toast {
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgb(18, 18, 18);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-family: inherit;
+    transition: opacity 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .game-toast h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .toast-visible {
+    opacity: 1;
+  }
+
+  .toast-hidden {
+    opacity: 0;
   }
 }
