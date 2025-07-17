@@ -44,10 +44,10 @@ export function findCategoryByItems(puzzle: Puzzle, items: string[]): Category |
 
 export function checkOneAway(puzzle: Puzzle, selectedItems: string[]): boolean {
   for (const category of puzzle.categories) {
-    const matchCount = selectedItems.filter(item => 
+    const matchCount = selectedItems.filter(item =>
       category.items.includes(item)
     ).length;
-    
+
     if (matchCount === 3) {
       return true;
     }
@@ -108,7 +108,7 @@ export async function makeGuess(
 
   const newGameState: GameState = {
     ...gameState,
-    selectedTiles: [],
+    selectedTiles: isCorrect ? [] : gameState.selectedTiles,
     solvedGroups: newSolvedGroups,
     attemptsUsed: newAttemptsUsed,
     gameStatus: newGameStatus,
