@@ -31,6 +31,7 @@ export default function RootLayout({
      `,
           }}
         />
+        <script src="https://analytics.ahrefs.com/analytics.js" data-key="FUbmj+ShHkEoUzhFgwsmgg" async></script>
       </head>
       <body className="min-h-screen bg-white">
         <div className="container mx-auto px-4 py-6 max-w-2xl">
