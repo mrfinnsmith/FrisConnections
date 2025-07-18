@@ -2,9 +2,23 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Frisconnections',
-  description: 'A daily SF-themed word puzzle game',
-  keywords: ['puzzle', 'game', 'san francisco', 'connections', 'word game'],
+  title: 'Frisconnections - Daily San Francisco Word Puzzle',
+  description: 'Daily San Francisco word puzzle game. Find connections between 16 words in 4 groups. New puzzle every day featuring SF neighborhoods, food, culture, and local knowledge.',
+  keywords: ['san francisco puzzle', 'sf word game', 'daily puzzle', 'connections game', 'bay area trivia', 'puzzle', 'game', 'san francisco', 'connections', 'word game'],
+  openGraph: {
+    title: 'Frisconnections - Daily San Francisco Word Puzzle',
+    description: 'Daily San Francisco word puzzle game. Find connections between 16 words in 4 groups. New puzzle every day featuring SF neighborhoods, food, culture, and local knowledge.',
+    url: 'https://frisconnections.lol',
+    type: 'website',
+    images: [
+      {
+        url: 'https://frisconnections.lol/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Frisconnections - Daily San Francisco Word Puzzle Game'
+      }
+    ]
+  }
 }
 
 export const viewport = {
@@ -20,6 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <link rel="canonical" href="https://frisconnections.lol" />
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-WV0Z43D7BR"></script>
         <script
           dangerouslySetInnerHTML={{
