@@ -37,11 +37,13 @@ Players have 4 attempts to make incorrect guesses before the game ends.
 ├── docs/                    # Project documentation
 ├── src/
 │   ├── app/
+│   │   ├── about/
+│   │   │   └── page.tsx     # About page with creator info
 │   │   ├── api/
 │   │   │   └── advance-puzzle/
 │   │   │       └── route.ts # API endpoint for puzzle advancement
 │   │   ├── globals.css      # Global styles and game-specific CSS classes
-│   │   ├── layout.tsx       # Root layout with header
+│   │   ├── layout.tsx       # Root layout with header navigation
 │   │   └── page.tsx         # Main game page (fetches daily puzzle)
 │   ├── components/
 │   │   └── Game/
@@ -409,7 +411,7 @@ The puzzle queue operates as a simple advancing queue:
    ```bash
    npm run dev
    ```
-   Open [http://localhost:3000](http://localhost:3000) in your browser
+Open http://localhost:3000 in your browser. The About page is accessible at http://localhost:3000/about.
 
 ## Database Constraints
 
@@ -517,6 +519,11 @@ UPDATE puzzle_queue SET queue_position = NEW_POSITION WHERE puzzle_id = PUZZLE_I
 - localStorage persistence for user performance data
 - Accurate win percentage and streak calculations
 - Stats display in results modal after game completion
+
+✅ **Site Navigation**
+- About page with creator information and collaboration contact
+- Header navigation with clickable site title and page links
+- Consistent styling across all pages using CSS custom properties
 
 ## Features Not Yet Implemented
 
