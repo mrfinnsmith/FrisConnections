@@ -26,6 +26,16 @@ export default async function Home() {
           Create four groups of four!
         </p>
       </div>
+      <div className="text-center mb-4">
+        <p className="text-gray-600 text-sm">
+          {new Date().toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            timeZone: 'America/Los_Angeles'
+          })}
+        </p>
+      </div>
 
       <GameBoard puzzle={puzzle} />
     </div>

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -48,20 +49,22 @@ export default function RootLayout({
         />
         <script src="https://analytics.ahrefs.com/analytics.js" data-key="FUbmj+ShHkEoUzhFgwsmgg" async></script>
       </head>
-      <body className="min-h-screen bg-white">
+      <body className="min-h-screen page-container">
         <div className="container mx-auto px-4 py-6 max-w-2xl">
           <header className="text-center mb-6">
-            <h1 className="text-4xl font-bold text-black mb-1">
-              Frisconnections
-            </h1>
-            <p className="text-gray-600 text-sm">
-              {new Date().toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                timeZone: 'America/Los_Angeles'
-              })}
-            </p>
+            <Link href="/" className="block">
+              <h1 className="text-4xl font-bold page-text mb-1">
+                Frisconnections
+              </h1>
+            </Link>
+            <nav className="mt-3">
+              <Link href="/about" className="page-link hover:underline text-sm mr-4">
+                About
+              </Link>
+              {/* <Link href="/how-to-play" className="page-link hover:underline text-sm">
+              How to Play
+              </Link> */}
+            </nav>
           </header>
           <main>
             {children}

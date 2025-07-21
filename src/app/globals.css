@@ -74,6 +74,22 @@
   --level-expert-dark: #861cab;
 }
 
+.page-container {
+  background-color: var(--surface-secondary);
+}
+
+.page-content {
+  background-color: var(--surface-primary);
+}
+
+.page-text {
+  color: var(--text-primary);
+}
+
+.page-link {
+  color: #c0362d;
+}
+
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-start-rgb));
