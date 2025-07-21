@@ -244,6 +244,13 @@ body {
     box-shadow: 0 0 0 2px var(--border-selected);
   }
 
+  .difficulty-indicator {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 0.25rem;
+    flex-shrink: 0;
+  }
+
   .solved-group {
     padding: 1rem;
     border-radius: 0.5rem;
