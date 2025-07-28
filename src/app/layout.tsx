@@ -58,6 +58,9 @@ export default function RootLayout({
               </h1>
             </Link>
             <nav className="mt-3">
+              <Link href="/past" className="page-link hover:underline text-sm mr-4">
+                Past FrisConnections
+              </Link>
               <Link href="/about" className="page-link hover:underline text-sm mr-4">
                 About
               </Link>

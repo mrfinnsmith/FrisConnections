@@ -4,16 +4,39 @@ import { GameState, UserStats, GameProgress, GuessResult } from '@/types/game'
 export function getOrCreateSessionId(): string {
   const key = 'frisconnections-session-id'
   let sessionId = localStorage.getItem(key)
-  
+
   if (!sessionId) {
     sessionId = uuidv4()
     localStorage.setItem(key, sessionId)
   }
-  
+
   return sessionId
 }
 
+// Migrate old progress to new format if needed
+function migrateOldProgress() {
+  const oldKey = 'frisconnections-progress'
+  const oldProgress = localStorage.getItem(oldKey)
+
+  if (oldProgress) {
+    try {
+      const data = JSON.parse(oldProgress)
+      if (data.puzzleId) {
+        // Move to new puzzle-specific key
+        const newKey = `frisconnections_puzzle_${data.puzzleId}_progress`
+        localStorage.setItem(newKey, oldProgress)
+        localStorage.removeItem(oldKey)
+      }
+    } catch {
+      // If can't parse, just remove old data
+      localStorage.removeItem(oldKey)
+    }
+  }
+}
+
 export function saveGameProgress(puzzleId: number, gameState: Partial<GameState>) {
+  migrateOldProgress()
+
   const progress: GameProgress = {
     sessionId: getOrCreateSessionId(),
     puzzleId,
@@ -24,22 +47,26 @@ export function saveGameProgress(puzzleId: number, gameState: Partial<GameState>
     guessHistory: gameState.guessHistory || [],
     timestamp: Date.now()
   }
-  
-  localStorage.setItem('frisconnections-progress', JSON.stringify(progress))
+
+  const key = `frisconnections_puzzle_${puzzleId}_progress`
+  localStorage.setItem(key, JSON.stringify(progress))
 }
 
 export function loadGameProgress(puzzleId: number): Partial<GameState> | null {
-  const saved = localStorage.getItem('frisconnections-progress')
+  migrateOldProgress()
+
+  const key = `frisconnections_puzzle_${puzzleId}_progress`
+  const saved = localStorage.getItem(key)
   if (!saved) return null
-  
+
   try {
     const progress: GameProgress = JSON.parse(saved)
     if (progress.puzzleId !== puzzleId) return null
-    
+
     // Check if progress is from today (don't restore old games)
     const isToday = new Date(progress.timestamp).toDateString() === new Date().toDateString()
     if (!isToday) return null
-    
+
     return {
       selectedTiles: progress.selectedTiles,
       attemptsUsed: progress.attemptsUsed,
@@ -52,31 +79,37 @@ export function loadGameProgress(puzzleId: number): Partial<GameState> | null {
   }
 }
 
-export function clearGameProgress() {
-  localStorage.removeItem('frisconnections-progress')
+export function clearGameProgress(puzzleId?: number) {
+  if (puzzleId) {
+    const key = `frisconnections_puzzle_${puzzleId}_progress`
+    localStorage.removeItem(key)
+  } else {
+    // Clear old format for backwards compatibility
+    localStorage.removeItem('frisconnections-progress')
+  }
 }
 
 export function updateUserStats(won: boolean, date: string) {
   const stats = getUserStats()
   const today = new Date().toISOString().split('T')[0]
-  
+
   stats.gamesPlayed++
-  
+
   if (won) {
     stats.gamesWon++
-    
+
     // Update streak
     if (stats.lastPlayedDate === getPreviousDate(today)) {
       stats.currentStreak++
     } else {
       stats.currentStreak = 1
     }
-    
+
     stats.maxStreak = Math.max(stats.maxStreak, stats.currentStreak)
   } else {
     stats.currentStreak = 0
   }
-  
+
   stats.lastPlayedDate = today
   localStorage.setItem('frisconnections-stats', JSON.stringify(stats))
 }
@@ -92,7 +125,7 @@ export function getUserStats(): UserStats {
       lastPlayedDate: ''
     }
   }
-  
+
   try {
     return JSON.parse(saved) as UserStats
   } catch {

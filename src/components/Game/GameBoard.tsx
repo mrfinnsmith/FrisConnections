@@ -19,9 +19,10 @@ import { saveGameProgress, loadGameProgress, getOrCreateSessionId, updateUserSta
 
 interface GameBoardProps {
   puzzle: Puzzle
+  puzzleId?: number
 }
 
-export default function GameBoard({ puzzle }: GameBoardProps) {
+export default function GameBoard({ puzzle, puzzleId }: GameBoardProps) {
   const [gameState, setGameState] = useState<GameState>(() => createInitialGameState(puzzle))
   const [tiles, setTiles] = useState<string[]>(() => getShuffledTiles(puzzle))
   const [feedbackMessage, setFeedbackMessage] = useState<string>('')
@@ -29,6 +30,7 @@ export default function GameBoard({ puzzle }: GameBoardProps) {
   const [animationType, setAnimationType] = useState<'shake' | 'bounce' | null>(null)
   const [showResultsModal, setShowResultsModal] = useState(false)
   const [sessionInitialized, setSessionInitialized] = useState(false)
+  const getEffectivePuzzleId = () => puzzleId || puzzle.id
   const handleToastComplete = () => {
     setGameState(prev => ({
       ...prev,
@@ -43,11 +45,12 @@ export default function GameBoard({ puzzle }: GameBoardProps) {
       const sessionId = getOrCreateSessionId()
 
       // Check if session already exists for this puzzle
-      const sessionExists = await getSessionExists(sessionId, puzzle.id)
+      const effectivePuzzleId = getEffectivePuzzleId()
+      const sessionExists = await getSessionExists(sessionId, effectivePuzzleId)
 
       if (!sessionExists) {
         // Create new session
-        await createSession(sessionId, puzzle.id)
+        await createSession(sessionId, effectivePuzzleId)
       }
 
       // Update game state with session ID
@@ -60,13 +63,13 @@ export default function GameBoard({ puzzle }: GameBoardProps) {
     }
 
     initializeSession()
-  }, [puzzle.id])
+  }, [getEffectivePuzzleId()])
 
   // Load saved progress on mount (after session is initialized)
   useEffect(() => {
     if (!sessionInitialized) return
 
-    const savedProgress = loadGameProgress(puzzle.id)
+    const savedProgress = loadGameProgress(getEffectivePuzzleId())
     if (savedProgress) {
       setGameState(prevState => ({
         ...prevState,
@@ -75,7 +78,7 @@ export default function GameBoard({ puzzle }: GameBoardProps) {
         sessionId: prevState.sessionId // Keep the session ID
       }))
     }
-  }, [puzzle.id, sessionInitialized])
+  }, [getEffectivePuzzleId(), sessionInitialized])
 
   // Update stats when game completes
   useEffect(() => {
@@ -87,9 +90,9 @@ export default function GameBoard({ puzzle }: GameBoardProps) {
   // Save progress when game state changes
   useEffect(() => {
     if (gameState.puzzle && sessionInitialized) {
-      saveGameProgress(puzzle.id, gameState)
+      saveGameProgress(getEffectivePuzzleId(), gameState)
     }
-  }, [gameState, puzzle.id, sessionInitialized])
+  }, [gameState, getEffectivePuzzleId(), sessionInitialized])
 
   const handleTileClick = (tile: string) => {
     setGameState(prevState => toggleTileSelection(prevState, tile))
