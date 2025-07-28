@@ -35,30 +35,51 @@ Players have 4 attempts to make incorrect guesses before the game ends.
 │   └── workflows/
 │       └── daily-puzzle.yml # GitHub Actions workflow for daily automation
 ├── docs/                    # Project documentation
+│   ├── past_puzzles_memo.md # Past puzzles feature implementation notes
+│   ├── prd.md              # Product requirements document
+│   ├── status-memo.md      # Development status tracking
+│   └── tech-spec.md        # Technical specifications
+├── public/
+│   ├── og-image.png        # Open Graph social sharing image
+│   └── robots.txt          # Search engine crawler instructions
 ├── src/
 │   ├── app/
 │   │   ├── about/
 │   │   │   └── page.tsx     # About page with creator info
 │   │   ├── api/
-│   │   │   └── advance-puzzle/
-│   │   │       └── route.ts # API endpoint for puzzle advancement
+│   │   │   ├── advance-puzzle/
+│   │   │   │   └── route.ts # API endpoint for puzzle advancement
+│   │   │   ├── past-puzzles/
+│   │   │   │   └── route.ts # API endpoint for puzzle archive list
+│   │   │   └── puzzle/
+│   │   │       └── [number]/
+│   │   │           └── route.ts # API endpoint for specific puzzle by number
 │   │   ├── globals.css      # Global styles and game-specific CSS classes
+│   │   ├── how-to-play/
+│   │   │   └── page.tsx     # Game instructions page
 │   │   ├── layout.tsx       # Root layout with header navigation
-│   │   └── page.tsx         # Main game page (fetches daily puzzle)
+│   │   ├── page.tsx         # Main game page (fetches daily puzzle)
+│   │   ├── past/
+│   │   │   └── page.tsx     # Past puzzles archive page
+│   │   ├── puzzle/
+│   │   │   └── [number]/
+│   │   │       └── page.tsx # Individual past puzzle game page
+│   │   └── sitemap.ts       # Dynamic sitemap generation
 │   ├── components/
 │   │   └── Game/
 │   │       ├── GameBoard.tsx    # Main game orchestrator component
 │   │       ├── GameControls.tsx # Submit, shuffle, deselect buttons
 │   │       ├── ResultsModal.tsx # Game results and sharing modal
 │   │       ├── SolvedGroups.tsx # Display solved categories
-│   │       └── TileGrid.tsx     # 4x4 grid of selectable word tiles
+│   │       ├── TileGrid.tsx     # 4x4 grid of selectable word tiles
+│   │       └── Toast.tsx        # Toast notification component
 │   ├── data/
 │   │   └── mockPuzzle.ts    # Sample puzzle data for testing
 │   ├── lib/
 │   │   ├── gameLogic.ts     # Core game state management and logic
 │   │   ├── localStorage.ts  # Browser storage for progress and stats
 │   │   ├── puzzleApi.ts     # Supabase puzzle fetching functions
-│   │   ├── sessionApi.ts    # Anonymous session tracking functions
+│   │   ├── session_api.ts   # Anonymous session tracking functions
 │   │   └── supabase.ts      # Supabase client configuration
 │   └── types/
 │       └── game.ts          # TypeScript interfaces for game data
@@ -70,7 +91,7 @@ Players have 4 attempts to make incorrect guesses before the game ends.
 
 ## Database Schema
 
-The game uses six main tables in Supabase:
+The game uses seven main tables in Supabase:
 
 ### Core Tables
 
@@ -83,6 +104,16 @@ The game uses six main tables in Supabase:
 
 - **anonymous_sessions**: Track individual game sessions
 - **anonymous_guesses**: Record each guess attempt
+
+### Puzzle History
+
+- **puzzle_presentations**: Records when puzzles were presented to players
+  - `id`: Primary key (auto-increment)
+  - `puzzle_id`: References puzzles table
+  - `presented_date`: Date when puzzle was shown as daily puzzle
+  - `created_at`: Timestamp of record creation
+  - Unique constraint on (puzzle_id, presented_date)
+  - Used for puzzle recycling algorithm and past puzzle archive
 
 ### Anonymous Session Tracking Details
 
@@ -97,7 +128,7 @@ The session tracking system operates automatically in the background:
 
 ## Automated Daily Puzzle System
 
-The daily puzzle system automatically advances to the next puzzle at 12:00 AM Pacific time (8:00 AM UTC) using GitHub Actions.
+The daily puzzle system automatically advances to the next puzzle at 12:00 AM Pacific time (8:00 AM UTC) using GitHub Actions, with intelligent puzzle recycling when the queue is empty.
 
 ### How It Works
 
@@ -112,9 +143,21 @@ The daily puzzle system automatically advances to the next puzzle at 12:00 AM Pa
    - Returns success/error status
 
 3. **Database Function** (`assign_daily_puzzle()`):
+   - Uses `get_next_puzzle()` to find next puzzle via recycling algorithm
    - Archives the current published puzzle
-   - Publishes the next puzzle in the queue
+   - Publishes the selected puzzle
+   - Records presentation in puzzle_presentations table
    - Maintains exactly one published puzzle at all times
+
+### Puzzle Recycling System
+
+When the original puzzle queue is empty, the system automatically recycles past puzzles using a 5-tier algorithm:
+
+**Tier 1**: Unplayed puzzles from puzzle_queue (highest priority)
+**Tier 2**: Random puzzle not presented in 6+ months
+**Tier 3**: Random puzzle not presented in 3+ months  
+**Tier 4**: Random puzzle not presented in 1+ month
+**Tier 5**: Random puzzle not presented in past 3 days (prevents immediate repeats)
 
 ### GitHub Secrets Configuration
 
@@ -230,17 +273,60 @@ VALUES (YOUR_PUZZLE_ID, false, false);
 
 ### Step 6: Automatic Publishing
 
-Puzzles are automatically published at 12 AM Pacific daily via GitHub Actions. No manual intervention required.
+Puzzles are automatically published at 12 AM Pacific daily via GitHub Actions. When the queue is empty, the recycling algorithm automatically selects appropriate past puzzles.
 
 ## Database Functions
 
 ### Core Functions
 
 - **`get_daily_puzzle()`**: Returns the current published puzzle with all categories (validates exactly 1 published puzzle)
-- **`assign_daily_puzzle()`**: Unpublishes current puzzle, archives it, then publishes next queued puzzle
+- **`assign_daily_puzzle()`**: Uses recycling algorithm via get_next_puzzle(), archives current puzzle, publishes next puzzle, and records presentation
 - **`validate_puzzle_composition()`**: Validates puzzle integrity on category assignment
 - **`normalize_and_validate_category()`**: Auto-formats and validates category data
 - **`auto_assign_queue_position()`**: Auto-assigns queue position when adding puzzles to queue
+
+### Past Puzzles Functions
+
+- **`get_past_puzzles()`**: Returns all puzzles with their last presentation dates, ordered by puzzle number descending
+- **`get_next_puzzle()`**: 5-tier recycling algorithm for selecting next daily puzzle
+
+## URL Structure
+
+- **Daily puzzle**: `/` 
+- **Specific puzzle**: `/puzzle/[number]` - Play any past puzzle by number
+- **Archive page**: `/past` - Browse all past puzzles with presentation dates  
+- **How to play**: `/how-to-play` - Game instructions and rules
+- **About page**: `/about` - Creator information and collaboration details
+
+## API Endpoints
+
+### Core Game APIs
+- **GET /api/daily-puzzle**: Returns current published puzzle
+- **POST /api/advance-puzzle**: Advances to next puzzle using recycling algorithm
+
+### Past Puzzles APIs
+- **GET /api/past-puzzles**: Returns all puzzles with last presentation dates (uses RPC)
+- **GET /api/puzzle/[number]**: Returns specific puzzle by number for replay
+
+## Past Puzzles Feature
+
+### Archive Page (`/past`)
+- Browse all historical puzzles with puzzle numbers
+- Show last presentation date for each puzzle
+- Direct links to replay any past puzzle
+- Responsive design for mobile and desktop
+
+### Individual Puzzle Replay (`/puzzle/[number]`)
+- Play any past puzzle by its number
+- Clear indication that you're playing a past puzzle
+- Navigation back to today's puzzle and archive
+- Separate localStorage for each puzzle's progress
+
+### Puzzle-Specific Progress Storage
+- Each puzzle maintains separate game state in localStorage
+- Format: `frisconnections_puzzle_${puzzleNumber}_progress`
+- Automatic migration from old single-puzzle storage format
+- Preserved user statistics across all puzzles
 
 ## Analytics Queries
 
@@ -331,16 +417,18 @@ ORDER BY success_rate_percent DESC;
 
 ## Daily Puzzle System
 
-The puzzle queue operates as a simple advancing queue:
+The puzzle queue operates as an advancing queue with intelligent recycling:
 
 1. Only **one puzzle** has `published = true` at any time (or zero if queue is empty)
 2. `assign_daily_puzzle()` function:
+   - Uses `get_next_puzzle()` to select next puzzle via recycling algorithm
    - Unpublishes current puzzle (`published = false`)
    - Archives unpublished puzzle (`archived = true`) to prevent re-publishing
-   - Publishes next puzzle in queue order (if available)
+   - Publishes selected puzzle and records presentation date
 3. `get_daily_puzzle()` returns the single published puzzle
 4. If no puzzles are published or multiple puzzles are published, site shows "no puzzle available"
-5. Archived puzzles can never be published again, preventing accidental re-publishing
+5. Archived puzzles can be recycled after appropriate time intervals
+6. Recycled puzzles are automatically re-added to puzzle_queue when selected
 
 ## Game Mechanics
 
@@ -362,7 +450,9 @@ The puzzle queue operates as a simple advancing queue:
 
 ### Local Storage
 - Game progress persists through page refreshes
+- Puzzle-specific storage prevents interference between different puzzles
 - Statistics tracking: games played, win rate, streaks
+- Automatic migration from legacy storage format
 - No cloud sync - data tied to specific browser
 
 ## Setup Instructions
@@ -411,7 +501,8 @@ The puzzle queue operates as a simple advancing queue:
    ```bash
    npm run dev
    ```
-Open http://localhost:3000 in your browser. The About page is accessible at http://localhost:3000/about.
+
+Open http://localhost:3000 in your browser. The About page is accessible at http://localhost:3000/about and past puzzles at http://localhost:3000/past.
 
 ## Database Constraints
 
@@ -439,7 +530,15 @@ Open http://localhost:3000 in your browser. The About page is accessible at http
 - `puzzle_id`: Primary key, references puzzles table
 - `queue_position`: Unique positioning for queue order
 - `published`: Boolean flag for current publication status
-- `archived`: Boolean flag preventing re-publication
+- `archived`: Boolean flag preventing re-publication (can be recycled)
+
+### Puzzle Presentations Table
+
+**Structure Constraints:**
+- `puzzle_id`: References puzzles table
+- `presented_date`: Date puzzle was shown as daily puzzle
+- Unique constraint on (puzzle_id, presented_date)
+- Used for recycling algorithm timing decisions
 
 ## Content Guidelines
 
@@ -476,6 +575,19 @@ ORDER BY pq.queue_position;
 UPDATE puzzle_queue SET queue_position = NEW_POSITION WHERE puzzle_id = PUZZLE_ID;
 ```
 
+**View Presentation History:**
+```sql
+-- Check recent puzzle presentations
+SELECT pp.presented_date, p.puzzle_number, 
+       STRING_AGG(c.name, ', ' ORDER BY c.difficulty) as categories
+FROM puzzle_presentations pp
+JOIN puzzles p ON pp.puzzle_id = p.id
+LEFT JOIN categories c ON p.id = c.puzzle_id
+GROUP BY pp.presented_date, p.puzzle_number
+ORDER BY pp.presented_date DESC
+LIMIT 10;
+```
+
 ## Features Implemented
 
 ✅ **Core Game Engine**
@@ -500,7 +612,7 @@ UPDATE puzzle_queue SET queue_position = NEW_POSITION WHERE puzzle_id = PUZZLE_I
 
 ✅ **Automated Daily Puzzle Assignment**
 - GitHub Actions workflow for scheduled puzzle advancement
-- API endpoint for puzzle progression
+- API endpoint for puzzle progression with recycling algorithm
 - Manual trigger capability for testing and emergency use
 
 ✅ **Social Sharing**
@@ -522,13 +634,33 @@ UPDATE puzzle_queue SET queue_position = NEW_POSITION WHERE puzzle_id = PUZZLE_I
 
 ✅ **Site Navigation**
 - About page with creator information and collaboration contact
+- How to play page with game instructions
 - Header navigation with clickable site title and page links
 - Consistent styling across all pages using CSS custom properties
+
+✅ **Past Puzzles System**
+- Archive page showing all historical puzzles with presentation dates
+- Individual puzzle replay at `/puzzle/[number]` URLs
+- Puzzle-specific localStorage to prevent save state conflicts
+- Automatic migration from legacy single-puzzle storage format
+- Navigation between daily puzzle, past puzzles, and individual puzzles
+
+✅ **Puzzle Recycling Algorithm**
+- 5-tier intelligent recycling when puzzle queue is empty
+- Time-based recycling priorities (6 months → 3 months → 1 month → 3 days)
+- Automatic presentation tracking in puzzle_presentations table
+- Seamless integration with existing queue management system
+
+✅ **SEO and Discoverability**
+- Dynamic sitemap generation including all routes
+- Open Graph image for social sharing
+- Robots.txt for search engine guidance
 
 ## Features Not Yet Implemented
 
 🔲 **Admin Interface**: Content management for adding new puzzles
-🔲 **Analytics**: Puzzle difficulty calibration and user metrics
+🔲 **Analytics Dashboard**: Visual puzzle difficulty calibration and user metrics
+🔲 **Advanced Statistics**: Per-puzzle completion tracking and difficulty analysis UI
 
 ## Customization for Other Cities
 
@@ -539,7 +671,7 @@ This codebase is designed to be easily adapted for other cities:
 3. **Modify styling**: Update colors and fonts in `globals.css` and Tailwind config
 4. **Add city data**: Populate database with location-specific puzzle content
 
-The game mechanics and technical infrastructure remain the same - only the content and branding need customization.
+The game mechanics, past puzzles system, and technical infrastructure remain the same - only the content and branding need customization.
 
 ## Technical Decisions
 
@@ -547,13 +679,14 @@ The game mechanics and technical infrastructure remain the same - only the conte
 - Real-time capabilities for future features
 - Built-in authentication (if needed later)
 - Generous free tier suitable for daily puzzle games
-- SQL functions for complex puzzle assignment logic
+- SQL functions for complex puzzle assignment and recycling logic
 
 ### Why Next.js App Router?
 - Server-side rendering for better SEO
 - Built-in API routes for backend functionality
 - Modern React patterns with TypeScript support
 - Optimized for Vercel deployment
+- Dynamic routing for past puzzle URLs
 
 ### Why GitHub Actions for Scheduling?
 - Free tier includes 2,000 minutes/month (sufficient for daily tasks)
@@ -561,11 +694,18 @@ The game mechanics and technical infrastructure remain the same - only the conte
 - Easy manual triggering for testing
 - No additional service dependencies
 
-### Why Local Storage?
+### Why Puzzle-Specific Local Storage?
+- Allows replay of past puzzles without interference
 - No user accounts required (lower barrier to play)
-- Instant game state persistence
+- Instant game state persistence per puzzle
 - Privacy-focused (no personal data collection)
-- Simpler than managing user sessions
+- Automatic migration preserves existing user data
+
+### Why RPC Functions for Complex Queries?
+- Supabase's JavaScript query builder has limitations with complex joins
+- PostgreSQL functions provide full SQL capabilities
+- Better performance for complex recycling algorithm queries
+- Cleaner API endpoints with single function calls
 
 ## Performance Considerations
 
@@ -573,6 +713,8 @@ The game mechanics and technical infrastructure remain the same - only the conte
 - Minimal bundle size with tree-shaking
 - Optimized for mobile devices
 - Progressive enhancement (works without JavaScript for basic functionality)
+- Dynamic sitemap generation for SEO
+- Efficient localStorage usage with puzzle-specific keys
 
 ## License
 
