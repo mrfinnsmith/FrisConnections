@@ -35,7 +35,6 @@ Players have 4 attempts to make incorrect guesses before the game ends.
 │   └── workflows/
 │       └── daily-puzzle.yml # GitHub Actions workflow for daily automation
 ├── docs/                    # Project documentation
-│   ├── past_puzzles_memo.md # Past puzzles feature implementation notes
 │   ├── prd.md              # Product requirements document
 │   ├── status-memo.md      # Development status tracking
 │   └── tech-spec.md        # Technical specifications
@@ -288,6 +287,7 @@ Puzzles are automatically published at 12 AM Pacific daily via GitHub Actions. W
 ### Past Puzzles Functions
 
 - **`get_past_puzzles()`**: Returns all puzzles with their last presentation dates, ordered by puzzle number descending
+- **`get_puzzle_by_number(puzzle_num)`**: Returns specific puzzle by number with all categories (bypasses RLS for past puzzle access)
 - **`get_next_puzzle()`**: 5-tier recycling algorithm for selecting next daily puzzle
 
 ## URL Structure
@@ -618,7 +618,7 @@ LIMIT 10;
 ✅ **Social Sharing**
 - Emoji grid generation showing category difficulty patterns
 - Clipboard sharing with puzzle number and website URL
-- NYT Connections-style share format
+- Share format with difficulty pattern display
 
 ✅ **Session Tracking**
 - Anonymous guess and session recording in database
