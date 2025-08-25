@@ -38,7 +38,7 @@ export default function ResultsModal({ gameState, isOpen, onClose }: ResultsModa
       }).join('')
     ).join('\n')
 
-    return `Frisconnections\nPuzzle #${puzzle.puzzle_number}\n${emojiGrid}\n\nhttps://frisconnections.lol`
+    return `FrisConnections\nPuzzle #${puzzle.puzzle_number}\n${emojiGrid}\n\nhttps://frisconnections.lol`
   }
 
   const handleShare = async () => {

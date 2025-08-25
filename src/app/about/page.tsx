@@ -5,7 +5,7 @@ export default function About() {
                 <h1 className="text-3xl font-bold mb-6 page-text">About</h1>
                 <div className="rounded-lg shadow-sm p-8 page-content">
                     <p className="mb-4 page-text">
-                        Frisconnections was created with love for San Francisco by{' '}
+                        FrisConnections was created with love for San Francisco by{' '}
                         <a
                             href="https://mrfinnsmith.com"
                             className="font-medium hover:underline page-link"

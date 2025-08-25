@@ -3,11 +3,11 @@ import Link from 'next/link'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Frisconnections - Daily San Francisco Word Puzzle',
+  title: 'FrisConnections - Daily San Francisco Word Puzzle',
   description: 'Daily San Francisco word puzzle game. Find connections between 16 words in 4 groups. New puzzle every day featuring SF neighborhoods, food, culture, and local knowledge.',
   keywords: ['san francisco puzzle', 'sf word game', 'daily puzzle', 'connections game', 'bay area trivia', 'puzzle', 'game', 'san francisco', 'connections', 'word game'],
   openGraph: {
-    title: 'Frisconnections - Daily San Francisco Word Puzzle',
+    title: 'FrisConnections - Daily San Francisco Word Puzzle',
     description: 'Daily San Francisco word puzzle game. Find connections between 16 words in 4 groups. New puzzle every day featuring SF neighborhoods, food, culture, and local knowledge.',
     url: 'https://frisconnections.lol',
     type: 'website',
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
         url: 'https://frisconnections.lol/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Frisconnections - Daily San Francisco Word Puzzle Game'
+        alt: 'FrisConnections - Daily San Francisco Word Puzzle Game'
       }
     ]
   }
@@ -54,7 +54,7 @@ export default function RootLayout({
           <header className="text-center mb-6">
             <Link href="/" className="block">
               <h1 className="text-4xl font-bold page-text mb-1">
-                Frisconnections
+                FrisConnections
               </h1>
             </Link>
             <nav className="mt-3">
