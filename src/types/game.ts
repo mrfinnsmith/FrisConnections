@@ -8,6 +8,7 @@ export interface GameState {
   sessionId?: string
   showToast: boolean
   toastMessage: string
+  shuffledItems: string[]
 }
 
 export interface Puzzle {

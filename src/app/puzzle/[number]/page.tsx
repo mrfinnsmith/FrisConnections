@@ -85,7 +85,7 @@ export default function PuzzlePage({ params }: PuzzlePageProps) {
                 </div>
             </div>
 
-            <GameBoard puzzle={puzzle} puzzleId={puzzle.id} />
+            <GameBoard puzzle={puzzle} isPastPuzzle={true} puzzleNumber={parseInt(params.number)} />
         </div>
     )
 }

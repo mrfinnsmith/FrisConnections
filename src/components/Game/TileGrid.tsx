@@ -5,7 +5,6 @@ import { getAvailableTiles } from '@/lib/gameLogic'
 
 interface TileGridProps {
   gameState: GameState
-  tiles: string[]
   onTileClick: (tile: string) => void
   animatingTiles: string[]
   animationType: 'shake' | 'bounce' | null
@@ -50,16 +49,20 @@ function getSolvedGroupForTile(tile: string, solvedGroups: SolvedGroup[]): Solve
 
 export default function TileGrid({ 
   gameState, 
-  tiles, 
   onTileClick, 
   animatingTiles, 
   animationType 
 }: TileGridProps) {
   const availableTiles = getAvailableTiles(gameState)
   
+  // Get items that should be displayed (not solved)
+  const displayItems = gameState.shuffledItems.filter((item: string) =>
+    !gameState.solvedGroups.some(group => group.category.items.includes(item))
+  );
+  
   return (
     <div className="grid grid-cols-4 gap-2 mb-6">
-      {tiles.map((tile, index) => {
+      {displayItems.map((tile, index) => {
         const solvedGroup = getSolvedGroupForTile(tile, gameState.solvedGroups)
         const isAvailable = availableTiles.includes(tile)
         const isDisabled = gameState.gameStatus !== 'playing' || !isAvailable

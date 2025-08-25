@@ -20,7 +20,8 @@ export function createInitialGameState(puzzle: Puzzle, sessionId?: string): Game
     guessHistory: [],
     sessionId,
     showToast: false,
-    toastMessage: ""
+    toastMessage: "",
+    shuffledItems: getShuffledTiles(puzzle)
   }
 }
 

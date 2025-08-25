@@ -139,6 +139,32 @@ export function getUserStats(): UserStats {
   }
 }
 
+// Onboarding system
+const ONBOARDING_VERSION = 1;
+const ONBOARDING_KEY = 'frisconnections_onboarding_version';
+const FIRST_INCORRECT_KEY = 'frisconnections_first_incorrect_shown';
+
+export function hasSeenOnboarding(): boolean {
+  if (typeof window === 'undefined') return false;
+  const saved = localStorage.getItem(ONBOARDING_KEY);
+  return saved === ONBOARDING_VERSION.toString();
+}
+
+export function markOnboardingSeen(): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(ONBOARDING_KEY, ONBOARDING_VERSION.toString());
+}
+
+export function hasSeenFirstIncorrectToast(): boolean {
+  if (typeof window === 'undefined') return false;
+  return localStorage.getItem(FIRST_INCORRECT_KEY) === 'true';
+}
+
+export function markFirstIncorrectToastSeen(): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(FIRST_INCORRECT_KEY, 'true');
+}
+
 function getPreviousDate(dateString: string): string {
   const date = new Date(dateString)
   date.setDate(date.getDate() - 1)
