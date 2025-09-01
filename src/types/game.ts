@@ -16,6 +16,7 @@ export interface Puzzle {
   date: string
   puzzle_number: number
   categories: Category[]
+  difficulty_tier?: 1 | 2 | 3
 }
 
 export interface Category {
@@ -98,6 +99,18 @@ export const DIFFICULTY_NAMES = {
   2: 'Green',
   3: 'Blue',
   4: 'Purple'
+} as const
+
+export const DIFFICULTY_TIER_NAMES = {
+  1: 'Easy',
+  2: 'Medium',
+  3: 'Hard'
+} as const
+
+export const DIFFICULTY_TIER_COLORS = {
+  1: 'bg-green-100 text-green-800 border border-green-200',
+  2: 'bg-yellow-100 text-yellow-800 border border-yellow-200',
+  3: 'bg-red-100 text-red-800 border border-red-200'
 } as const
 
 export const MAX_ATTEMPTS = 4

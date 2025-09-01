@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import DifficultyBadge from '@/components/DifficultyBadge'
 
 interface PastPuzzle {
     puzzle_number: number
     last_presented: string | null
+    difficulty_tier?: number
 }
 
 export default function PastPuzzlesPage() {
@@ -79,6 +81,7 @@ export default function PastPuzzlesPage() {
                             <p className="text-sm text-gray-600">
                                 Last presented: {formatDate(puzzle.last_presented)}
                             </p>
+                            <DifficultyBadge tier={puzzle.difficulty_tier ?? null} />
                         </div>
                         <Link
                             href={`/puzzle/${puzzle.puzzle_number}`}

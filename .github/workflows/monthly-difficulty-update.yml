@@ -1,0 +1,15 @@
+name: Monthly Difficulty Update
+on:
+  schedule:
+    - cron: '0 2 1 * *'  # 1st of every month at 02:00 UTC
+
+jobs:
+  update-difficulty:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update difficulty tiers
+        run: |
+          response=$(curl -s -X POST \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            "${{ secrets.SUPABASE_URL }}/functions/v1/update-difficulty")
+          echo "Response: $response"
