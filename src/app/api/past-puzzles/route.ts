@@ -3,8 +3,8 @@ import { NextResponse } from 'next/server'
 
 export async function GET() {
     try {
-        console.log('Calling get_past_puzzles RPC...')
-        const { data, error } = await supabase.rpc('get_past_puzzles')
+        console.log('Calling frisc_get_past_puzzles RPC...')
+        const { data, error } = await supabase.rpc('frisc_get_past_puzzles')
 
         console.log('RPC response:', { data, error })
 

@@ -3,7 +3,7 @@ import { Puzzle } from '@/types/game'
 
 export async function getTodaysPuzzle(): Promise<Puzzle | null> {
   try {
-    const { data, error } = await supabase.rpc('get_daily_puzzle')
+    const { data, error } = await supabase.rpc('frisc_get_daily_puzzle')
 
     if (error) {
       console.error('Error fetching puzzle:', error)
@@ -14,7 +14,6 @@ export async function getTodaysPuzzle(): Promise<Puzzle | null> {
       return null
     }
 
-    // Transform the data into the expected Puzzle format
     const puzzleData = data[0]
     const puzzle: Puzzle = {
       id: puzzleData.puzzle_id,

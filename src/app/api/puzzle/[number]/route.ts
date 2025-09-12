@@ -15,7 +15,7 @@ export async function GET(
             )
         }
 
-        const { data: puzzle, error } = await supabase.rpc('get_puzzle_by_number', {
+        const { data: puzzle, error } = await supabase.rpc('frisc_get_puzzle_by_number', {
             puzzle_num: puzzleNumber
         })
 

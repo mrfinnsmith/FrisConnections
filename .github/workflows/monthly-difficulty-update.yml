@@ -10,6 +10,6 @@ jobs:
       - name: Update difficulty tiers
         run: |
           response=$(curl -s -X POST \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
-            "${{ secrets.SUPABASE_URL }}/functions/v1/update-difficulty")
+            -H "Authorization: Bearer ${{ secrets.NEXT_PUBLIC_SUPABASE_SERVICE_KEY }}" \
+            "${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}/functions/v1/frisc-update-difficulty")
           echo "Response: $response"

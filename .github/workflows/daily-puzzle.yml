@@ -11,5 +11,8 @@ jobs:
     steps:
       - name: Advance daily puzzle
         run: |
-          curl -X POST https://${{ secrets.APP_DOMAIN }}/api/advance-puzzle \
+          curl -s -w "\nHTTP_STATUS:%{http_code}" \
+            --max-time 30 \
+            -X POST "${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}/functions/v1/frisc-daily-puzzle" \
+            -H "Authorization: Bearer ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" \
             -H "Content-Type: application/json"

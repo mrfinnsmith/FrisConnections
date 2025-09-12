@@ -4,7 +4,7 @@ import { SessionData, GuessData } from '@/types/game'
 export async function createSession(sessionId: string, puzzleId: number): Promise<boolean> {
   try {
     const { error } = await supabase
-      .from('anonymous_sessions')
+      .from('frisc_anonymous_sessions')
       .insert({
         session_id: sessionId,
         puzzle_id: puzzleId,
@@ -26,7 +26,7 @@ export async function updateSession(
 ): Promise<boolean> {
   try {
     const { error } = await supabase
-      .from('anonymous_sessions')
+      .from('frisc_anonymous_sessions')
       .update(updates)
       .eq('session_id', sessionId)
 
@@ -44,7 +44,7 @@ export async function completeSession(
 ): Promise<boolean> {
   try {
     const { error } = await supabase
-      .from('anonymous_sessions')
+      .from('frisc_anonymous_sessions')
       .update({
         completed: true,
         attempts_used: attemptsUsed,
@@ -63,7 +63,7 @@ export async function completeSession(
 export async function recordGuess(guessData: GuessData): Promise<boolean> {
   try {
     const { error } = await supabase
-      .from('anonymous_guesses')
+      .from('frisc_anonymous_guesses')
       .insert({
         session_id: guessData.session_id,
         puzzle_id: guessData.puzzle_id,
@@ -84,11 +84,11 @@ export async function recordGuess(guessData: GuessData): Promise<boolean> {
 export async function getSessionExists(sessionId: string, puzzleId: number): Promise<boolean> {
   try {
     const { data, error } = await supabase
-      .from('anonymous_sessions')
+      .from('frisc_anonymous_sessions')
       .select('session_id')
       .eq('session_id', sessionId)
       .eq('puzzle_id', puzzleId)
-      .single()
+      .maybeSingle()
 
     return !error && !!data
   } catch (error) {
