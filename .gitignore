@@ -2,6 +2,8 @@ node_modules/
 .next/
 .env.local
 *.log
+*.tsbuildinfo
+.claude/
 CLAUDE.md
 docs/status-memo.md
 docs/improvement-memo.md
