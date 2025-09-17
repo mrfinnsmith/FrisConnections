@@ -21,8 +21,8 @@ export default function ResultsModal({ gameState, isOpen, onClose }: ResultsModa
   const stats = {
     completed: userStats.gamesPlayed,
     winPercentage: winPercentage,
-    currentStreak: userStats.currentStreak,
-    maxStreak: userStats.maxStreak
+    attemptsUsed: gameState.attemptsUsed,
+    gamesWon: userStats.gamesWon
   }
 
   const generateShareText = (): string => {
@@ -87,12 +87,12 @@ export default function ResultsModal({ gameState, isOpen, onClose }: ResultsModa
             <div className="text-sm text-gray-600">Win %</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold">{stats.currentStreak}</div>
-            <div className="text-sm text-gray-600">Current Streak</div>
+            <div className="text-2xl font-bold">{stats.attemptsUsed}</div>
+            <div className="text-sm text-gray-600">Attempts</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold">{stats.maxStreak}</div>
-            <div className="text-sm text-gray-600">Max Streak</div>
+            <div className="text-2xl font-bold">{stats.gamesWon}</div>
+            <div className="text-sm text-gray-600">Won</div>
           </div>
         </div>
 

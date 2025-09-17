@@ -97,17 +97,6 @@ export function updateUserStats(won: boolean, date: string, puzzleId?: number, a
 
   if (won) {
     stats.gamesWon++
-
-    // Update streak
-    if (stats.lastPlayedDate === getPreviousDate(today)) {
-      stats.currentStreak++
-    } else {
-      stats.currentStreak = 1
-    }
-
-    stats.maxStreak = Math.max(stats.maxStreak, stats.currentStreak)
-  } else {
-    stats.currentStreak = 0
   }
 
   stats.lastPlayedDate = today
@@ -125,8 +114,6 @@ export function getUserStats(): UserStats {
     return {
       gamesPlayed: 0,
       gamesWon: 0,
-      currentStreak: 0,
-      maxStreak: 0,
       lastPlayedDate: ''
     }
   }
@@ -137,8 +124,6 @@ export function getUserStats(): UserStats {
     return {
       gamesPlayed: 0,
       gamesWon: 0,
-      currentStreak: 0,
-      maxStreak: 0,
       lastPlayedDate: ''
     }
   }
