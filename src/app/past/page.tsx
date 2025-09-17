@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import Link from 'next/link'
 import DifficultyBadge from '@/components/DifficultyBadge'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { PastPuzzlesErrorFallback } from '@/components/ErrorFallbacks'
+import { trackGamePerformance } from '@/lib/performance'
 
 interface PastPuzzle {
     puzzle_number: number
@@ -36,7 +37,8 @@ export default function PastPuzzlesPage() {
         fetchPuzzles()
     }, [])
 
-    const formatDate = (dateString: string | null) => {
+    // Memoize date formatter to prevent recreation on every render
+    const formatDate = useCallback((dateString: string | null) => {
         if (!dateString) return 'Never presented'
         const date = new Date(dateString)
         return date.toLocaleDateString('en-US', {
@@ -44,7 +46,20 @@ export default function PastPuzzlesPage() {
             month: 'long',
             day: 'numeric'
         })
-    }
+    }, [])
+
+    // Memoize formatted puzzle data to prevent recalculation on every render
+    const formattedPuzzles = useMemo(() => {
+        const endTracking = trackGamePerformance.dataFormat('puzzle_dates', puzzles.length);
+        
+        const formatted = puzzles.map(puzzle => ({
+            ...puzzle,
+            formattedDate: formatDate(puzzle.last_presented)
+        }));
+        
+        endTracking();
+        return formatted;
+    }, [puzzles, formatDate])
 
     if (loading) {
         return (
@@ -77,12 +92,12 @@ export default function PastPuzzlesPage() {
 
             <ErrorBoundary fallback={<PastPuzzlesErrorFallback />}>
                 <div className="space-y-2">
-                    {puzzles.map((puzzle) => (
+                    {formattedPuzzles.map((puzzle) => (
                         <div key={puzzle.puzzle_number} className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
                             <div>
                                 <h3 className="font-semibold">Puzzle #{puzzle.puzzle_number}</h3>
                                 <p className="text-sm text-gray-600">
-                                    Last presented: {formatDate(puzzle.last_presented)}
+                                    Last presented: {puzzle.formattedDate}
                                 </p>
                                 <DifficultyBadge tier={puzzle.difficulty_tier ?? null} />
                             </div>

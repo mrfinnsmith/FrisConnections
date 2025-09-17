@@ -1,7 +1,9 @@
 'use client'
 
+import React, { useMemo, memo, useEffect } from 'react'
 import { GameState, SolvedGroup } from '@/types/game'
 import { getAvailableTiles } from '@/lib/gameLogic'
+import { trackGamePerformance } from '@/lib/performance'
 
 interface TileGridProps {
   gameState: GameState
@@ -47,40 +49,60 @@ function getSolvedGroupForTile(tile: string, solvedGroups: SolvedGroup[]): Solve
   return solvedGroups.find(group => group.category.items.includes(tile))
 }
 
-export default function TileGrid({ 
+function TileGrid({ 
   gameState, 
   onTileClick, 
   animatingTiles, 
   animationType 
 }: TileGridProps) {
-  const availableTiles = getAvailableTiles(gameState)
+  // Memoize expensive calculations
+  const availableTiles = useMemo(() => getAvailableTiles(gameState), [gameState])
   
-  // Get items that should be displayed (not solved)
-  const displayItems = gameState.shuffledItems.filter((item: string) =>
-    !gameState.solvedGroups.some(group => group.category.items.includes(item))
-  );
+  // Memoize filtered display items
+  const displayItems = useMemo(() => 
+    gameState.shuffledItems.filter((item: string) =>
+      !gameState.solvedGroups.some(group => group.category.items.includes(item))
+    ), [gameState.shuffledItems, gameState.solvedGroups]
+  )
+  
+  // Memoize tile data to avoid recalculation on every render
+  const tileData = useMemo(() => {
+    const endTracking = trackGamePerformance.tileRender(displayItems.length);
+    
+    const data = displayItems.map((tile, index) => {
+      const solvedGroup = getSolvedGroupForTile(tile, gameState.solvedGroups)
+      const isAvailable = availableTiles.includes(tile)
+      const isDisabled = gameState.gameStatus !== 'playing' || !isAvailable
+      const animationIndex = animatingTiles.indexOf(tile)
+      const tileClasses = getTileClasses(tile, gameState, solvedGroup, animatingTiles, animationType, animationIndex)
+      
+      return {
+        tile,
+        index,
+        tileClasses,
+        isDisabled
+      }
+    });
+    
+    endTracking();
+    return data;
+  }, [displayItems, gameState, availableTiles, animatingTiles, animationType])
   
   return (
     <div className="grid grid-cols-4 gap-2 mb-6">
-      {displayItems.map((tile, index) => {
-        const solvedGroup = getSolvedGroupForTile(tile, gameState.solvedGroups)
-        const isAvailable = availableTiles.includes(tile)
-        const isDisabled = gameState.gameStatus !== 'playing' || !isAvailable
-        
-        // Get animation index for staggered delays
-        const animationIndex = animatingTiles.indexOf(tile)
-        
-        return (
-          <button
-            key={`${tile}-${index}`}
-            className={getTileClasses(tile, gameState, solvedGroup, animatingTiles, animationType, animationIndex)}
-            onClick={() => onTileClick(tile)}
-            disabled={isDisabled}
-          >
-            {tile}
-          </button>
-        )
-      })}
+      {tileData.map(({ tile, index, tileClasses, isDisabled }) => (
+        <button
+          key={`${tile}-${index}`}
+          className={tileClasses}
+          onClick={() => onTileClick(tile)}
+          disabled={isDisabled}
+        >
+          {tile}
+        </button>
+      ))}
     </div>
   )
 }
+
+// Export memoized component to prevent unnecessary re-renders
+export default memo(TileGrid)

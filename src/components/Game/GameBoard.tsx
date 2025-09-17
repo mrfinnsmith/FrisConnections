@@ -18,6 +18,7 @@ import {
   hasSeenOnboarding,
   markOnboardingSeen
 } from '@/lib/localStorage';
+import { trackGamePerformance } from '@/lib/performance';
 
 interface GameBoardProps {
   puzzle: Puzzle;
@@ -72,6 +73,8 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
   useEffect(() => {
     if (!puzzle) return;
 
+    const endGameInit = trackGamePerformance.gameInit(puzzle.id);
+
     const sessionId = getOrCreateSessionId();
     const savedProgress = loadGameProgress(puzzle.id);
 
@@ -115,6 +118,8 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
     if (!hasSeenOnboarding()) {
       setShowOnboarding(true);
     }
+
+    endGameInit();
   }, [puzzle, getAllItems, reconstructSolvedGroupsFromHistory]);
 
   // Save progress whenever game state changes
@@ -138,6 +143,8 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
 
   const handleSubmit = async () => {
     if (gameState.selectedTiles.length !== 4 || gameState.gameStatus !== 'playing') return;
+
+    const endGuessSubmit = trackGamePerformance.guessSubmit(gameState.selectedTiles);
 
     // Check if this combination matches any category
     const matchingCategory = puzzle.categories.find(category =>
@@ -233,6 +240,8 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
         setShowResults(true);
       }
     }
+
+    endGuessSubmit();
   };
 
   const handleShuffle = () => {

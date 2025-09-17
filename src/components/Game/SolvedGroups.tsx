@@ -1,20 +1,25 @@
 'use client'
 
+import React, { useMemo, memo } from 'react'
 import { SolvedGroup } from '@/types/game'
 
 interface SolvedGroupsProps {
   solvedGroups: SolvedGroup[]
 }
 
-export default function SolvedGroups({ solvedGroups }: SolvedGroupsProps) {
-  if (solvedGroups.length === 0) return null
+function SolvedGroups({ solvedGroups }: SolvedGroupsProps) {
+  // Memoize sorted groups to prevent unnecessary sorting on every render
+  const sortedGroups = useMemo(() => {
+    if (solvedGroups.length === 0) return []
+    return [...solvedGroups].sort((a, b) => a.category.difficulty - b.category.difficulty)
+  }, [solvedGroups])
   
-  // Sort by difficulty for consistent display
-  const sortedGroups = [...solvedGroups].sort((a, b) => a.category.difficulty - b.category.difficulty)
-  
-  return (
-    <div className="mb-6 space-y-2">
-      {sortedGroups.map((group) => (
+  // Memoize group elements to prevent recreation when parent re-renders
+  const groupElements = useMemo(() => 
+    sortedGroups.map((group) => {
+      const itemsText = group.category.items.join(', ')
+      
+      return (
         <div 
           key={group.category.id}
           className={`solved-group difficulty-${group.category.difficulty}`}
@@ -24,11 +29,22 @@ export default function SolvedGroups({ solvedGroups }: SolvedGroupsProps) {
               {group.category.name}
             </h3>
             <p className="text-sm opacity-90">
-              {group.category.items.join(', ')}
+              {itemsText}
             </p>
           </div>
         </div>
-      ))}
+      )
+    }), [sortedGroups]
+  )
+  
+  if (solvedGroups.length === 0) return null
+  
+  return (
+    <div className="mb-6 space-y-2">
+      {groupElements}
     </div>
   )
 }
+
+// Export memoized component
+export default memo(SolvedGroups)
