@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { GameMainErrorFallback } from '@/components/ErrorFallbacks'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -71,19 +72,7 @@ export default function RootLayout({
                 </Link>
               </nav>
             </header>
-            <ErrorBoundary
-              fallback={
-                <div className="text-center py-8">
-                  <p className="text-red-600 mb-4">Something went wrong with the game.</p>
-                  <button
-                    onClick={() => window.location.reload()}
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                  >
-                    Reload Game
-                  </button>
-                </div>
-              }
-            >
+            <ErrorBoundary fallback={<GameMainErrorFallback />}>
               <main>
                 {children}
               </main>

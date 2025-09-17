@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import DifficultyBadge from '@/components/DifficultyBadge'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { PastPuzzlesErrorFallback } from '@/components/ErrorFallbacks'
 
 interface PastPuzzle {
     puzzle_number: number
@@ -74,19 +75,7 @@ export default function PastPuzzlesPage() {
                 </Link>
             </div>
 
-            <ErrorBoundary
-                fallback={
-                    <div className="text-center py-8">
-                        <p className="text-red-600 mb-4">Error loading puzzle list</p>
-                        <button
-                            onClick={() => window.location.reload()}
-                            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                        >
-                            Reload Page
-                        </button>
-                    </div>
-                }
-            >
+            <ErrorBoundary fallback={<PastPuzzlesErrorFallback />}>
                 <div className="space-y-2">
                     {puzzles.map((puzzle) => (
                         <div key={puzzle.puzzle_number} className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
