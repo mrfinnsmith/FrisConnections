@@ -6,6 +6,7 @@ import DifficultyBadge from '@/components/DifficultyBadge'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { PastPuzzlesErrorFallback } from '@/components/ErrorFallbacks'
 import { trackGamePerformance } from '@/lib/performance'
+import { PuzzleCardSkeleton, SkeletonList } from '@/components/UI/Skeleton'
 
 interface PastPuzzle {
     puzzle_number: number
@@ -64,7 +65,27 @@ export default function PastPuzzlesPage() {
     if (loading) {
         return (
             <div className="w-full max-w-2xl mx-auto p-4">
-                <div className="text-center">Loading past puzzles...</div>
+                <h1 className="text-3xl font-bold text-center mb-8">Past FrisConnections</h1>
+
+                <div className="mb-6 text-center">
+                    <Link
+                        href="/"
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                        Back to Today's Puzzle
+                    </Link>
+                </div>
+
+                <SkeletonList
+                    count={8}
+                    renderSkeleton={(index) => (
+                        <div className="mb-2">
+                            <PuzzleCardSkeleton />
+                        </div>
+                    )}
+                    staggerDelay={50}
+                    className="space-y-2"
+                />
             </div>
         )
     }

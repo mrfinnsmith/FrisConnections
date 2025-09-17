@@ -365,4 +365,43 @@ body {
   .toast-hidden {
     opacity: 0;
   }
+
+  /* Skeleton loading animations */
+  @keyframes skeleton-pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  .skeleton-shimmer {
+    background: linear-gradient(90deg, 
+      rgba(255, 255, 255, 0) 0%, 
+      rgba(255, 255, 255, 0.2) 50%, 
+      rgba(255, 255, 255, 0) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  /* Enhanced pulse animation for skeleton components */
+  .animate-pulse {
+    animation: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Staggered animation support */
+  .animate-pulse-delay-1 { animation-delay: 100ms; }
+  .animate-pulse-delay-2 { animation-delay: 200ms; }
+  .animate-pulse-delay-3 { animation-delay: 300ms; }
+  .animate-pulse-delay-4 { animation-delay: 400ms; }
 }

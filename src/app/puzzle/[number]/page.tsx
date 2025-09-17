@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import GameBoard from '@/components/Game/GameBoard'
+import GameBoardSkeleton from '@/components/Game/GameBoardSkeleton'
 import { Puzzle } from '@/types/game'
+import { Skeleton } from '@/components/UI/Skeleton'
 
 interface PuzzlePageProps {
     params: { number: string }
@@ -38,8 +40,22 @@ export default function PuzzlePage({ params }: PuzzlePageProps) {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gray-50 py-8">
-                <div className="text-center">Loading puzzle...</div>
+            <div className="space-y-4">
+                {/* Header skeleton */}
+                <div className="w-full max-w-lg mx-auto mb-6">
+                    <div className="text-center mb-4 space-y-2">
+                        <Skeleton height="h-8" width="w-32" className="mx-auto" />
+                        <Skeleton height="h-4" width="w-24" className="mx-auto" />
+                    </div>
+
+                    <div className="flex justify-center gap-4 mb-6">
+                        <Skeleton height="h-10" width="w-28" rounded="lg" />
+                        <Skeleton height="h-10" width="w-32" rounded="lg" />
+                    </div>
+                </div>
+
+                {/* Game board skeleton */}
+                <GameBoardSkeleton isPastPuzzle={true} />
             </div>
         )
     }
