@@ -7,6 +7,7 @@ import SolvedGroups from './SolvedGroups';
 import ResultsModal from './ResultsModal';
 import { Toast } from './Toast';
 import OnboardingModal from './OnboardingModal';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Puzzle, GameState, Category, SolvedGroup, GuessResult } from '@/types/game';
 import {
   loadGameProgress,
@@ -283,27 +284,57 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
         </div>
       </div>
 
-      <SolvedGroups solvedGroups={gameState.solvedGroups} />
+      <ErrorBoundary
+        fallback={
+          <div className="text-center py-4">
+            <p className="text-red-600 mb-2">Game board error</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-3 py-1 bg-blue-600 text-white rounded text-sm"
+            >
+              Restart Game
+            </button>
+          </div>
+        }
+      >
+        <SolvedGroups solvedGroups={gameState.solvedGroups} />
 
-      <TileGrid
-        gameState={gameState}
-        onTileClick={handleTileClick}
-        animatingTiles={[]}
-        animationType={null}
-      />
+        <TileGrid
+          gameState={gameState}
+          onTileClick={handleTileClick}
+          animatingTiles={[]}
+          animationType={null}
+        />
 
-      <GameControls
-        gameState={gameState}
-        onSubmit={handleSubmit}
-        onShuffle={handleShuffle}
-        onDeselectAll={handleDeselectAll}
-      />
+        <GameControls
+          gameState={gameState}
+          onSubmit={handleSubmit}
+          onShuffle={handleShuffle}
+          onDeselectAll={handleDeselectAll}
+        />
+      </ErrorBoundary>
 
-      <ResultsModal
-        gameState={gameState}
-        isOpen={showResults}
-        onClose={() => setShowResults(false)}
-      />
+      <ErrorBoundary
+        fallback={
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-lg p-6 text-center max-w-sm">
+              <p className="text-red-600 mb-4">Results display error</p>
+              <button
+                onClick={() => setShowResults(false)}
+                className="px-4 py-2 bg-gray-600 text-white rounded"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        }
+      >
+        <ResultsModal
+          gameState={gameState}
+          isOpen={showResults}
+          onClose={() => setShowResults(false)}
+        />
+      </ErrorBoundary>
 
       <Toast
         message={gameState.toastMessage}

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -50,29 +51,45 @@ export default function RootLayout({
         <script src="https://analytics.ahrefs.com/analytics.js" data-key="FUbmj+ShHkEoUzhFgwsmgg" async></script>
       </head>
       <body className="min-h-screen page-container">
-        <div className="container mx-auto px-4 py-6 max-w-2xl">
-          <header className="text-center mb-6">
-            <Link href="/" className="block">
-              <h1 className="text-4xl font-bold page-text mb-1">
-                FrisConnections
-              </h1>
-            </Link>
-            <nav className="mt-3">
-              <Link href="/past" className="page-link hover:underline text-sm mr-4">
-                Past FrisConnections
+        <ErrorBoundary>
+          <div className="container mx-auto px-4 py-6 max-w-2xl">
+            <header className="text-center mb-6">
+              <Link href="/" className="block">
+                <h1 className="text-4xl font-bold page-text mb-1">
+                  FrisConnections
+                </h1>
               </Link>
-              <Link href="/about" className="page-link hover:underline text-sm mr-4">
-                About
-              </Link>
-              <Link href="/how-to-play" className="page-link hover:underline text-sm">
-                How to Play
-              </Link>
-            </nav>
-          </header>
-          <main>
-            {children}
-          </main>
-        </div>
+              <nav className="mt-3">
+                <Link href="/past" className="page-link hover:underline text-sm mr-4">
+                  Past FrisConnections
+                </Link>
+                <Link href="/about" className="page-link hover:underline text-sm mr-4">
+                  About
+                </Link>
+                <Link href="/how-to-play" className="page-link hover:underline text-sm">
+                  How to Play
+                </Link>
+              </nav>
+            </header>
+            <ErrorBoundary
+              fallback={
+                <div className="text-center py-8">
+                  <p className="text-red-600 mb-4">Something went wrong with the game.</p>
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  >
+                    Reload Game
+                  </button>
+                </div>
+              }
+            >
+              <main>
+                {children}
+              </main>
+            </ErrorBoundary>
+          </div>
+        </ErrorBoundary>
       </body>
     </html>
   )

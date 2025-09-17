@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import DifficultyBadge from '@/components/DifficultyBadge'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 interface PastPuzzle {
     puzzle_number: number
@@ -73,25 +74,39 @@ export default function PastPuzzlesPage() {
                 </Link>
             </div>
 
-            <div className="space-y-2">
-                {puzzles.map((puzzle) => (
-                    <div key={puzzle.puzzle_number} className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
-                        <div>
-                            <h3 className="font-semibold">Puzzle #{puzzle.puzzle_number}</h3>
-                            <p className="text-sm text-gray-600">
-                                Last presented: {formatDate(puzzle.last_presented)}
-                            </p>
-                            <DifficultyBadge tier={puzzle.difficulty_tier ?? null} />
-                        </div>
-                        <Link
-                            href={`/puzzle/${puzzle.puzzle_number}`}
-                            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+            <ErrorBoundary
+                fallback={
+                    <div className="text-center py-8">
+                        <p className="text-red-600 mb-4">Error loading puzzle list</p>
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                         >
-                            Play
-                        </Link>
+                            Reload Page
+                        </button>
                     </div>
-                ))}
-            </div>
+                }
+            >
+                <div className="space-y-2">
+                    {puzzles.map((puzzle) => (
+                        <div key={puzzle.puzzle_number} className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
+                            <div>
+                                <h3 className="font-semibold">Puzzle #{puzzle.puzzle_number}</h3>
+                                <p className="text-sm text-gray-600">
+                                    Last presented: {formatDate(puzzle.last_presented)}
+                                </p>
+                                <DifficultyBadge tier={puzzle.difficulty_tier ?? null} />
+                            </div>
+                            <Link
+                                href={`/puzzle/${puzzle.puzzle_number}`}
+                                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                            >
+                                Play
+                            </Link>
+                        </div>
+                    ))}
+                </div>
+            </ErrorBoundary>
 
             {puzzles.length === 0 && (
                 <div className="text-center text-gray-600">

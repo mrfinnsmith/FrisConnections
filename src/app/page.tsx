@@ -2,6 +2,7 @@ import GameBoard from '@/components/Game/GameBoard'
 import { getTodaysPuzzle } from '@/lib/puzzleApi'
 import Link from 'next/link'
 import Image from 'next/image'
+import ErrorTestComponent from '@/components/ErrorTestComponent'
 
 export const revalidate = 3600
 
@@ -40,6 +41,10 @@ export default async function Home() {
 
   return (
     <div className="space-y-4">
+      {process.env.NODE_ENV === 'development' && (
+        <ErrorTestComponent />
+      )}
+      
       <div className="text-center">
         <p className="text-gray-700 mb-4">
           Create four groups of four!
