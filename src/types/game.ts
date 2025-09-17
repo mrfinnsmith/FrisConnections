@@ -43,9 +43,27 @@ export interface GuessResult {
 export interface UserStats {
   gamesPlayed: number
   gamesWon: number
-  currentStreak: number
-  maxStreak: number
   lastPlayedDate: string
+}
+
+export interface PuzzleResult {
+  puzzleId: number
+  date: string
+  won: boolean
+  attemptsUsed: number
+}
+
+export interface DifficultyStats {
+  yellow: { won: number; total: number }
+  green: { won: number; total: number }
+  blue: { won: number; total: number }
+  purple: { won: number; total: number }
+}
+
+export interface EnhancedUserStats extends UserStats {
+  puzzleHistory: PuzzleResult[]
+  difficultyBreakdown: DifficultyStats
+  lastUpdated: Date
 }
 
 export interface GameProgress {

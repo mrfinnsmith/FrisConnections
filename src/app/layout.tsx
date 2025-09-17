@@ -64,6 +64,9 @@ export default function RootLayout({
                 <Link href="/past" className="page-link hover:underline text-sm mr-4">
                   Past FrisConnections
                 </Link>
+                <Link href="/stats" className="page-link hover:underline text-sm mr-4">
+                  Statistics
+                </Link>
                 <Link href="/about" className="page-link hover:underline text-sm mr-4">
                   About
                 </Link>
