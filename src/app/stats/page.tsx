@@ -134,19 +134,6 @@ export default function StatsPage() {
             <GameHistory puzzleHistory={stats.puzzleHistory} />
           )}
 
-          {/* Encouragement messages based on progress */}
-          {stats.gamesPlayed === 0 && (
-            <div className="text-center py-8 bg-blue-50 rounded-lg">
-              <h3 className="text-lg font-semibold text-blue-900 mb-2">Welcome to FrisConnections!</h3>
-              <p className="text-blue-700 mb-4">Start playing to build your statistics and track your progress.</p>
-              <Link
-                href="/"
-                className="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Play Your First Puzzle
-              </Link>
-            </div>
-          )}
 
           {stats.gamesPlayed > 0 && stats.gamesPlayed < 3 && (
             <div className="text-center py-6 bg-green-50 rounded-lg">
@@ -232,16 +219,6 @@ export default function StatsPage() {
             </div>
           )}
 
-          {/* Last updated info */}
-          <div className="text-center text-xs text-gray-500">
-            Last updated: {stats.lastUpdated.toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-              hour: 'numeric',
-              minute: '2-digit'
-            })}
-          </div>
         </div>
       </ErrorBoundary>
     </div>
