@@ -41,8 +41,23 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
   });
   const [showResults, setShowResults] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [announcements, setAnnouncements] = useState<string[]>([]);
 
   const maxGuesses = 4;
+  
+  // Screen reader announcement handler
+  const announceToScreenReader = useCallback((message: string) => {
+    setAnnouncements(prev => [...prev, message]);
+    // Remove announcement after it's been read
+    setTimeout(() => {
+      setAnnouncements(prev => prev.filter(msg => msg !== message));
+    }, 1000);
+  }, []);
+  
+  // Keyboard interaction handler for tile grid
+  const handleKeyboardInteraction = useCallback((message: string) => {
+    announceToScreenReader(message);
+  }, [announceToScreenReader]);
 
   // Shuffle function for tiles
   const shuffleArray = (array: string[]) => {
@@ -202,22 +217,30 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
         toastMessage: ''
       }));
 
+      // Announce correct guess
+      const difficultyColors = { 1: 'Yellow', 2: 'Green', 3: 'Blue', 4: 'Purple' };
+      const difficultyColor = difficultyColors[matchingCategory.difficulty as keyof typeof difficultyColors] || 'Unknown';
+      announceToScreenReader(`Correct! You found the ${difficultyColor} category: ${matchingCategory.name}. ${4 - newSolvedGroups.length} groups remaining.`);
+
       // Check if game is won
       if (newGameStatus === 'won') {
         if (!isPastPuzzle) {
           updateUserStats(true, puzzle.date);
         }
+        announceToScreenReader(`Congratulations! You solved all 4 groups and won the puzzle!`);
         setShowResults(true);
       }
     } else {
       // Wrong guess
       let showToast = false;
       let toastMessage = '';
+      let screenReaderMessage = `Incorrect guess. ${maxGuesses - newAttemptsUsed} mistakes remaining.`;
 
       if (isOneAway) {
         // Show "one away" toast
         showToast = true;
         toastMessage = "One away...";
+        screenReaderMessage = `One away! You have 3 correct items. ${maxGuesses - newAttemptsUsed} mistakes remaining.`;
       }
 
       const newGameStatus = newAttemptsUsed >= maxGuesses ? 'lost' : 'playing';
@@ -232,11 +255,15 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
         toastMessage
       }));
 
+      // Announce incorrect guess
+      announceToScreenReader(screenReaderMessage);
+
       // Check if game is lost
       if (newGameStatus === 'lost') {
         if (!isPastPuzzle) {
           updateUserStats(false, puzzle.date);
         }
+        announceToScreenReader(`Game over. You used all ${maxGuesses} attempts. The results will show the correct answers.`);
         setShowResults(true);
       }
     }
@@ -302,6 +329,7 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
           onTileClick={handleTileClick}
           animatingTiles={[]}
           animationType={null}
+          onKeyboardInteraction={handleKeyboardInteraction}
         />
 
         <GameControls
@@ -325,6 +353,15 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
         isVisible={gameState.showToast}
         onComplete={handleToastComplete}
       />
+      
+      {/* Screen reader announcements */}
+      <div aria-live="polite" aria-atomic="true" className="sr-only">
+        {announcements.map((announcement, index) => (
+          <div key={`announcement-${index}-${announcement}`}>
+            {announcement}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
