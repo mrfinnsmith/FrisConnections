@@ -23,8 +23,8 @@ export async function getTodaysPuzzle(): Promise<Puzzle | null> {
         id: row.category_id,
         name: row.category_name,
         difficulty: row.difficulty,
-        items: row.items
-      }))
+        items: row.items,
+      })),
     }
 
     return puzzle

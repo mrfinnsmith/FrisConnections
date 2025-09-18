@@ -18,7 +18,10 @@ interface DifficultyRow {
   percentage: number
 }
 
-export default function DifficultyBreakdown({ difficultyBreakdown, showTitle = true }: DifficultyBreakdownProps) {
+export default function DifficultyBreakdown({
+  difficultyBreakdown,
+  showTitle = true,
+}: DifficultyBreakdownProps) {
   const difficultyRows = useMemo((): DifficultyRow[] => {
     return [
       {
@@ -27,15 +30,21 @@ export default function DifficultyBreakdown({ difficultyBreakdown, showTitle = t
         emoji: '🟨',
         won: difficultyBreakdown.yellow.won,
         total: difficultyBreakdown.yellow.total,
-        percentage: difficultyBreakdown.yellow.total === 0 ? 0 : Math.round((difficultyBreakdown.yellow.won / difficultyBreakdown.yellow.total) * 100)
+        percentage:
+          difficultyBreakdown.yellow.total === 0
+            ? 0
+            : Math.round((difficultyBreakdown.yellow.won / difficultyBreakdown.yellow.total) * 100),
       },
       {
         name: 'Green',
-        color: DIFFICULTY_COLORS[2], 
+        color: DIFFICULTY_COLORS[2],
         emoji: '🟩',
         won: difficultyBreakdown.green.won,
         total: difficultyBreakdown.green.total,
-        percentage: difficultyBreakdown.green.total === 0 ? 0 : Math.round((difficultyBreakdown.green.won / difficultyBreakdown.green.total) * 100)
+        percentage:
+          difficultyBreakdown.green.total === 0
+            ? 0
+            : Math.round((difficultyBreakdown.green.won / difficultyBreakdown.green.total) * 100),
       },
       {
         name: 'Blue',
@@ -43,7 +52,10 @@ export default function DifficultyBreakdown({ difficultyBreakdown, showTitle = t
         emoji: '🟦',
         won: difficultyBreakdown.blue.won,
         total: difficultyBreakdown.blue.total,
-        percentage: difficultyBreakdown.blue.total === 0 ? 0 : Math.round((difficultyBreakdown.blue.won / difficultyBreakdown.blue.total) * 100)
+        percentage:
+          difficultyBreakdown.blue.total === 0
+            ? 0
+            : Math.round((difficultyBreakdown.blue.won / difficultyBreakdown.blue.total) * 100),
       },
       {
         name: 'Purple (Hardest)',
@@ -51,8 +63,11 @@ export default function DifficultyBreakdown({ difficultyBreakdown, showTitle = t
         emoji: '🟪',
         won: difficultyBreakdown.purple.won,
         total: difficultyBreakdown.purple.total,
-        percentage: difficultyBreakdown.purple.total === 0 ? 0 : Math.round((difficultyBreakdown.purple.won / difficultyBreakdown.purple.total) * 100)
-      }
+        percentage:
+          difficultyBreakdown.purple.total === 0
+            ? 0
+            : Math.round((difficultyBreakdown.purple.won / difficultyBreakdown.purple.total) * 100),
+      },
     ]
   }, [difficultyBreakdown])
 
@@ -61,10 +76,14 @@ export default function DifficultyBreakdown({ difficultyBreakdown, showTitle = t
   if (!hasAnyData) {
     return (
       <div className="bg-white border border-gray-200 rounded-lg p-6">
-        {showTitle && <h3 className="text-lg font-semibold text-gray-900 mb-4">Difficulty Breakdown</h3>}
+        {showTitle && (
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Difficulty Breakdown</h3>
+        )}
         <div className="text-center py-4">
           <p className="text-gray-600 mb-1">No difficulty data yet</p>
-          <p className="text-sm text-gray-500">Complete some puzzles to see your performance by difficulty level.</p>
+          <p className="text-sm text-gray-500">
+            Complete some puzzles to see your performance by difficulty level.
+          </p>
         </div>
       </div>
     )
@@ -72,41 +91,48 @@ export default function DifficultyBreakdown({ difficultyBreakdown, showTitle = t
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-6">
-      {showTitle && <h3 className="text-lg font-semibold text-gray-900 mb-4">Difficulty Breakdown</h3>}
-      
+      {showTitle && (
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Difficulty Breakdown</h3>
+      )}
+
       <div className="space-y-3">
-        {difficultyRows.map((row) => (
+        {difficultyRows.map(row => (
           <div key={row.name} className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <span className="text-lg">{row.emoji}</span>
               <span className="text-sm font-medium text-gray-700">{row.name}</span>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               {/* Win/Total count */}
               <span className="text-sm text-gray-600 min-w-[3rem] text-right">
                 {row.total > 0 ? `${row.won}/${row.total}` : '—'}
               </span>
-              
+
               {/* Percentage */}
-              <span className={`text-sm font-semibold min-w-[3rem] text-right ${
-                row.percentage >= 70 ? 'text-green-600' :
-                row.percentage >= 50 ? 'text-yellow-600' :
-                row.percentage >= 30 ? 'text-orange-600' :
-                'text-red-600'
-              }`}>
+              <span
+                className={`text-sm font-semibold min-w-[3rem] text-right ${
+                  row.percentage >= 70
+                    ? 'text-green-600'
+                    : row.percentage >= 50
+                      ? 'text-yellow-600'
+                      : row.percentage >= 30
+                        ? 'text-orange-600'
+                        : 'text-red-600'
+                }`}
+              >
                 {row.total > 0 ? `${row.percentage}%` : '—'}
               </span>
-              
+
               {/* Progress bar */}
               <div className="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
                 {row.total > 0 && (
-                  <div 
+                  <div
                     className="h-full rounded-full transition-all duration-300"
-                    style={{ 
+                    style={{
                       width: `${row.percentage}%`,
                       backgroundColor: row.color,
-                      opacity: 0.8
+                      opacity: 0.8,
                     }}
                   />
                 )}
@@ -115,10 +141,13 @@ export default function DifficultyBreakdown({ difficultyBreakdown, showTitle = t
           </div>
         ))}
       </div>
-      
+
       {/* Helpful note for users */}
       <div className="mt-4 text-xs text-gray-500 bg-gray-50 rounded p-3">
-        <p><strong>Tip:</strong> Each puzzle has 4 categories (one of each color). Yellow categories are designed to be easiest, purple are hardest.</p>
+        <p>
+          <strong>Tip:</strong> Each puzzle has 4 categories (one of each color). Yellow categories
+          are designed to be easiest, purple are hardest.
+        </p>
       </div>
     </div>
   )

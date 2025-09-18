@@ -1,4 +1,4 @@
-import { DIFFICULTY_TIER_COLORS, DIFFICULTY_TIER_NAMES } from '@/types/game'
+import { DIFFICULTY_TIER_NAMES } from '@/types/game'
 
 interface DifficultyBadgeProps {
   tier: number | null
@@ -14,10 +14,14 @@ export default function DifficultyBadge({ tier, showLabel = true }: DifficultyBa
   // Use inline classes to ensure Tailwind compiles them
   const getColors = (tier: number) => {
     switch (tier) {
-      case 1: return 'bg-green-100 text-green-800 border border-green-200'
-      case 2: return 'bg-yellow-100 text-yellow-800 border border-yellow-200'
-      case 3: return 'bg-red-100 text-red-800 border border-red-200'
-      default: return 'bg-gray-100 text-gray-800 border border-gray-200'
+      case 1:
+        return 'bg-green-100 text-green-800 border border-green-200'
+      case 2:
+        return 'bg-yellow-100 text-yellow-800 border border-yellow-200'
+      case 3:
+        return 'bg-red-100 text-red-800 border border-red-200'
+      default:
+        return 'bg-gray-100 text-gray-800 border border-gray-200'
     }
   }
 

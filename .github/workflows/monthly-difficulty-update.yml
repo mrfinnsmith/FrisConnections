@@ -1,7 +1,7 @@
 name: Monthly Difficulty Update
 on:
   schedule:
-    - cron: '0 2 1 * *'  # 1st of every month at 02:00 UTC
+    - cron: '0 2 1 * *' # 1st of every month at 02:00 UTC
 
 jobs:
   update-difficulty:

@@ -25,9 +25,7 @@ export default async function Home() {
           <h2 className="text-xl font-semibold text-gray-800">
             Today's FrisConnections is still on the ship
           </h2>
-          <p className="text-gray-600">
-            In the meantime, check out some from the past!
-          </p>
+          <p className="text-gray-600">In the meantime, check out some from the past!</p>
           <Link
             href="/past"
             className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
@@ -41,14 +39,10 @@ export default async function Home() {
 
   return (
     <div className="space-y-4">
-      {process.env.NODE_ENV === 'development' && (
-        <ErrorTestComponent />
-      )}
-      
+      {process.env.NODE_ENV === 'development' && <ErrorTestComponent />}
+
       <div className="text-center">
-        <p className="text-gray-700 mb-4">
-          Create four groups of four!
-        </p>
+        <p className="text-gray-700 mb-4">Create four groups of four!</p>
       </div>
       <div className="text-center mb-4">
         <p className="text-gray-600 text-sm">
@@ -56,7 +50,7 @@ export default async function Home() {
             year: 'numeric',
             month: 'long',
             day: 'numeric',
-            timeZone: 'America/Los_Angeles'
+            timeZone: 'America/Los_Angeles',
           })}
         </p>
       </div>

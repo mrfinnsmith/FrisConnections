@@ -12,9 +12,9 @@ const ITEMS_PER_PAGE = 10
 
 export default function GameHistory({ puzzleHistory, showTitle = true }: GameHistoryProps) {
   const [currentPage, setCurrentPage] = useState(1)
-  
+
   const totalPages = Math.ceil(puzzleHistory.length / ITEMS_PER_PAGE)
-  
+
   const paginatedHistory = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
     return puzzleHistory.slice(startIndex, startIndex + ITEMS_PER_PAGE)
@@ -25,7 +25,7 @@ export default function GameHistory({ puzzleHistory, showTitle = true }: GameHis
     return date.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
-      year: 'numeric'
+      year: 'numeric',
     })
   }
 
@@ -62,12 +62,12 @@ export default function GameHistory({ puzzleHistory, showTitle = true }: GameHis
           <span className="text-sm text-gray-500">{puzzleHistory.length} games played</span>
         </div>
       )}
-      
+
       {/* History table */}
       <div className="space-y-2">
-        {paginatedHistory.map((puzzle) => (
-          <div 
-            key={puzzle.puzzleId} 
+        {paginatedHistory.map(puzzle => (
+          <div
+            key={puzzle.puzzleId}
             className="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
           >
             <div className="flex items-center space-x-4">
@@ -77,16 +77,20 @@ export default function GameHistory({ puzzleHistory, showTitle = true }: GameHis
                 <div className="text-sm text-gray-600">{formatDate(puzzle.date)}</div>
               </div>
             </div>
-            
+
             <div className="text-right">
               <div className={`font-semibold ${getResultColor(puzzle.won)}`}>
                 {getAttemptsDisplay(puzzle.attemptsUsed, puzzle.won)}
               </div>
               {puzzle.won && (
                 <div className="text-xs text-gray-500">
-                  {puzzle.attemptsUsed === 1 ? 'Perfect!' : 
-                   puzzle.attemptsUsed === 2 ? 'Great!' :
-                   puzzle.attemptsUsed === 3 ? 'Good' : 'Close call'}
+                  {puzzle.attemptsUsed === 1
+                    ? 'Perfect!'
+                    : puzzle.attemptsUsed === 2
+                      ? 'Great!'
+                      : puzzle.attemptsUsed === 3
+                        ? 'Good'
+                        : 'Close call'}
                 </div>
               )}
             </div>
@@ -104,11 +108,11 @@ export default function GameHistory({ puzzleHistory, showTitle = true }: GameHis
           >
             Previous
           </button>
-          
+
           <span className="text-sm text-gray-600">
             Page {currentPage} of {totalPages}
           </span>
-          
+
           <button
             onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
             disabled={currentPage === totalPages}

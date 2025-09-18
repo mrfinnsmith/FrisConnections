@@ -3,15 +3,13 @@ import { SessionData, GuessData } from '@/types/game'
 
 export async function createSession(sessionId: string, puzzleId: number): Promise<boolean> {
   try {
-    const { error } = await supabase
-      .from('frisc_anonymous_sessions')
-      .insert({
-        session_id: sessionId,
-        puzzle_id: puzzleId,
-        completed: false,
-        attempts_used: 0,
-        solved_categories: []
-      })
+    const { error } = await supabase.from('frisc_anonymous_sessions').insert({
+      session_id: sessionId,
+      puzzle_id: puzzleId,
+      completed: false,
+      attempts_used: 0,
+      solved_categories: [],
+    })
 
     return !error
   } catch (error) {
@@ -21,7 +19,7 @@ export async function createSession(sessionId: string, puzzleId: number): Promis
 }
 
 export async function updateSession(
-  sessionId: string, 
+  sessionId: string,
   updates: Partial<SessionData>
 ): Promise<boolean> {
   try {
@@ -49,7 +47,7 @@ export async function completeSession(
         completed: true,
         attempts_used: attemptsUsed,
         solved_categories: solvedCategories,
-        end_time: new Date().toISOString()
+        end_time: new Date().toISOString(),
       })
       .eq('session_id', sessionId)
 
@@ -62,17 +60,15 @@ export async function completeSession(
 
 export async function recordGuess(guessData: GuessData): Promise<boolean> {
   try {
-    const { error } = await supabase
-      .from('frisc_anonymous_guesses')
-      .insert({
-        session_id: guessData.session_id,
-        puzzle_id: guessData.puzzle_id,
-        guessed_items: guessData.guessed_items,
-        item_difficulties: guessData.item_difficulties,
-        is_correct: guessData.is_correct,
-        category_id: guessData.category_id,
-        attempt_number: guessData.attempt_number
-      })
+    const { error } = await supabase.from('frisc_anonymous_guesses').insert({
+      session_id: guessData.session_id,
+      puzzle_id: guessData.puzzle_id,
+      guessed_items: guessData.guessed_items,
+      item_difficulties: guessData.item_difficulties,
+      is_correct: guessData.is_correct,
+      category_id: guessData.category_id,
+      attempt_number: guessData.attempt_number,
+    })
 
     return !error
   } catch (error) {

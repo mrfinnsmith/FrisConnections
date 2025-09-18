@@ -24,11 +24,10 @@ export default function StatsOverview({ stats }: StatsOverviewProps) {
     return recent10.filter(puzzle => puzzle.won).length
   }, [stats.puzzleHistory])
 
-
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-6 space-y-6">
       <h2 className="text-xl font-semibold text-gray-900">Your FrisConnections Stats</h2>
-      
+
       {stats.gamesPlayed === 0 ? (
         <div className="text-center py-8">
           <p className="text-gray-600 mb-2">No games played yet!</p>
@@ -62,14 +61,14 @@ export default function StatsOverview({ stats }: StatsOverviewProps) {
         </div>
       )}
 
-
       {/* Last played info */}
       {stats.lastPlayedDate && (
         <div className="text-xs text-gray-500 text-center border-t pt-3">
-          Last played: {new Date(stats.lastPlayedDate).toLocaleDateString('en-US', {
+          Last played:{' '}
+          {new Date(stats.lastPlayedDate).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
-            day: 'numeric'
+            day: 'numeric',
           })}
         </div>
       )}

@@ -93,7 +93,10 @@
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-start-rgb));
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
 }
 
 @layer components {
@@ -282,7 +285,6 @@ body {
   }
 
   @keyframes shake {
-
     0%,
     100% {
       transform: translateX(0);
@@ -298,7 +300,6 @@ body {
   }
 
   @keyframes bounce {
-
     0%,
     100% {
       transform: translateY(0);
@@ -368,7 +369,8 @@ body {
 
   /* Skeleton loading animations */
   @keyframes skeleton-pulse {
-    0%, 100% {
+    0%,
+    100% {
       opacity: 1;
     }
     50% {
@@ -377,10 +379,12 @@ body {
   }
 
   .skeleton-shimmer {
-    background: linear-gradient(90deg, 
-      rgba(255, 255, 255, 0) 0%, 
-      rgba(255, 255, 255, 0.2) 50%, 
-      rgba(255, 255, 255, 0) 100%);
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.2) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
   }
@@ -400,8 +404,16 @@ body {
   }
 
   /* Staggered animation support */
-  .animate-pulse-delay-1 { animation-delay: 100ms; }
-  .animate-pulse-delay-2 { animation-delay: 200ms; }
-  .animate-pulse-delay-3 { animation-delay: 300ms; }
-  .animate-pulse-delay-4 { animation-delay: 400ms; }
+  .animate-pulse-delay-1 {
+    animation-delay: 100ms;
+  }
+  .animate-pulse-delay-2 {
+    animation-delay: 200ms;
+  }
+  .animate-pulse-delay-3 {
+    animation-delay: 300ms;
+  }
+  .animate-pulse-delay-4 {
+    animation-delay: 400ms;
+  }
 }

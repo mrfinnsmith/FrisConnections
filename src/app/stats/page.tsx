@@ -22,7 +22,7 @@ export default function StatsPage() {
       try {
         const userStats = getEnhancedUserStats()
         setStats(userStats)
-        
+
         // Validate data integrity
         const validation = validateStatsData()
         if (!validation.isValid) {
@@ -69,7 +69,9 @@ export default function StatsPage() {
     return (
       <div className="w-full max-w-4xl mx-auto p-4 text-center">
         <h1 className="text-3xl font-bold mb-4">Error Loading Stats</h1>
-        <p className="text-gray-600 mb-6">We couldn't load your statistics. Please try refreshing the page.</p>
+        <p className="text-gray-600 mb-6">
+          We couldn't load your statistics. Please try refreshing the page.
+        </p>
         <Link
           href="/"
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -130,15 +132,13 @@ export default function StatsPage() {
           )}
 
           {/* Show game history after 1+ games */}
-          {showGameHistory && (
-            <GameHistory puzzleHistory={stats.puzzleHistory} />
-          )}
-
+          {showGameHistory && <GameHistory puzzleHistory={stats.puzzleHistory} />}
 
           {stats.gamesPlayed > 0 && stats.gamesPlayed < 3 && (
             <div className="text-center py-6 bg-green-50 rounded-lg">
               <p className="text-green-700">
-                Great start! Play {3 - stats.gamesPlayed} more games to unlock difficulty breakdown analysis.
+                Great start! Play {3 - stats.gamesPlayed} more games to unlock difficulty breakdown
+                analysis.
               </p>
             </div>
           )}
@@ -146,7 +146,8 @@ export default function StatsPage() {
           {stats.gamesPlayed >= 3 && stats.gamesPlayed < 10 && (
             <div className="text-center py-6 bg-purple-50 rounded-lg">
               <p className="text-purple-700">
-                You're building a nice streak! Play {10 - stats.gamesPlayed} more games to unlock advanced statistics.
+                You're building a nice streak! Play {10 - stats.gamesPlayed} more games to unlock
+                advanced statistics.
               </p>
             </div>
           )}
@@ -154,7 +155,9 @@ export default function StatsPage() {
           {/* Advanced stats for experienced players */}
           {showAdvancedStats && (
             <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-purple-900 mb-4">🎉 Advanced Player Stats</h3>
+              <h3 className="text-lg font-semibold text-purple-900 mb-4">
+                🎉 Advanced Player Stats
+              </h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <div className="text-center">
                   <div className="font-semibold text-purple-700">
@@ -164,7 +167,12 @@ export default function StatsPage() {
                 </div>
                 <div className="text-center">
                   <div className="font-semibold text-purple-700">
-                    {Math.round((stats.puzzleHistory.filter(p => p.won).length / Math.max(stats.puzzleHistory.length, 1)) * 100)}%
+                    {Math.round(
+                      (stats.puzzleHistory.filter(p => p.won).length /
+                        Math.max(stats.puzzleHistory.length, 1)) *
+                        100
+                    )}
+                    %
                   </div>
                   <div className="text-purple-600">Overall Win Rate</div>
                 </div>
@@ -176,7 +184,11 @@ export default function StatsPage() {
                 </div>
                 <div className="text-center">
                   <div className="font-semibold text-purple-700">
-                    {Math.round((stats.puzzleHistory.reduce((sum, p) => sum + p.attemptsUsed, 0) / Math.max(stats.puzzleHistory.length, 1)) * 10) / 10}
+                    {Math.round(
+                      (stats.puzzleHistory.reduce((sum, p) => sum + p.attemptsUsed, 0) /
+                        Math.max(stats.puzzleHistory.length, 1)) *
+                        10
+                    ) / 10}
                   </div>
                   <div className="text-purple-600">Avg. Attempts</div>
                 </div>
@@ -193,10 +205,12 @@ export default function StatsPage() {
               >
                 🛠️ Developer Tools {showDeveloperTools ? '(Hide)' : '(Show)'}
               </button>
-              
+
               {showDeveloperTools && (
                 <div className="mt-4 space-y-2">
-                  <p className="text-xs text-gray-600 mb-3">Inject mock data for testing different scenarios:</p>
+                  <p className="text-xs text-gray-600 mb-3">
+                    Inject mock data for testing different scenarios:
+                  </p>
                   <div className="flex flex-wrap gap-2">
                     {['newUser', 'fewGames', 'someGames', 'manyGames', 'veteran'].map(scenario => (
                       <button
@@ -218,7 +232,6 @@ export default function StatsPage() {
               )}
             </div>
           )}
-
         </div>
       </ErrorBoundary>
     </div>

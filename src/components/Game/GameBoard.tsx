@@ -1,29 +1,29 @@
-'use client';
+'use client'
 
-import { useState, useEffect, useCallback } from 'react';
-import TileGrid from './TileGrid';
-import GameControls from './GameControls';
-import SolvedGroups from './SolvedGroups';
-import ResultsModal from './ResultsModal';
-import { Toast } from './Toast';
-import OnboardingModal from './OnboardingModal';
-import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { GameErrorFallback, ResultsErrorFallback } from '@/components/ErrorFallbacks';
-import { Puzzle, GameState, Category, SolvedGroup, GuessResult } from '@/types/game';
+import { useState, useEffect, useCallback } from 'react'
+import TileGrid from './TileGrid'
+import GameControls from './GameControls'
+import SolvedGroups from './SolvedGroups'
+import ResultsModal from './ResultsModal'
+import { Toast } from './Toast'
+import OnboardingModal from './OnboardingModal'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { GameErrorFallback, ResultsErrorFallback } from '@/components/ErrorFallbacks'
+import { Puzzle, GameState, SolvedGroup, GuessResult } from '@/types/game'
 import {
   loadGameProgress,
   saveGameProgress,
   updateUserStats,
   getOrCreateSessionId,
   hasSeenOnboarding,
-  markOnboardingSeen
-} from '@/lib/localStorage';
-import { trackGamePerformance } from '@/lib/performance';
+  markOnboardingSeen,
+} from '@/lib/localStorage'
+import { trackGamePerformance } from '@/lib/performance'
 
 interface GameBoardProps {
-  puzzle: Puzzle;
-  isPastPuzzle?: boolean;
-  puzzleNumber?: number;
+  puzzle: Puzzle
+  isPastPuzzle?: boolean
+  puzzleNumber?: number
 }
 
 export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }: GameBoardProps) {
@@ -37,64 +37,70 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
     sessionId: undefined,
     showToast: false,
     toastMessage: '',
-    shuffledItems: []
-  });
-  const [showResults, setShowResults] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(false);
-  const [announcements, setAnnouncements] = useState<string[]>([]);
+    shuffledItems: [],
+  })
+  const [showResults, setShowResults] = useState(false)
+  const [showOnboarding, setShowOnboarding] = useState(false)
+  const [announcements, setAnnouncements] = useState<string[]>([])
 
-  const maxGuesses = 4;
-  
+  const maxGuesses = 4
+
   // Screen reader announcement handler
   const announceToScreenReader = useCallback((message: string) => {
-    setAnnouncements(prev => [...prev, message]);
+    setAnnouncements(prev => [...prev, message])
     // Remove announcement after it's been read
     setTimeout(() => {
-      setAnnouncements(prev => prev.filter(msg => msg !== message));
-    }, 1000);
-  }, []);
-  
+      setAnnouncements(prev => prev.filter(msg => msg !== message))
+    }, 1000)
+  }, [])
+
   // Keyboard interaction handler for tile grid
-  const handleKeyboardInteraction = useCallback((message: string) => {
-    announceToScreenReader(message);
-  }, [announceToScreenReader]);
+  const handleKeyboardInteraction = useCallback(
+    (message: string) => {
+      announceToScreenReader(message)
+    },
+    [announceToScreenReader]
+  )
 
   // Shuffle function for tiles
   const shuffleArray = (array: string[]) => {
-    const shuffled = [...array];
+    const shuffled = [...array]
     for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
     }
-    return shuffled;
-  };
+    return shuffled
+  }
 
   // Get all items from puzzle categories
   const getAllItems = useCallback(() => {
-    return puzzle.categories.flatMap(cat => cat.items);
-  }, [puzzle]);
+    return puzzle.categories.flatMap(cat => cat.items)
+  }, [puzzle])
 
   // Reconstruct solved groups from guess history
-  const reconstructSolvedGroupsFromHistory = useCallback((guessHistory: GuessResult[]): SolvedGroup[] => {
-    return guessHistory
-      .filter(guess => guess.isCorrect && guess.category)
-      .map((guess, index) => ({
-        category: guess.category!,
-        solvedAt: index
-      }));
-  }, []);
+  const reconstructSolvedGroupsFromHistory = useCallback(
+    (guessHistory: GuessResult[]): SolvedGroup[] => {
+      return guessHistory
+        .filter(guess => guess.isCorrect && guess.category)
+        .map((guess, index) => ({
+          category: guess.category!,
+          solvedAt: index,
+        }))
+    },
+    []
+  )
 
   // Initialize game and check for onboarding
   useEffect(() => {
-    if (!puzzle) return;
+    if (!puzzle) return
 
-    const endGameInit = trackGamePerformance.gameInit(puzzle.id);
+    const endGameInit = trackGamePerformance.gameInit(puzzle.id)
 
-    const sessionId = getOrCreateSessionId();
-    const savedProgress = loadGameProgress(puzzle.id);
+    const sessionId = getOrCreateSessionId()
+    const savedProgress = loadGameProgress(puzzle.id)
 
     if (savedProgress) {
-      const solvedGroups = reconstructSolvedGroupsFromHistory(savedProgress.guessHistory || []);
+      const solvedGroups = reconstructSolvedGroupsFromHistory(savedProgress.guessHistory || [])
 
       setGameState({
         puzzle,
@@ -106,14 +112,14 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
         sessionId,
         showToast: false,
         toastMessage: '',
-        shuffledItems: []
-      });
+        shuffledItems: [],
+      })
 
       // Set shuffled items based on what's not solved
-      const solvedItems = solvedGroups.flatMap(sg => sg.category.items);
-      const remainingItems = getAllItems().filter(item => !solvedItems.includes(item));
-      const allItemsInOrder = [...solvedItems, ...shuffleArray(remainingItems)];
-      setGameState(prev => ({ ...prev, shuffledItems: allItemsInOrder }));
+      const solvedItems = solvedGroups.flatMap(sg => sg.category.items)
+      const remainingItems = getAllItems().filter(item => !solvedItems.includes(item))
+      const allItemsInOrder = [...solvedItems, ...shuffleArray(remainingItems)]
+      setGameState(prev => ({ ...prev, shuffledItems: allItemsInOrder }))
     } else {
       setGameState({
         puzzle,
@@ -125,26 +131,26 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
         sessionId,
         showToast: false,
         toastMessage: '',
-        shuffledItems: shuffleArray(getAllItems())
-      });
+        shuffledItems: shuffleArray(getAllItems()),
+      })
     }
 
     // Check if we should show onboarding (only if puzzle exists and user hasn't seen it)
     if (!hasSeenOnboarding()) {
-      setShowOnboarding(true);
+      setShowOnboarding(true)
     }
 
-    endGameInit();
-  }, [puzzle, getAllItems, reconstructSolvedGroupsFromHistory]);
+    endGameInit()
+  }, [puzzle, getAllItems, reconstructSolvedGroupsFromHistory])
 
   // Save progress whenever game state changes
   useEffect(() => {
-    if (!gameState.puzzle) return;
-    saveGameProgress(gameState.puzzle.id, gameState);
-  }, [gameState]);
+    if (!gameState.puzzle) return
+    saveGameProgress(gameState.puzzle.id, gameState)
+  }, [gameState])
 
   const handleTileClick = (item: string) => {
-    if (gameState.gameStatus !== 'playing') return;
+    if (gameState.gameStatus !== 'playing') return
 
     setGameState(prev => ({
       ...prev,
@@ -152,28 +158,33 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
         ? prev.selectedTiles.filter(tile => tile !== item)
         : prev.selectedTiles.length < 4
           ? [...prev.selectedTiles, item]
-          : prev.selectedTiles
-    }));
-  };
+          : prev.selectedTiles,
+    }))
+  }
 
   const handleSubmit = async () => {
-    if (gameState.selectedTiles.length !== 4 || gameState.gameStatus !== 'playing') return;
+    if (gameState.selectedTiles.length !== 4 || gameState.gameStatus !== 'playing') return
 
-    const endGuessSubmit = trackGamePerformance.guessSubmit(gameState.selectedTiles);
+    const endGuessSubmit = trackGamePerformance.guessSubmit(gameState.selectedTiles)
 
     // Check if this combination matches any category
-    const matchingCategory = puzzle.categories.find(category =>
-      gameState.selectedTiles.every(tile => category.items.includes(tile)) &&
-      category.items.every(item => gameState.selectedTiles.includes(item))
-    );
+    const matchingCategory = puzzle.categories.find(
+      category =>
+        gameState.selectedTiles.every(tile => category.items.includes(tile)) &&
+        category.items.every(item => gameState.selectedTiles.includes(item))
+    )
 
-    const newAttemptsUsed = gameState.attemptsUsed + 1;
+    const newAttemptsUsed = gameState.attemptsUsed + 1
 
     // Check if guess is "one away" from any category
-    const isOneAway = !matchingCategory && puzzle.categories.some(category => {
-      const matchCount = gameState.selectedTiles.filter(item => category.items.includes(item)).length;
-      return matchCount === 3;
-    });
+    const isOneAway =
+      !matchingCategory &&
+      puzzle.categories.some(category => {
+        const matchCount = gameState.selectedTiles.filter(item =>
+          category.items.includes(item)
+        ).length
+        return matchCount === 3
+      })
 
     const guessResult: GuessResult = {
       items: [...gameState.selectedTiles],
@@ -182,29 +193,29 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
       category: matchingCategory,
       attemptNumber: newAttemptsUsed,
       itemDifficulties: gameState.selectedTiles.map(item => {
-        const category = puzzle.categories.find(cat => cat.items.includes(item));
-        return category?.difficulty || 1;
-      })
-    };
+        const category = puzzle.categories.find(cat => cat.items.includes(item))
+        return category?.difficulty || 1
+      }),
+    }
 
-    const newGuessHistory = [...gameState.guessHistory, guessResult];
+    const newGuessHistory = [...gameState.guessHistory, guessResult]
 
     if (matchingCategory) {
       // Correct guess
       const newSolvedGroup: SolvedGroup = {
         category: matchingCategory,
-        solvedAt: gameState.solvedGroups.length
-      };
+        solvedAt: gameState.solvedGroups.length,
+      }
 
-      const newSolvedGroups = [...gameState.solvedGroups, newSolvedGroup];
+      const newSolvedGroups = [...gameState.solvedGroups, newSolvedGroup]
 
       // Update available items
-      const solvedItems = newSolvedGroups.flatMap(sg => sg.category.items);
-      const remainingItems = getAllItems().filter(item => !solvedItems.includes(item));
-      const allItemsInOrder = [...solvedItems, ...shuffleArray(remainingItems)];
-      setGameState(prev => ({ ...prev, shuffledItems: allItemsInOrder }));
+      const solvedItems = newSolvedGroups.flatMap(sg => sg.category.items)
+      const remainingItems = getAllItems().filter(item => !solvedItems.includes(item))
+      const allItemsInOrder = [...solvedItems, ...shuffleArray(remainingItems)]
+      setGameState(prev => ({ ...prev, shuffledItems: allItemsInOrder }))
 
-      const newGameStatus = newSolvedGroups.length === 4 ? 'won' : 'playing';
+      const newGameStatus = newSolvedGroups.length === 4 ? 'won' : 'playing'
 
       setGameState(prev => ({
         ...prev,
@@ -214,36 +225,39 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
         gameStatus: newGameStatus,
         guessHistory: newGuessHistory,
         showToast: false,
-        toastMessage: ''
-      }));
+        toastMessage: '',
+      }))
 
       // Announce correct guess
-      const difficultyColors = { 1: 'Yellow', 2: 'Green', 3: 'Blue', 4: 'Purple' };
-      const difficultyColor = difficultyColors[matchingCategory.difficulty as keyof typeof difficultyColors] || 'Unknown';
-      announceToScreenReader(`Correct! You found the ${difficultyColor} category: ${matchingCategory.name}. ${4 - newSolvedGroups.length} groups remaining.`);
+      const difficultyColors = { 1: 'Yellow', 2: 'Green', 3: 'Blue', 4: 'Purple' }
+      const difficultyColor =
+        difficultyColors[matchingCategory.difficulty as keyof typeof difficultyColors] || 'Unknown'
+      announceToScreenReader(
+        `Correct! You found the ${difficultyColor} category: ${matchingCategory.name}. ${4 - newSolvedGroups.length} groups remaining.`
+      )
 
       // Check if game is won
       if (newGameStatus === 'won') {
         if (!isPastPuzzle) {
-          updateUserStats(true, puzzle.date);
+          updateUserStats(true, puzzle.date)
         }
-        announceToScreenReader(`Congratulations! You solved all 4 groups and won the puzzle!`);
-        setShowResults(true);
+        announceToScreenReader(`Congratulations! You solved all 4 groups and won the puzzle!`)
+        setShowResults(true)
       }
     } else {
       // Wrong guess
-      let showToast = false;
-      let toastMessage = '';
-      let screenReaderMessage = `Incorrect guess. ${maxGuesses - newAttemptsUsed} mistakes remaining.`;
+      let showToast = false
+      let toastMessage = ''
+      let screenReaderMessage = `Incorrect guess. ${maxGuesses - newAttemptsUsed} mistakes remaining.`
 
       if (isOneAway) {
         // Show "one away" toast
-        showToast = true;
-        toastMessage = "One away...";
-        screenReaderMessage = `One away! You have 3 correct items. ${maxGuesses - newAttemptsUsed} mistakes remaining.`;
+        showToast = true
+        toastMessage = 'One away...'
+        screenReaderMessage = `One away! You have 3 correct items. ${maxGuesses - newAttemptsUsed} mistakes remaining.`
       }
 
-      const newGameStatus = newAttemptsUsed >= maxGuesses ? 'lost' : 'playing';
+      const newGameStatus = newAttemptsUsed >= maxGuesses ? 'lost' : 'playing'
 
       setGameState(prev => ({
         ...prev,
@@ -252,66 +266,61 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
         gameStatus: newGameStatus,
         guessHistory: newGuessHistory,
         showToast,
-        toastMessage
-      }));
+        toastMessage,
+      }))
 
       // Announce incorrect guess
-      announceToScreenReader(screenReaderMessage);
+      announceToScreenReader(screenReaderMessage)
 
       // Check if game is lost
       if (newGameStatus === 'lost') {
         if (!isPastPuzzle) {
-          updateUserStats(false, puzzle.date);
+          updateUserStats(false, puzzle.date)
         }
-        announceToScreenReader(`Game over. You used all ${maxGuesses} attempts. The results will show the correct answers.`);
-        setShowResults(true);
+        announceToScreenReader(
+          `Game over. You used all ${maxGuesses} attempts. The results will show the correct answers.`
+        )
+        setShowResults(true)
       }
     }
 
-    endGuessSubmit();
-  };
+    endGuessSubmit()
+  }
 
   const handleShuffle = () => {
-    if (gameState.gameStatus !== 'playing') return;
+    if (gameState.gameStatus !== 'playing') return
 
-    const solvedItems = gameState.solvedGroups.flatMap(sg => sg.category.items);
-    const remainingItems = getAllItems().filter(item => !solvedItems.includes(item));
-    const allItemsInOrder = [...solvedItems, ...shuffleArray(remainingItems)];
-    setGameState(prev => ({ ...prev, shuffledItems: allItemsInOrder }));
+    const solvedItems = gameState.solvedGroups.flatMap(sg => sg.category.items)
+    const remainingItems = getAllItems().filter(item => !solvedItems.includes(item))
+    const allItemsInOrder = [...solvedItems, ...shuffleArray(remainingItems)]
+    setGameState(prev => ({ ...prev, shuffledItems: allItemsInOrder }))
 
-    setGameState(prev => ({ ...prev, selectedTiles: [] }));
-  };
+    setGameState(prev => ({ ...prev, selectedTiles: [] }))
+  }
 
   const handleDeselectAll = () => {
-    setGameState(prev => ({ ...prev, selectedTiles: [] }));
-  };
+    setGameState(prev => ({ ...prev, selectedTiles: [] }))
+  }
 
   const handleToastComplete = () => {
-    setGameState(prev => ({ ...prev, showToast: false, toastMessage: '' }));
-  };
+    setGameState(prev => ({ ...prev, showToast: false, toastMessage: '' }))
+  }
 
   const handleOnboardingClose = () => {
-    setShowOnboarding(false);
-    markOnboardingSeen();
-  };
-
-
+    setShowOnboarding(false)
+    markOnboardingSeen()
+  }
 
   return (
     <div className="max-w-md mx-auto p-4">
-      <OnboardingModal
-        isVisible={showOnboarding}
-        onClose={handleOnboardingClose}
-      />
+      <OnboardingModal isVisible={showOnboarding} onClose={handleOnboardingClose} />
 
       <div className="mb-6">
         <div className="text-center mb-4">
           <p className="text-sm text-gray-600 mb-1">
             {isPastPuzzle ? `Puzzle #${puzzleNumber}` : 'Daily Puzzle'}
           </p>
-          <p className="text-sm text-gray-600">
-            Find four groups of four!
-          </p>
+          <p className="text-sm text-gray-600">Find four groups of four!</p>
         </div>
 
         <div className="text-center mb-4">
@@ -353,15 +362,13 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
         isVisible={gameState.showToast}
         onComplete={handleToastComplete}
       />
-      
+
       {/* Screen reader announcements */}
       <div aria-live="polite" aria-atomic="true" className="sr-only">
         {announcements.map((announcement, index) => (
-          <div key={`announcement-${index}-${announcement}`}>
-            {announcement}
-          </div>
+          <div key={`announcement-${index}-${announcement}`}>{announcement}</div>
         ))}
       </div>
     </div>
-  );
+  )
 }

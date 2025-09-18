@@ -1,13 +1,13 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
+import { useState } from 'react'
 
 // Test component that can trigger errors on demand
 export default function ErrorTestComponent() {
-  const [shouldError, setShouldError] = useState(false);
+  const [shouldError, setShouldError] = useState(false)
 
   if (shouldError) {
-    throw new Error('Test error triggered by ErrorTestComponent');
+    throw new Error('Test error triggered by ErrorTestComponent')
   }
 
   return (
@@ -23,5 +23,5 @@ export default function ErrorTestComponent() {
         Trigger Error
       </button>
     </div>
-  );
+  )
 }

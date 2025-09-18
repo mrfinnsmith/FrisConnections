@@ -29,7 +29,7 @@ module.exports = {
         sans: ['system-ui', 'sans-serif'],
       },
       animation: {
-        'shake': 'shake 0.5s ease-in-out',
+        shake: 'shake 0.5s ease-in-out',
         'bounce-in': 'bounceIn 0.6s ease-out',
       },
       keyframes: {

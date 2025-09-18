@@ -1,20 +1,20 @@
-'use client';
+'use client'
 
-import { 
-  TileGridSkeleton, 
-  GameControlsSkeleton, 
+import {
+  TileGridSkeleton,
+  GameControlsSkeleton,
   GameInfoSkeleton,
-  SkeletonWrapper 
-} from '@/components/UI/Skeleton';
+  SkeletonWrapper,
+} from '@/components/UI/Skeleton'
 
 interface GameBoardSkeletonProps {
-  isPastPuzzle?: boolean;
-  showSolvedGroups?: boolean;
+  isPastPuzzle?: boolean
+  showSolvedGroups?: boolean
 }
 
-export default function GameBoardSkeleton({ 
+export default function GameBoardSkeleton({
   isPastPuzzle = false,
-  showSolvedGroups = false 
+  showSolvedGroups = false,
 }: GameBoardSkeletonProps) {
   return (
     <div className="max-w-md mx-auto p-4">
@@ -41,27 +41,24 @@ export default function GameBoardSkeleton({
       {/* Game controls skeleton */}
       <GameControlsSkeleton />
     </div>
-  );
+  )
 }
 
 // Loading wrapper for GameBoard
 interface GameBoardLoadingWrapperProps {
-  loading: boolean;
-  isPastPuzzle?: boolean;
-  children: React.ReactNode;
+  loading: boolean
+  isPastPuzzle?: boolean
+  children: React.ReactNode
 }
 
-export function GameBoardLoadingWrapper({ 
-  loading, 
-  isPastPuzzle, 
-  children 
+export function GameBoardLoadingWrapper({
+  loading,
+  isPastPuzzle,
+  children,
 }: GameBoardLoadingWrapperProps) {
   return (
-    <SkeletonWrapper
-      loading={loading}
-      skeleton={<GameBoardSkeleton isPastPuzzle={isPastPuzzle} />}
-    >
+    <SkeletonWrapper loading={loading} skeleton={<GameBoardSkeleton isPastPuzzle={isPastPuzzle} />}>
       {children}
     </SkeletonWrapper>
-  );
+  )
 }

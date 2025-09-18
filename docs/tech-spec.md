@@ -3,6 +3,7 @@
 ## 1. Architecture Overview
 
 ### Stack
+
 - **Frontend**: Next.js 14 with App Router
 - **Styling**: Tailwind CSS
 - **Database**: Supabase (PostgreSQL)
@@ -11,6 +12,7 @@
 - **Analytics**: Supabase Analytics
 
 ### Project Structure
+
 ```
 src/
 ├── app/
@@ -54,7 +56,7 @@ CREATE TABLE puzzle_queue (
   published BOOLEAN DEFAULT FALSE
 );
 
--- puzzles table  
+-- puzzles table
 CREATE TABLE puzzles (
   id SERIAL PRIMARY KEY,
   queue_id INTEGER REFERENCES puzzle_queue(id),
@@ -118,7 +120,7 @@ DECLARE
 BEGIN
   SELECT COALESCE(MAX(puzzle_number), 0) + 1 INTO next_number
   FROM puzzle_queue;
-  
+
   RETURN next_number;
 END;
 $$ LANGUAGE plpgsql;
@@ -154,7 +156,7 @@ RETURNS TABLE (
 BEGIN
   -- Check for puzzles with wrong number of categories
   RETURN QUERY
-  SELECT pq.id, pq.queue_position, 'CATEGORY_COUNT'::TEXT, 
+  SELECT pq.id, pq.queue_position, 'CATEGORY_COUNT'::TEXT,
          'Expected 4 categories, found ' || COUNT(c.id)::TEXT
   FROM puzzle_queue pq
   LEFT JOIN categories c ON pq.id = c.queue_id
@@ -188,10 +190,10 @@ BEGIN
   FROM puzzle_queue pq
   JOIN categories c ON pq.id = c.queue_id
   WHERE c.name IN (
-    SELECT cat.name 
+    SELECT cat.name
     FROM puzzle_queue pub_queue
-    JOIN categories cat ON pub_queue.id = cat.queue_id 
-    WHERE pub_queue.published = TRUE 
+    JOIN categories cat ON pub_queue.id = cat.queue_id
+    WHERE pub_queue.published = TRUE
       AND pub_queue.scheduled_date >= CURRENT_DATE - INTERVAL '30 days'
   );
 END;
@@ -206,10 +208,10 @@ DECLARE
 BEGIN
   -- Get next item from queue
   SELECT * INTO next_queue_item
-  FROM puzzle_queue 
-  WHERE scheduled_date IS NULL 
+  FROM puzzle_queue
+  WHERE scheduled_date IS NULL
     AND published = FALSE
-  ORDER BY queue_position ASC 
+  ORDER BY queue_position ASC
   LIMIT 1;
 
   IF next_queue_item IS NULL THEN
@@ -218,7 +220,7 @@ BEGIN
 
   -- Validate the queue item
   IF EXISTS (
-    SELECT 1 FROM validate_puzzle_queue() 
+    SELECT 1 FROM validate_puzzle_queue()
     WHERE queue_id = next_queue_item.id
   ) THEN
     RETURN 'ERROR: Puzzle validation failed for queue position ' || next_queue_item.queue_position;
@@ -230,13 +232,13 @@ BEGIN
   RETURNING id INTO new_puzzle_id;
 
   -- Update queue item
-  UPDATE puzzle_queue 
+  UPDATE puzzle_queue
   SET scheduled_date = CURRENT_DATE + INTERVAL '1 day',
       published = TRUE
   WHERE id = next_queue_item.id;
 
   -- Update categories to reference the new puzzle
-  UPDATE categories 
+  UPDATE categories
   SET puzzle_id = new_puzzle_id
   WHERE queue_id = next_queue_item.id;
 
@@ -252,35 +254,35 @@ DECLARE
 BEGIN
   -- Get current position
   SELECT queue_position INTO old_position
-  FROM puzzle_queue 
+  FROM puzzle_queue
   WHERE id = item_id AND published = FALSE;
-  
+
   IF old_position IS NULL THEN
     RETURN 'ERROR: Item not found or already published';
   END IF;
-  
+
   -- Update positions
   IF new_position > old_position THEN
     -- Moving down: shift items up
-    UPDATE puzzle_queue 
+    UPDATE puzzle_queue
     SET queue_position = queue_position - 1
-    WHERE queue_position > old_position 
+    WHERE queue_position > old_position
       AND queue_position <= new_position
       AND published = FALSE;
   ELSE
     -- Moving up: shift items down
-    UPDATE puzzle_queue 
+    UPDATE puzzle_queue
     SET queue_position = queue_position + 1
-    WHERE queue_position >= new_position 
+    WHERE queue_position >= new_position
       AND queue_position < old_position
       AND published = FALSE;
   END IF;
-  
+
   -- Set new position
-  UPDATE puzzle_queue 
+  UPDATE puzzle_queue
   SET queue_position = new_position
   WHERE id = item_id;
-  
+
   RETURN 'SUCCESS: Moved item to position ' || new_position;
 END;
 $$ LANGUAGE plpgsql;
@@ -299,66 +301,76 @@ const supabaseUrl = Deno.env.get('SUPABASE_URL')!
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const adminEmail = Deno.env.get('ADMIN_EMAIL')!
 
-Deno.serve(async (req) => {
+Deno.serve(async req => {
   const supabase = createClient(supabaseUrl, supabaseServiceKey)
-  
+
   try {
     // Check if tomorrow's puzzle already exists
     const tomorrow = new Date()
     tomorrow.setDate(tomorrow.getDate() + 1)
     const tomorrowStr = tomorrow.toISOString().split('T')[0]
-    
+
     const { data: existingPuzzle } = await supabase
       .from('puzzles')
       .select('id')
       .eq('date', tomorrowStr)
       .single()
-    
+
     if (existingPuzzle) {
-      return new Response(JSON.stringify({ 
-        success: true, 
-        message: 'Puzzle already assigned for tomorrow' 
-      }), {
-        headers: { 'Content-Type': 'application/json' }
-      })
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: 'Puzzle already assigned for tomorrow',
+        }),
+        {
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
     }
-    
+
     // Assign next puzzle from queue
-    const { data: result, error } = await supabase
-      .rpc('assign_daily_puzzle')
-    
+    const { data: result, error } = await supabase.rpc('assign_daily_puzzle')
+
     if (error) throw error
-    
+
     if (result.startsWith('ERROR')) {
       // Send alert email
       await sendAlertEmail(result)
-      
-      return new Response(JSON.stringify({ 
-        success: false, 
-        error: result 
-      }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
-      })
+
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: result,
+        }),
+        {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
     }
-    
-    return new Response(JSON.stringify({ 
-      success: true, 
-      message: result 
-    }), {
-      headers: { 'Content-Type': 'application/json' }
-    })
-    
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        message: result,
+      }),
+      {
+        headers: { 'Content-Type': 'application/json' },
+      }
+    )
   } catch (error) {
     await sendAlertEmail(`Daily puzzle assignment failed: ${error.message}`)
-    
-    return new Response(JSON.stringify({ 
-      success: false, 
-      error: error.message 
-    }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    })
+
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: error.message,
+      }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    )
   }
 })
 
@@ -431,16 +443,16 @@ export interface GuessResult {
 
 export const DIFFICULTY_COLORS = {
   1: '#f59e0b', // Yellow
-  2: '#10b981', // Green  
+  2: '#10b981', // Green
   3: '#3b82f6', // Blue
-  4: '#8b5cf6'  // Purple
+  4: '#8b5cf6', // Purple
 }
 
 export const DIFFICULTY_EMOJI = {
   1: '🟨', // Yellow
   2: '🟩', // Green
   3: '🟦', // Blue
-  4: '🟪'  // Purple
+  4: '🟪', // Purple
 }
 ```
 
@@ -454,12 +466,12 @@ import { v4 as uuidv4 } from 'uuid'
 export function getOrCreateSessionId(): string {
   const key = 'frisconnections-session-id'
   let sessionId = localStorage.getItem(key)
-  
+
   if (!sessionId) {
     sessionId = uuidv4()
     localStorage.setItem(key, sessionId)
   }
-  
+
   return sessionId
 }
 
@@ -469,15 +481,15 @@ export function formatDate(dateString: string): string {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
-    day: 'numeric'
+    day: 'numeric',
   })
 }
 
 export function shuffleArray<T>(array: T[]): T[] {
   const shuffled = [...array]
   for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
   }
   return shuffled
 }
@@ -494,11 +506,11 @@ export function generateShareText(
   date: string
 ): string {
   const { guessHistory, gameStatus, puzzle } = gameState
-  
+
   // Count mistakes (incorrect guesses)
   const mistakes = guessHistory.filter(guess => !guess.isCorrect).length
   const header = `Frisconnections #${puzzleNumber} ${mistakes}/4`
-  
+
   // Generate emoji grid - one line per guess in chronological order
   const emojiLines = guessHistory.map(guess => {
     if (guess.isCorrect && guess.category) {
@@ -506,15 +518,13 @@ export function generateShareText(
       return DIFFICULTY_EMOJI[guess.category.difficulty].repeat(4)
     } else {
       // Incorrect guess: show the actual categories of the guessed items
-      return guess.itemDifficulties.map(difficulty => 
-        DIFFICULTY_EMOJI[difficulty]
-      ).join('')
+      return guess.itemDifficulties.map(difficulty => DIFFICULTY_EMOJI[difficulty]).join('')
     }
   })
-  
+
   const grid = emojiLines.join('\n')
   const url = 'https://frisconnections.vercel.app'
-  
+
   return `${header}\n\n${grid}\n\n${url}`
 }
 
@@ -524,7 +534,7 @@ export async function shareResults(shareText: string): Promise<boolean> {
     try {
       await navigator.share({
         title: 'Frisconnections',
-        text: shareText
+        text: shareText,
       })
       return true
     } catch (error) {
@@ -534,7 +544,7 @@ export async function shareResults(shareText: string): Promise<boolean> {
       // Fall through to clipboard
     }
   }
-  
+
   // Fallback to clipboard
   try {
     await navigator.clipboard.writeText(shareText)
@@ -583,29 +593,29 @@ export function saveGameProgress(puzzleId: number, gameState: Partial<GameState>
     attemptsUsed: gameState.attemptsUsed || 0,
     gameStatus: gameState.gameStatus || 'playing',
     guessHistory: gameState.guessHistory || [],
-    timestamp: Date.now()
+    timestamp: Date.now(),
   }
-  
+
   localStorage.setItem('frisconnections-progress', JSON.stringify(progress))
 }
 
 export function loadGameProgress(puzzleId: number): Partial<GameState> | null {
   const saved = localStorage.getItem('frisconnections-progress')
   if (!saved) return null
-  
+
   try {
     const progress = JSON.parse(saved)
     if (progress.puzzleId !== puzzleId) return null
-    
+
     // Check if progress is from today (don't restore old games)
     const isToday = new Date(progress.timestamp).toDateString() === new Date().toDateString()
     if (!isToday) return null
-    
+
     return {
       selectedTiles: progress.selectedTiles,
       attemptsUsed: progress.attemptsUsed,
       gameStatus: progress.gameStatus,
-      guessHistory: progress.guessHistory
+      guessHistory: progress.guessHistory,
       // Note: solvedGroups will be reconstructed from guessHistory
     }
   } catch {
@@ -616,24 +626,24 @@ export function loadGameProgress(puzzleId: number): Partial<GameState> | null {
 export function updateUserStats(won: boolean, date: string) {
   const stats = getUserStats()
   const today = new Date().toISOString().split('T')[0]
-  
+
   stats.gamesPlayed++
-  
+
   if (won) {
     stats.gamesWon++
-    
+
     // Update streak
     if (stats.lastPlayedDate === getPreviousDate(today)) {
       stats.currentStreak++
     } else {
       stats.currentStreak = 1
     }
-    
+
     stats.maxStreak = Math.max(stats.maxStreak, stats.currentStreak)
   } else {
     stats.currentStreak = 0
   }
-  
+
   stats.lastPlayedDate = today
   localStorage.setItem('frisconnections-stats', JSON.stringify(stats))
 }
@@ -646,10 +656,10 @@ function getUserStats(): UserStats {
       gamesWon: 0,
       currentStreak: 0,
       maxStreak: 0,
-      lastPlayedDate: ''
+      lastPlayedDate: '',
     }
   }
-  
+
   try {
     return JSON.parse(saved)
   } catch {
@@ -658,7 +668,7 @@ function getUserStats(): UserStats {
       gamesWon: 0,
       currentStreak: 0,
       maxStreak: 0,
-      lastPlayedDate: ''
+      lastPlayedDate: '',
     }
   }
 }
@@ -719,19 +729,15 @@ import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
   const supabase = createClient()
-  
+
   try {
-    const { data: result, error } = await supabase
-      .rpc('assign_daily_puzzle')
-    
+    const { data: result, error } = await supabase.rpc('assign_daily_puzzle')
+
     if (error) throw error
-    
+
     return NextResponse.json({ success: true, message: result })
   } catch (error) {
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 })
   }
 }
 ```
@@ -739,11 +745,13 @@ export async function POST(request: Request) {
 ## 7. Analytics & Difficulty Tracking
 
 ### Key Metrics
+
 - **Category difficulty**: Track solve rates per category to calibrate difficulty
 - **Common mistakes**: Identify which items are frequently grouped incorrectly
 - **Puzzle balance**: Monitor if puzzles are too easy/hard overall
 
 ### Difficulty Calibration Queries
+
 ```sql
 -- Category solve rate (should be ~80% Yellow, ~60% Green, ~40% Blue, ~20% Purple)
 SELECT c.name, c.difficulty,
@@ -755,17 +763,17 @@ ORDER BY c.difficulty, solve_rate DESC;
 
 -- Most confused item pairs (frequently guessed together incorrectly)
 SELECT unnest(guessed_items) as item, COUNT(*) as incorrect_groupings
-FROM anonymous_guesses 
+FROM anonymous_guesses
 WHERE is_correct = FALSE
 GROUP BY item
 ORDER BY incorrect_groupings DESC;
 
 -- Daily completion rates
-SELECT 
+SELECT
   p.date,
   COUNT(DISTINCT as_session.session_id) as players,
   COUNT(DISTINCT CASE WHEN as_session.completed THEN as_session.session_id END) as completions,
-  COUNT(DISTINCT CASE WHEN as_session.completed THEN as_session.session_id END) * 100.0 / 
+  COUNT(DISTINCT CASE WHEN as_session.completed THEN as_session.session_id END) * 100.0 /
     COUNT(DISTINCT as_session.session_id) as completion_rate
 FROM puzzles p
 LEFT JOIN anonymous_sessions as_session ON p.id = as_session.puzzle_id
@@ -776,12 +784,14 @@ ORDER BY p.date DESC;
 ## 8. Content Management System
 
 ### Daily Puzzle Queue System
+
 - **FIFO Queue**: Puzzles stored in `puzzle_queue` table with `queue_position`
 - **Auto-assignment**: System automatically assigns next queued puzzle to current date
 - **Manual scheduling**: Admin can pre-assign specific dates to queue items
 - **Future planning**: Build up queue of puzzles weeks/months in advance
 
 ### Queue Validation Function
+
 ```sql
 -- Validate entire puzzle queue for errors
 CREATE OR REPLACE FUNCTION validate_puzzle_queue()
@@ -794,7 +804,7 @@ RETURNS TABLE (
 BEGIN
   -- Check for puzzles with wrong number of categories
   RETURN QUERY
-  SELECT pq.id, pq.queue_position, 'CATEGORY_COUNT'::TEXT, 
+  SELECT pq.id, pq.queue_position, 'CATEGORY_COUNT'::TEXT,
          'Expected 4 categories, found ' || COUNT(c.id)::TEXT
   FROM puzzle_queue pq
   LEFT JOIN categories c ON pq.id = c.queue_id
@@ -828,10 +838,10 @@ BEGIN
   FROM puzzle_queue pq
   JOIN categories c ON pq.id = c.queue_id
   WHERE c.name IN (
-    SELECT cat.name 
+    SELECT cat.name
     FROM puzzle_queue pub_queue
-    JOIN categories cat ON pub_queue.id = cat.queue_id 
-    WHERE pub_queue.published = TRUE 
+    JOIN categories cat ON pub_queue.id = cat.queue_id
+    WHERE pub_queue.published = TRUE
       AND pub_queue.scheduled_date >= CURRENT_DATE - INTERVAL '30 days'
   );
 END;
@@ -839,6 +849,7 @@ $ LANGUAGE plpgsql;
 ```
 
 ### Queue Management
+
 - **Add to queue**: Insert new puzzle at end of queue
 - **Reorder queue**: Update `queue_position` values to change order
 - **Validate before publish**: Run validation function daily before assignment
@@ -847,22 +858,26 @@ $ LANGUAGE plpgsql;
 ### Error Handling
 
 #### Network Errors
+
 - **Offline mode**: Cache today's puzzle, allow play without connection
 - **Retry logic**: Auto-retry failed requests with exponential backoff
 - **Graceful degradation**: Game works, analytics fail silently
 
 #### Data Integrity Errors
+
 - **Malformed puzzle data**: Alert admin, show "puzzle unavailable today" to users
 - **Missing puzzle for date**: Alert admin, show "puzzle unavailable today" to users
 - **Invalid date requests**: Show "puzzle unavailable" message to users
 
 #### Content Validation
+
 - **Queue validation function**: Check entire queue for duplicate items, repeated categories, wrong counts
 - **Daily validation**: Automatic check before assigning next puzzle from queue
 - **30-day category cooldown**: Prevent repeating category names within 30 days
 - **Admin alerts**: Notification system for validation failures before publish
 
 #### Game State Errors
+
 - **Corrupted localStorage**: Reset to fresh state, don't crash
 - **Puzzle completion conflicts**: Trust browser state over server discrepancies
 

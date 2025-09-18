@@ -100,35 +100,35 @@ export interface GuessData {
 
 export const DIFFICULTY_COLORS = {
   1: '#f9df6d', // Yellow
-  2: '#a0c35a', // Green  
+  2: '#a0c35a', // Green
   3: '#b0c4ef', // Blue
-  4: '#ba81c5'  // Purple
+  4: '#ba81c5', // Purple
 } as const
 
 export const DIFFICULTY_EMOJI = {
   1: '🟨', // Yellow
   2: '🟩', // Green
   3: '🟦', // Blue
-  4: '🟪'  // Purple
+  4: '🟪', // Purple
 } as const
 
 export const DIFFICULTY_NAMES = {
   1: 'Yellow',
   2: 'Green',
   3: 'Blue',
-  4: 'Purple'
+  4: 'Purple',
 } as const
 
 export const DIFFICULTY_TIER_NAMES = {
   1: 'Easy',
   2: 'Medium',
-  3: 'Hard'
+  3: 'Hard',
 } as const
 
 export const DIFFICULTY_TIER_COLORS = {
   1: 'bg-green-100 text-green-800 border border-green-200',
   2: 'bg-yellow-100 text-yellow-800 border border-yellow-200',
-  3: 'bg-red-100 text-red-800 border border-red-200'
+  3: 'bg-red-100 text-red-800 border border-red-200',
 } as const
 
 export const MAX_ATTEMPTS = 4

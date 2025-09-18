@@ -1,11 +1,18 @@
-import { GameState, Puzzle, Category, GuessResult, SolvedGroup, TILES_PER_GROUP, MAX_ATTEMPTS } from '@/types/game'
+import {
+  GameState,
+  Puzzle,
+  Category,
+  GuessResult,
+  TILES_PER_GROUP,
+  MAX_ATTEMPTS,
+} from '@/types/game'
 import { recordGuess, updateSession, completeSession } from './session_api'
 
 export function shuffleArray<T>(array: T[]): T[] {
   const shuffled = [...array]
   for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
   }
   return shuffled
 }
@@ -20,8 +27,8 @@ export function createInitialGameState(puzzle: Puzzle, sessionId?: string): Game
     guessHistory: [],
     sessionId,
     showToast: false,
-    toastMessage: "",
-    shuffledItems: getShuffledTiles(puzzle)
+    toastMessage: '',
+    shuffledItems: getShuffledTiles(puzzle),
   }
 }
 
@@ -36,24 +43,26 @@ export function getShuffledTiles(puzzle: Puzzle): string[] {
 export function findCategoryByItems(puzzle: Puzzle, items: string[]): Category | null {
   const sortedItems = [...items].sort()
 
-  return puzzle.categories.find(category => {
-    const sortedCategoryItems = [...category.items].sort()
-    return sortedItems.length === sortedCategoryItems.length &&
-      sortedItems.every((item, index) => item === sortedCategoryItems[index])
-  }) || null
+  return (
+    puzzle.categories.find(category => {
+      const sortedCategoryItems = [...category.items].sort()
+      return (
+        sortedItems.length === sortedCategoryItems.length &&
+        sortedItems.every((item, index) => item === sortedCategoryItems[index])
+      )
+    }) || null
+  )
 }
 
 export function checkOneAway(puzzle: Puzzle, selectedItems: string[]): boolean {
   for (const category of puzzle.categories) {
-    const matchCount = selectedItems.filter(item =>
-      category.items.includes(item)
-    ).length;
+    const matchCount = selectedItems.filter(item => category.items.includes(item)).length
 
     if (matchCount === 3) {
-      return true;
+      return true
     }
   }
-  return false;
+  return false
 }
 
 export async function makeGuess(
@@ -82,18 +91,18 @@ export async function makeGuess(
     isOneAway,
     category: category || undefined,
     attemptNumber,
-    itemDifficulties
+    itemDifficulties,
   }
 
   const newGuessHistory = [...gameState.guessHistory, guessResult]
-  let newSolvedGroups = [...gameState.solvedGroups]
+  const newSolvedGroups = [...gameState.solvedGroups]
   let newGameStatus = gameState.gameStatus
 
   if (isCorrect && category) {
     // Add to solved groups
     newSolvedGroups.push({
       category,
-      solvedAt: Date.now()
+      solvedAt: Date.now(),
     })
 
     // Check if all groups are solved
@@ -115,7 +124,7 @@ export async function makeGuess(
     gameStatus: newGameStatus,
     guessHistory: newGuessHistory,
     showToast: isOneAway,
-    toastMessage: isOneAway ? "One away..." : ""
+    toastMessage: isOneAway ? 'One away...' : '',
   }
 
   // Record guess in database if session tracking is enabled
@@ -127,13 +136,13 @@ export async function makeGuess(
       item_difficulties: itemDifficulties,
       is_correct: isCorrect,
       category_id: category?.id,
-      attempt_number: attemptNumber
+      attempt_number: attemptNumber,
     })
 
     // Update session progress
     await updateSession(gameState.sessionId, {
       attempts_used: newAttemptsUsed,
-      solved_categories: newSolvedGroups.map(sg => sg.category.id)
+      solved_categories: newSolvedGroups.map(sg => sg.category.id),
     })
 
     // Complete session if game is over
@@ -188,13 +197,12 @@ export function toggleTileSelection(gameState: GameState, tile: string): GameSta
 
   return {
     ...gameState,
-    selectedTiles: newSelectedTiles
+    selectedTiles: newSelectedTiles,
   }
 }
 
 export function canSubmitGuess(gameState: GameState): boolean {
-  return gameState.gameStatus === 'playing' &&
-    gameState.selectedTiles.length === TILES_PER_GROUP
+  return gameState.gameStatus === 'playing' && gameState.selectedTiles.length === TILES_PER_GROUP
 }
 
 export function getRemainingAttempts(gameState: GameState): number {
@@ -207,6 +215,6 @@ export function formatDate(dateString: string): string {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
-    day: 'numeric'
+    day: 'numeric',
   })
 }

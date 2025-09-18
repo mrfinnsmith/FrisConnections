@@ -6,11 +6,24 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'FrisConnections - Daily San Francisco Word Puzzle',
-  description: 'Daily San Francisco word puzzle game. Find connections between 16 words in 4 groups. New puzzle every day featuring SF neighborhoods, food, culture, and local knowledge.',
-  keywords: ['san francisco puzzle', 'sf word game', 'daily puzzle', 'connections game', 'bay area trivia', 'puzzle', 'game', 'san francisco', 'connections', 'word game'],
+  description:
+    'Daily San Francisco word puzzle game. Find connections between 16 words in 4 groups. New puzzle every day featuring SF neighborhoods, food, culture, and local knowledge.',
+  keywords: [
+    'san francisco puzzle',
+    'sf word game',
+    'daily puzzle',
+    'connections game',
+    'bay area trivia',
+    'puzzle',
+    'game',
+    'san francisco',
+    'connections',
+    'word game',
+  ],
   openGraph: {
     title: 'FrisConnections - Daily San Francisco Word Puzzle',
-    description: 'Daily San Francisco word puzzle game. Find connections between 16 words in 4 groups. New puzzle every day featuring SF neighborhoods, food, culture, and local knowledge.',
+    description:
+      'Daily San Francisco word puzzle game. Find connections between 16 words in 4 groups. New puzzle every day featuring SF neighborhoods, food, culture, and local knowledge.',
     url: 'https://frisconnections.lol',
     type: 'website',
     images: [
@@ -18,10 +31,10 @@ export const metadata: Metadata = {
         url: 'https://frisconnections.lol/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'FrisConnections - Daily San Francisco Word Puzzle Game'
-      }
-    ]
-  }
+        alt: 'FrisConnections - Daily San Francisco Word Puzzle Game',
+      },
+    ],
+  },
 }
 
 export const viewport = {
@@ -29,11 +42,7 @@ export const viewport = {
   initialScale: 1,
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>
@@ -49,16 +58,18 @@ export default function RootLayout({
      `,
           }}
         />
-        <script src="https://analytics.ahrefs.com/analytics.js" data-key="FUbmj+ShHkEoUzhFgwsmgg" async></script>
+        <script
+          src="https://analytics.ahrefs.com/analytics.js"
+          data-key="FUbmj+ShHkEoUzhFgwsmgg"
+          async
+        ></script>
       </head>
       <body className="min-h-screen page-container">
         <ErrorBoundary>
           <div className="container mx-auto px-4 py-6 max-w-2xl">
             <header className="text-center mb-6">
               <Link href="/" className="block">
-                <h1 className="text-4xl font-bold page-text mb-1">
-                  FrisConnections
-                </h1>
+                <h1 className="text-4xl font-bold page-text mb-1">FrisConnections</h1>
               </Link>
               <nav className="mt-3">
                 <Link href="/past" className="page-link hover:underline text-sm mr-4">
@@ -76,9 +87,7 @@ export default function RootLayout({
               </nav>
             </header>
             <ErrorBoundary fallback={<GameMainErrorFallback />}>
-              <main>
-                {children}
-              </main>
+              <main>{children}</main>
             </ErrorBoundary>
           </div>
         </ErrorBoundary>

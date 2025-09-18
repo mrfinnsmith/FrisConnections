@@ -1,49 +1,43 @@
-'use client';
+'use client'
 
-import React from 'react';
+import React from 'react'
 
 interface SkeletonProps {
-  className?: string;
-  width?: string;
-  height?: string;
-  rounded?: 'none' | 'sm' | 'md' | 'lg' | 'full';
-  animate?: boolean;
+  className?: string
+  width?: string
+  height?: string
+  rounded?: 'none' | 'sm' | 'md' | 'lg' | 'full'
+  animate?: boolean
 }
 
-export function Skeleton({ 
-  className = '', 
-  width = 'w-full', 
-  height = 'h-4', 
+export function Skeleton({
+  className = '',
+  width = 'w-full',
+  height = 'h-4',
   rounded = 'md',
-  animate = true 
+  animate = true,
 }: SkeletonProps) {
   const roundedClass = {
     none: '',
     sm: 'rounded-sm',
     md: 'rounded',
     lg: 'rounded-lg',
-    full: 'rounded-full'
-  }[rounded];
+    full: 'rounded-full',
+  }[rounded]
 
-  const animateClass = animate ? 'animate-pulse' : '';
+  const animateClass = animate ? 'animate-pulse' : ''
 
   return (
-    <div 
+    <div
       className={`bg-gray-200 ${width} ${height} ${roundedClass} ${animateClass} ${className}`}
       aria-label="Loading..."
     />
-  );
+  )
 }
 
 // Game-specific skeleton components
 export function TileSkeleton() {
-  return (
-    <Skeleton 
-      className="aspect-square"
-      height="h-12"
-      rounded="md"
-    />
-  );
+  return <Skeleton className="aspect-square" height="h-12" rounded="md" />
 }
 
 export function TileGridSkeleton() {
@@ -53,7 +47,7 @@ export function TileGridSkeleton() {
         <TileSkeleton key={i} />
       ))}
     </div>
-  );
+  )
 }
 
 export function SolvedGroupSkeleton() {
@@ -64,7 +58,7 @@ export function SolvedGroupSkeleton() {
         <Skeleton height="h-4" width="w-48" className="mx-auto" />
       </div>
     </div>
-  );
+  )
 }
 
 export function GameControlsSkeleton() {
@@ -87,7 +81,7 @@ export function GameControlsSkeleton() {
         <Skeleton height="h-10" width="w-16" rounded="md" />
       </div>
     </div>
-  );
+  )
 }
 
 export function PuzzleCardSkeleton() {
@@ -100,7 +94,7 @@ export function PuzzleCardSkeleton() {
       </div>
       <Skeleton height="h-10" width="w-16" rounded="md" />
     </div>
-  );
+  )
 }
 
 export function GameInfoSkeleton() {
@@ -114,52 +108,48 @@ export function GameInfoSkeleton() {
         <Skeleton height="h-4" width="w-28" className="mx-auto" />
       </div>
     </div>
-  );
+  )
 }
 
 // Skeleton wrapper for loading states
 interface SkeletonWrapperProps {
-  loading: boolean;
-  skeleton: React.ReactNode;
-  children: React.ReactNode;
-  className?: string;
+  loading: boolean
+  skeleton: React.ReactNode
+  children: React.ReactNode
+  className?: string
 }
 
-export function SkeletonWrapper({ 
-  loading, 
-  skeleton, 
-  children, 
-  className = '' 
+export function SkeletonWrapper({
+  loading,
+  skeleton,
+  children,
+  className = '',
 }: SkeletonWrapperProps) {
-  return (
-    <div className={className}>
-      {loading ? skeleton : children}
-    </div>
-  );
+  return <div className={className}>{loading ? skeleton : children}</div>
 }
 
 // Staggered loading for lists
 interface SkeletonListProps {
-  count: number;
-  renderSkeleton: (index: number) => React.ReactNode;
-  staggerDelay?: number;
-  className?: string;
+  count: number
+  renderSkeleton: (index: number) => React.ReactNode
+  staggerDelay?: number
+  className?: string
 }
 
-export function SkeletonList({ 
-  count, 
-  renderSkeleton, 
+export function SkeletonList({
+  count,
+  renderSkeleton,
   staggerDelay = 100,
-  className = ''
+  className = '',
 }: SkeletonListProps) {
   return (
     <div className={className}>
       {Array.from({ length: count }, (_, i) => (
-        <div 
+        <div
           key={i}
-          style={{ 
+          style={{
             animationDelay: `${i * staggerDelay}ms`,
-            animationDuration: '1.5s'
+            animationDuration: '1.5s',
           }}
           className="animate-pulse"
         >
@@ -167,5 +157,5 @@ export function SkeletonList({
         </div>
       ))}
     </div>
-  );
+  )
 }
