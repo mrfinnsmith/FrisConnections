@@ -530,21 +530,83 @@ Open http://localhost:3000 in your browser. The About page is accessible at http
 
 ## Development Commands
 
+### Development
+
 - `npm run dev` - Start development server
-- `npm run build` - Build for production  
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+
+### Code Quality
+
 - `npm run lint` - Check code quality
 - `npm run lint:fix` - Auto-fix linting issues
 - `npm run format` - Format code with Prettier
+- `npm run format:check` - Check code formatting
 - `npm run type-check` - Check TypeScript types
 
-## Code Quality
+### Testing
 
-This project uses ESLint and Prettier with pre-commit hooks to maintain code quality:
+- `npm run test` - Run tests in watch mode
+- `npm run test:run` - Run tests once
+- `npm run test:ui` - Run tests with UI interface
+- `npm run test:coverage` - Run tests with coverage report
 
-- **ESLint**: TypeScript, React, and accessibility rules
+## Code Quality & Testing
+
+This project uses comprehensive tooling to maintain code quality and reliability:
+
+### Code Quality
+
+- **ESLint**: TypeScript, React, accessibility, and React Hooks rules
 - **Prettier**: Consistent code formatting
 - **Husky**: Git hooks for automatic linting/formatting
-- **Pre-commit**: Code must pass quality checks before commits
+- **Pre-commit**: Code and tests must pass before commits
+
+### Testing Framework
+
+- **Vitest**: Fast unit testing with TypeScript support
+- **Testing Library**: React component testing with accessibility focus
+- **jsdom**: Browser environment simulation for tests
+- **Coverage**: Built-in coverage reporting
+
+### Test Structure
+
+```
+src/
+├── components/
+│   └── __tests__/           # Component tests
+├── lib/
+│   └── __tests__/           # Unit tests for utilities
+└── test/
+    ├── setup.ts             # Test environment setup
+    └── accessibility.ts     # Accessibility testing helpers
+```
+
+### Running Tests
+
+For development with live feedback:
+
+```bash
+npm run test          # Watch mode - reruns tests when files change
+npm run test:ui       # Interactive UI for debugging tests
+```
+
+For CI/CD and final validation:
+
+```bash
+npm run test:run      # Single run - used in pre-commit hooks
+npm run test:coverage # Generate coverage reports
+```
+
+### Pre-commit Hooks
+
+Before any commit, the following automatically runs:
+
+1. **ESLint** fixes code style issues
+2. **Prettier** formats code consistently
+3. **Vitest** runs all tests to ensure functionality
+
+If any step fails, the commit is blocked until fixed.
 
 ## Database Constraints
 
