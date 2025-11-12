@@ -192,6 +192,37 @@ Check the GitHub Actions tab to verify:
 - Any errors in the automation process
 - Manual trigger functionality
 
+## Keep-Alive Workflow
+
+GitHub automatically disables scheduled workflows after 60 days of repository inactivity. To prevent the Daily Puzzle Advance and Monthly Difficulty Update workflows from being disabled, a keep-alive workflow maintains repository activity.
+
+### How It Works
+
+1. **Workflow File** (`.github/workflows/keep-alive.yml`):
+   - Runs every 50 days (before the 60-day cutoff)
+   - Updates a timestamp file at `.github/keep-alive.txt`
+   - Commits the change using the GitHub Actions bot
+   - This activity prevents workflow deactivation
+
+2. **Schedule**: `0 0 */50 * *` (every 50 days at midnight UTC)
+
+3. **Timestamp File** (`.github/keep-alive.txt`):
+   - Simple text file containing the last update timestamp
+   - Updated format: `Last keep-alive: YYYY-MM-DD HH:MM:SS UTC`
+
+### Manual Trigger
+
+To manually trigger the keep-alive workflow:
+
+1. Go to GitHub repository → Actions tab
+2. Click "Keep-Alive" workflow
+3. Click "Run workflow" button
+4. Confirm the run
+
+### Monitoring
+
+The workflow creates automatic commits with the message "Keep workflow alive: update timestamp" approximately every 50 days. You can verify these commits in the repository history.
+
 ## Content Management Workflow
 
 ### Step 1: Prepare CSV File
