@@ -9,7 +9,7 @@ interface TileGridProps {
   gameState: GameState
   onTileClick: (tile: string) => void
   animatingTiles: string[]
-  animationType: 'shake' | 'bounce' | null
+  animationType: 'shake' | 'bounce' | 'shuffle' | 'shrink' | null
   onKeyboardInteraction?: (message: string) => void
 }
 
@@ -18,7 +18,7 @@ function getTileClasses(
   gameState: GameState,
   solvedGroup: SolvedGroup | undefined,
   animatingTiles: string[],
-  animationType: 'shake' | 'bounce' | null,
+  animationType: 'shake' | 'bounce' | 'shuffle' | 'shrink' | null,
   animationIndex: number
 ): string {
   const baseClasses = 'game-tile'
