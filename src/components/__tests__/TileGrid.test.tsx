@@ -79,7 +79,7 @@ describe('TileGrid', () => {
       />
     )
 
-    const selectedTile = screen.getByText('Twin Peaks')
+    const selectedTile = screen.getByText('Twin Peaks').closest('button')!
     expect(selectedTile).toHaveAttribute('aria-pressed', 'true')
     expect(selectedTile).toHaveClass('selected')
   })
@@ -118,7 +118,7 @@ describe('TileGrid', () => {
       'Game tiles - use arrow keys to navigate, Enter or Space to select'
     )
 
-    const firstTile = screen.getByText('Twin Peaks')
+    const firstTile = screen.getByText('Twin Peaks').closest('button')!
     expect(firstTile).toHaveAttribute('role', 'gridcell')
     expect(firstTile).toHaveAttribute('aria-label', expect.stringContaining('Twin Peaks, selected'))
     expect(firstTile).toHaveAttribute('aria-label', expect.stringContaining('Row 1, Column 1'))
@@ -137,7 +137,7 @@ describe('TileGrid', () => {
       />
     )
 
-    const firstTile = screen.getByText('Twin Peaks')
+    const firstTile = screen.getByText('Twin Peaks').closest('button')!
     firstTile.focus()
 
     // Test arrow key navigation
@@ -202,7 +202,7 @@ describe('TileGrid', () => {
       />
     )
 
-    const animatedTile = screen.getByText('Twin Peaks')
+    const animatedTile = screen.getByText('Twin Peaks').closest('button')!
     expect(animatedTile).toHaveClass('shake')
   })
 

@@ -102,14 +102,17 @@ body {
 @layer components {
   .game-tile {
     width: 100%;
-    height: 4rem;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    min-width: 0;
+    aspect-ratio: 5 / 3;
+    min-height: 0;
+    border-radius: 4px;
+    display: grid;
+    place-items: center;
+    padding: 0.5rem;
     font-size: 0.875rem;
     font-weight: 700;
     text-transform: uppercase;
+    line-height: 1.25;
     transition: all 200ms;
     cursor: pointer;
     position: relative;
@@ -117,10 +120,56 @@ body {
     -webkit-user-select: none;
     -webkit-touch-callout: none;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    text-align: center;
 
     background-color: var(--game-surface);
     border: 2px solid var(--game-border);
     color: var(--game-text);
+
+    @media (min-width: 640px) {
+      font-size: 1rem;
+      padding: 0.625rem;
+    }
+
+    @media (min-width: 1024px) {
+      font-size: 1.25rem;
+      padding: 0.75rem;
+    }
+  }
+
+  .tile-text {
+    display: block;
+    width: 100%;
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: normal;
+  }
+
+  /* Shrink font for longer text until it fits */
+  .game-tile[data-text-length='long'] {
+    font-size: 0.75rem;
+    line-height: 1.2;
+
+    @media (min-width: 640px) {
+      font-size: 0.875rem;
+    }
+
+    @media (min-width: 1024px) {
+      font-size: 1rem;
+    }
+  }
+
+  .game-tile[data-text-length='very-long'] {
+    font-size: 0.625rem;
+    line-height: 1.15;
+
+    @media (min-width: 640px) {
+      font-size: 0.75rem;
+    }
+
+    @media (min-width: 1024px) {
+      font-size: 0.875rem;
+    }
   }
 
   .game-tile:hover {
@@ -262,6 +311,17 @@ body {
     text-transform: uppercase;
     font-weight: 700;
     text-align: center;
+    line-height: 1.3;
+    overflow-wrap: break-word;
+    word-break: normal;
+    hyphens: none;
+  }
+
+  @media (min-width: 1024px) {
+    .solved-group {
+      padding: 1.5rem;
+      font-size: 1.125rem;
+    }
   }
 
   .solved-group.difficulty-1 {
@@ -282,6 +342,30 @@ body {
   .solved-group.difficulty-4 {
     background-color: var(--level-expert);
     color: #6b21a8;
+  }
+
+  /* Ensure h3 titles wrap at word boundaries, not mid-word */
+  .solved-group h3 {
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: normal;
+  }
+
+  /* Dynamic font sizing for solved group titles */
+  .solved-group[data-text-length='long'] h3 {
+    font-size: 0.9rem;
+
+    @media (min-width: 640px) {
+      font-size: 1rem;
+    }
+  }
+
+  .solved-group[data-text-length='very-long'] h3 {
+    font-size: 0.75rem;
+
+    @media (min-width: 640px) {
+      font-size: 0.875rem;
+    }
   }
 
   @keyframes shake {

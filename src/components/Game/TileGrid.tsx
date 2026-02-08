@@ -59,6 +59,7 @@ function TileGrid({
 }: TileGridProps) {
   const gridRef = useRef<HTMLDivElement>(null)
   const [focusedIndex, setFocusedIndex] = React.useState<number>(0)
+  const [fontSizes, setFontSizes] = React.useState<Record<string, number>>({})
   // Memoize expensive calculations
   const availableTiles = useMemo(() => getAvailableTiles(gameState), [gameState])
 
@@ -170,6 +171,59 @@ function TileGrid({
     }
   }, [displayItems.length])
 
+  // Measure and adjust font sizes to prevent overflow
+  useEffect(() => {
+    if (!gridRef.current) return
+
+    const newFontSizes: Record<string, number> = {}
+    const buttons = Array.from(gridRef.current.children).filter(
+      child => child.tagName === 'BUTTON'
+    ) as HTMLButtonElement[]
+
+    buttons.forEach(button => {
+      const textSpan = button.querySelector('.tile-text') as HTMLElement
+      if (!textSpan) return
+
+      const tile = displayItems[buttons.indexOf(button)]
+      if (!tile) return
+
+      // Reset to base size
+      textSpan.style.fontSize = ''
+
+      // Get computed base font size
+      const computedStyle = window.getComputedStyle(button)
+      let fontSize = parseFloat(computedStyle.fontSize)
+      const minFontSize = 8 // 8px minimum
+
+      // Check if text overflows
+      let iterations = 0
+      while (
+        (textSpan.scrollWidth > button.clientWidth - 16 || // 16px for padding
+          textSpan.scrollHeight > button.clientHeight - 16) &&
+        fontSize > minFontSize &&
+        iterations < 20
+      ) {
+        fontSize *= 0.9 // Reduce by 10%
+        textSpan.style.fontSize = `${fontSize}px`
+        iterations++
+      }
+
+      if (fontSize !== parseFloat(computedStyle.fontSize)) {
+        newFontSizes[tile] = fontSize
+      }
+    })
+
+    setFontSizes(newFontSizes)
+  }, [displayItems, gameState.solvedGroups])
+
+  // Helper function to determine text length category
+  const getTextLengthCategory = (text: string): 'normal' | 'long' | 'very-long' => {
+    const length = text.length
+    if (length <= 12) return 'normal'
+    if (length <= 18) return 'long'
+    return 'very-long'
+  }
+
   // Memoize tile data to avoid recalculation on every render
   const tileData = useMemo(() => {
     const endTracking = trackGamePerformance.tileRender(displayItems.length)
@@ -188,6 +242,7 @@ function TileGrid({
         animationIndex
       )
       const isSelected = gameState.selectedTiles.includes(tile)
+      const textLength = getTextLengthCategory(tile)
 
       return {
         tile,
@@ -195,6 +250,7 @@ function TileGrid({
         tileClasses,
         isDisabled,
         isSelected,
+        textLength,
       }
     })
 
@@ -205,7 +261,7 @@ function TileGrid({
   return (
     <div
       ref={gridRef}
-      className="grid grid-cols-4 gap-2 mb-6"
+      className="grid grid-cols-4 gap-2 mb-8"
       role="grid"
       aria-label="Game tiles - use arrow keys to navigate, Enter or Space to select"
       tabIndex={0}
@@ -216,7 +272,7 @@ function TileGrid({
         }
       }}
     >
-      {tileData.map(({ tile, index, tileClasses, isDisabled, isSelected }) => {
+      {tileData.map(({ tile, index, tileClasses, isDisabled, isSelected, textLength }) => {
         const currentRow = Math.floor(index / 4) + 1
         const currentCol = (index % 4) + 1
         const totalTiles = displayItems.length
@@ -225,6 +281,7 @@ function TileGrid({
           <button
             key={`${tile}-${index}`}
             className={tileClasses}
+            data-text-length={textLength}
             onClick={() => onTileClick(tile)}
             onKeyDown={event => handleKeyDown(event, index, tile)}
             disabled={isDisabled}
@@ -234,7 +291,12 @@ function TileGrid({
             aria-describedby="grid-instructions"
             tabIndex={index === focusedIndex ? 0 : -1}
           >
-            {tile}
+            <span
+              className="tile-text"
+              style={fontSizes[tile] ? { fontSize: `${fontSizes[tile]}px` } : undefined}
+            >
+              {tile}
+            </span>
           </button>
         )
       })}

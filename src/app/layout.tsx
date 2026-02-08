@@ -66,25 +66,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen page-container">
         <ErrorBoundary>
-          <div className="container mx-auto px-4 py-6 max-w-2xl">
-            <header className="text-center mb-6">
-              <Link href="/" className="block">
-                <h1 className="text-4xl font-bold page-text mb-1">FrisConnections</h1>
-              </Link>
-              <nav className="mt-3">
-                <Link href="/past" className="page-link hover:underline text-sm mr-4">
-                  Past FrisConnections
+          <div className="mx-auto px-2 sm:px-4 py-6 w-full max-w-[1008px]">
+            <header className="mb-4 pb-3 border-b border-gray-200">
+              <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2">
+                <Link href="/">
+                  <h1 className="text-3xl sm:text-4xl font-bold page-text">FrisConnections</h1>
                 </Link>
-                <Link href="/stats" className="page-link hover:underline text-sm mr-4">
-                  Statistics
-                </Link>
-                <Link href="/about" className="page-link hover:underline text-sm mr-4">
-                  About
-                </Link>
-                <Link href="/how-to-play" className="page-link hover:underline text-sm">
-                  How to Play
-                </Link>
-              </nav>
+                <nav className="flex gap-4 sm:gap-6 text-xs sm:text-sm">
+                  <Link href="/past" className="page-link hover:underline">
+                    Past Puzzles
+                  </Link>
+                  <Link href="/stats" className="page-link hover:underline">
+                    Stats
+                  </Link>
+                  <Link href="/how-to-play" className="page-link hover:underline">
+                    How to Play
+                  </Link>
+                </nav>
+              </div>
             </header>
             <ErrorBoundary fallback={<GameMainErrorFallback />}>
               <main>{children}</main>

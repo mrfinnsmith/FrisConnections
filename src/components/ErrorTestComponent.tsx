@@ -11,17 +11,23 @@ export default function ErrorTestComponent() {
   }
 
   return (
-    <div className="p-4 border border-red-200 bg-red-50 rounded">
-      <h3 className="font-bold text-red-800 mb-2">Error Boundary Test</h3>
-      <p className="text-red-700 text-sm mb-4">
-        This component is only visible in development. Click the button to test error boundaries.
-      </p>
-      <button
-        onClick={() => setShouldError(true)}
-        className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700"
-      >
-        Trigger Error
-      </button>
+    <div className="mb-4 p-3 border border-gray-300 bg-gray-50 rounded text-xs">
+      <details className="cursor-pointer">
+        <summary className="font-medium text-gray-600 hover:text-gray-800">
+          🧪 Dev Tools - Error Boundary Test
+        </summary>
+        <div className="mt-2 pt-2 border-t border-gray-200">
+          <p className="text-gray-500 mb-2">
+            Test error boundary handling by triggering a component error
+          </p>
+          <button
+            onClick={() => setShouldError(true)}
+            className="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 transition-colors"
+          >
+            Trigger Test Error
+          </button>
+        </div>
+      </details>
     </div>
   )
 }

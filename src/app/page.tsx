@@ -2,7 +2,6 @@ import GameBoard from '@/components/Game/GameBoard'
 import { getTodaysPuzzle } from '@/lib/puzzleApi'
 import Link from 'next/link'
 import Image from 'next/image'
-import ErrorTestComponent from '@/components/ErrorTestComponent'
 
 export const revalidate = 3600
 
@@ -38,23 +37,17 @@ export default async function Home() {
   }
 
   return (
-    <div className="space-y-4">
-      {process.env.NODE_ENV === 'development' && <ErrorTestComponent />}
-
-      <div className="text-center">
-        <p className="text-gray-700 mb-4">Create four groups of four!</p>
-      </div>
-      <div className="text-center mb-4">
-        <p className="text-gray-600 text-sm">
+    <div>
+      <div className="text-center mb-4 pb-4 border-b border-gray-200">
+        <span className="text-lg sm:text-2xl text-gray-600">
           {new Date().toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric',
             timeZone: 'America/Los_Angeles',
           })}
-        </p>
+        </span>
       </div>
-
       <GameBoard puzzle={puzzle} />
     </div>
   )
