@@ -41,8 +41,8 @@
   --surface-selected-hover: #787668;
 
   /* Border colors */
-  --border-primary: #dadce0;
-  --border-interactive: #9aa0a6;
+  --border-primary: #979797;
+  --border-interactive: #979797;
   --border-selected: #1976d2;
 
   /* Text colors */
@@ -83,19 +83,19 @@
 }
 
 .page-text {
-  color: #092782; /* SF flag navy */
+  color: #092782;
 }
 
 .page-link {
-  color: #092782; /* SF flag navy */
+  color: #092782;
 }
 
 .page-header {
-  background-color: #ffca00; /* SF flag gold */
-  border-bottom: 2px solid #092782; /* Navy border */
+  background-color: #ffca00;
+  border-bottom: 2px solid #092782;
 }
 
-/* SF Flag color utilities */
+/* Brand color utilities */
 .bg-sf-navy {
   background-color: #092782;
 }
@@ -141,9 +141,9 @@ body {
   .game-tile {
     width: 100%;
     min-width: 0;
-    aspect-ratio: 5 / 3;
+    aspect-ratio: 15 / 8; /* Desktop: 150px × 80px = 1.875:1 ratio */
     min-height: 0;
-    border-radius: 4px;
+    border-radius: 5px;
     display: grid;
     place-items: center;
     padding: 0.5rem;
@@ -161,8 +161,13 @@ body {
     text-align: center;
 
     background-color: var(--game-surface);
-    border: 2px solid var(--game-border);
+    border: 1px solid var(--game-border);
     color: var(--game-text);
+
+    /* Mobile: square tiles */
+    @media (max-width: 639px) {
+      aspect-ratio: 1 / 1;
+    }
 
     @media (min-width: 640px) {
       font-size: 1rem;
@@ -213,23 +218,21 @@ body {
   .game-tile:hover {
     background-color: var(--game-surface-hover);
     border-color: var(--game-border-hover);
-    box-shadow: 0 2px 8px rgba(255, 202, 0, 0.4); /* Gold shadow */
   }
 
   .game-tile:active {
-    transform: scale(0.95);
+    transform: scale(0.98);
   }
 
   .game-tile.selected {
-    background-color: #787c7e;
-    border-color: #ffca00; /* Gold border when selected */
-    color: #ffffff;
-    transform: scale(0.95);
-    box-shadow: 0 0 12px rgba(255, 202, 0, 0.6); /* Gold glow */
+    background-color: var(--game-surface-selected);
+    border-color: var(--game-border-hover);
+    color: #f8f8f8;
+    transform: scale(0.98);
   }
 
   .game-tile.selected:hover {
-    background-color: #787c7e;
+    background-color: var(--game-surface-selected-hover);
   }
 
   .game-tile.solved {
@@ -238,26 +241,26 @@ body {
 
   .game-tile.solved.difficulty-1 {
     background-color: var(--level-easy);
-    border-color: #f59e0b;
-    color: #92400e;
+    border-color: transparent;
+    color: #121212;
   }
 
   .game-tile.solved.difficulty-2 {
     background-color: var(--level-medium);
-    border-color: #10b981;
-    color: #065f46;
+    border-color: transparent;
+    color: #121212;
   }
 
   .game-tile.solved.difficulty-3 {
     background-color: var(--level-hard);
-    border-color: #3b82f6;
-    color: #1e40af;
+    border-color: transparent;
+    color: #121212;
   }
 
   .game-tile.solved.difficulty-4 {
     background-color: var(--level-expert);
-    border-color: #8b5cf6;
-    color: #6b21a8;
+    border-color: transparent;
+    color: #121212;
   }
 
   .game-tile:disabled {
@@ -319,8 +322,8 @@ body {
   }
 
   .game-button.primary:hover {
-    background-color: #092782; /* Navy hover */
-    border-color: #ffca00; /* Gold border */
+    background-color: #092782;
+    border-color: #ffca00;
     color: var(--surface-primary);
     box-shadow: 0 2px 8px rgba(255, 202, 0, 0.3);
   }
@@ -381,22 +384,22 @@ body {
 
   .solved-group.difficulty-1 {
     background-color: var(--level-easy);
-    color: #92400e;
+    color: #121212;
   }
 
   .solved-group.difficulty-2 {
     background-color: var(--level-medium);
-    color: #065f46;
+    color: #121212;
   }
 
   .solved-group.difficulty-3 {
     background-color: var(--level-hard);
-    color: #1e40af;
+    color: #121212;
   }
 
   .solved-group.difficulty-4 {
     background-color: var(--level-expert);
-    color: #6b21a8;
+    color: #121212;
   }
 
   /* Ensure h3 titles wrap at word boundaries, not mid-word */

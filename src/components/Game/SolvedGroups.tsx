@@ -47,7 +47,11 @@ function SolvedGroups({ solvedGroups }: SolvedGroupsProps) {
 
   if (solvedGroups.length === 0) return null
 
-  return <div className="mb-6 space-y-2">{groupElements}</div>
+  return (
+    <div className="mb-6 space-y-2 w-[calc(3_*_0.5rem_+_4_*_22.5vw)] sm:w-[calc(3_*_0.5rem_+_4_*_150px)] mx-auto">
+      {groupElements}
+    </div>
+  )
 }
 
 // Export memoized component

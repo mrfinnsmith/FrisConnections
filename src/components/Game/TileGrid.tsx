@@ -261,7 +261,7 @@ function TileGrid({
   return (
     <div
       ref={gridRef}
-      className="grid grid-cols-4 gap-2 mb-8"
+      className="grid grid-cols-4 gap-2 mb-8 mx-auto w-[calc(3_*_0.5rem_+_4_*_22.5vw)] sm:w-[calc(3_*_0.5rem_+_4_*_150px)]"
       role="grid"
       aria-label="Game tiles - use arrow keys to navigate, Enter or Space to select"
       tabIndex={0}
