@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-Frisconnections is a daily word puzzle game based on the New York Times Connections format, featuring San Francisco-themed categories. Players identify groups of four related SF items from a grid of 16 words.
+Frisconnections is a daily word puzzle game featuring San Francisco-themed categories. Players identify groups of four related SF items from a grid of 16 words.
 
 ## Game Overview
 

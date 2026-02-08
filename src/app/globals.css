@@ -286,6 +286,19 @@ body {
     animation-delay: 0.3s;
   }
 
+  .game-tile.shuffle {
+    animation: textfadein 1s;
+  }
+
+  .game-tile.shuffle.selected {
+    animation: textfadeinselected 1s;
+  }
+
+  .game-tile.shrink {
+    transition: all 0.3s ease-in-out;
+    transform: scale(0.9);
+  }
+
   .game-button {
     padding: 0.5rem 1.5rem;
     border-radius: 0.5rem;
@@ -410,6 +423,7 @@ body {
     }
   }
 
+  /* Game animations */
   @keyframes shake {
     0%,
     100% {
@@ -453,6 +467,26 @@ body {
     100% {
       transform: scaleY(1) scaleX(1);
       z-index: 4;
+    }
+  }
+
+  @keyframes textfadein {
+    0% {
+      color: rgba(0, 0, 0, 0);
+    }
+
+    100% {
+      color: var(--game-text);
+    }
+  }
+
+  @keyframes textfadeinselected {
+    0% {
+      color: rgba(255, 255, 255, 0);
+    }
+
+    100% {
+      color: var(--game-text-selected);
     }
   }
 

@@ -42,6 +42,10 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
   const [showResults, setShowResults] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [announcements, setAnnouncements] = useState<string[]>([])
+  const [animatingTiles, setAnimatingTiles] = useState<string[]>([])
+  const [animationType, setAnimationType] = useState<
+    'shake' | 'bounce' | 'shuffle' | 'shrink' | null
+  >(null)
 
   const maxGuesses = 4
 
@@ -174,6 +178,18 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
         category.items.every(item => gameState.selectedTiles.includes(item))
     )
 
+    // Trigger bounce animation on submit for all selected tiles
+    setAnimatingTiles([...gameState.selectedTiles])
+    setAnimationType('bounce')
+
+    // Wait for bounce animation timeout (1200ms if correct, 1000ms if incorrect)
+    const bounceTimeout = matchingCategory ? 1200 : 1000
+    await new Promise(resolve => setTimeout(resolve, bounceTimeout))
+
+    // Clear bounce animation
+    setAnimatingTiles([])
+    setAnimationType(null)
+
     const newAttemptsUsed = gameState.attemptsUsed + 1
 
     // Check if guess is "one away" from any category
@@ -201,26 +217,25 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
     const newGuessHistory = [...gameState.guessHistory, guessResult]
 
     if (matchingCategory) {
-      // Correct guess
+      // Correct guess - move tiles to solved group
       const newSolvedGroup: SolvedGroup = {
         category: matchingCategory,
         solvedAt: gameState.solvedGroups.length,
       }
 
       const newSolvedGroups = [...gameState.solvedGroups, newSolvedGroup]
+      const newGameStatus = newSolvedGroups.length === 4 ? 'won' : 'playing'
 
-      // Update available items
+      // Update state to move tiles to solved group
       const solvedItems = newSolvedGroups.flatMap(sg => sg.category.items)
       const remainingItems = getAllItems().filter(item => !solvedItems.includes(item))
       const allItemsInOrder = [...solvedItems, ...shuffleArray(remainingItems)]
-      setGameState(prev => ({ ...prev, shuffledItems: allItemsInOrder }))
-
-      const newGameStatus = newSolvedGroups.length === 4 ? 'won' : 'playing'
 
       setGameState(prev => ({
         ...prev,
         selectedTiles: [],
         solvedGroups: newSolvedGroups,
+        shuffledItems: allItemsInOrder,
         attemptsUsed: newAttemptsUsed,
         gameStatus: newGameStatus,
         guessHistory: newGuessHistory,
@@ -245,19 +260,29 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
         setShowResults(true)
       }
     } else {
-      // Wrong guess
+      // Wrong guess - trigger shake animation
       let showToast = false
       let toastMessage = ''
       let screenReaderMessage = `Incorrect guess. ${maxGuesses - newAttemptsUsed} mistakes remaining.`
 
       if (isOneAway) {
-        // Show "one away" toast
         showToast = true
         toastMessage = 'One away...'
         screenReaderMessage = `One away! You have 3 correct items. ${maxGuesses - newAttemptsUsed} mistakes remaining.`
       }
 
       const newGameStatus = newAttemptsUsed >= maxGuesses ? 'lost' : 'playing'
+
+      // Trigger shake animation for incorrect guess
+      setAnimatingTiles([...gameState.selectedTiles])
+      setAnimationType('shake')
+
+      // Wait for shake animation to complete (200ms * 1.5 iterations = 300ms)
+      await new Promise(resolve => setTimeout(resolve, 300))
+
+      // Clear animations
+      setAnimatingTiles([])
+      setAnimationType(null)
 
       setGameState(prev => ({
         ...prev,
@@ -293,9 +318,17 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
     const solvedItems = gameState.solvedGroups.flatMap(sg => sg.category.items)
     const remainingItems = getAllItems().filter(item => !solvedItems.includes(item))
     const allItemsInOrder = [...solvedItems, ...shuffleArray(remainingItems)]
-    setGameState(prev => ({ ...prev, shuffledItems: allItemsInOrder }))
+    setGameState(prev => ({ ...prev, shuffledItems: allItemsInOrder, selectedTiles: [] }))
 
-    setGameState(prev => ({ ...prev, selectedTiles: [] }))
+    // Trigger shuffle animation on all remaining tiles
+    setAnimatingTiles(remainingItems)
+    setAnimationType('shuffle')
+
+    // Clear animation after 1s (duration of shuffle animation)
+    setTimeout(() => {
+      setAnimatingTiles([])
+      setAnimationType(null)
+    }, 1000)
   }
 
   const handleDeselectAll = () => {
@@ -325,8 +358,8 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
         <TileGrid
           gameState={gameState}
           onTileClick={handleTileClick}
-          animatingTiles={[]}
-          animationType={null}
+          animatingTiles={animatingTiles}
+          animationType={animationType}
           onKeyboardInteraction={handleKeyboardInteraction}
         />
 
