@@ -27,7 +27,7 @@ export default async function Home() {
           <p className="text-gray-600">In the meantime, check out some from the past!</p>
           <Link
             href="/past"
-            className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-block bg-[#092782] text-white px-6 py-2 rounded-lg hover:bg-[#061b5c] transition-colors"
           >
             Browse Past Puzzles
           </Link>

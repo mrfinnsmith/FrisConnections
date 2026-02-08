@@ -74,7 +74,7 @@ export default function StatsPage() {
         </p>
         <Link
           href="/"
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="px-4 py-2 bg-sf-navy text-white rounded-lg hover:bg-sf-navy-dark transition-colors"
         >
           Back to Game
         </Link>
@@ -97,7 +97,7 @@ export default function StatsPage() {
       <div className="mb-6 flex justify-center gap-4">
         <Link
           href="/"
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="px-4 py-2 bg-sf-navy text-white rounded-lg hover:bg-sf-navy-dark transition-colors"
         >
           Today's Puzzle
         </Link>
@@ -216,7 +216,7 @@ export default function StatsPage() {
                       <button
                         key={scenario}
                         onClick={() => handleInjectMockData(scenario)}
-                        className="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                        className="px-3 py-1 text-xs bg-sf-navy-light text-sf-navy-dark rounded hover:bg-blue-200"
                       >
                         {scenario}
                       </button>

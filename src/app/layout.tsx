@@ -66,8 +66,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen page-container">
         <ErrorBoundary>
-          <div className="mx-auto px-2 sm:px-4 py-6 w-full max-w-[1008px]">
-            <header className="mb-4 pb-3 border-b border-gray-200">
+          <header className="page-header w-full py-3 mb-6">
+            <div className="mx-auto px-2 sm:px-4 w-full max-w-[1008px]">
               <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2">
                 <Link href="/">
                   <h1 className="text-3xl sm:text-4xl font-bold page-text">FrisConnections</h1>
@@ -84,7 +84,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   </Link>
                 </nav>
               </div>
-            </header>
+            </div>
+          </header>
+          <div className="mx-auto px-2 sm:px-4 w-full max-w-[1008px]">
             <ErrorBoundary fallback={<GameMainErrorFallback />}>
               <main>{children}</main>
             </ErrorBoundary>

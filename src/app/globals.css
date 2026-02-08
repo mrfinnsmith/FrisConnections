@@ -83,11 +83,49 @@
 }
 
 .page-text {
-  color: var(--text-primary);
+  color: #092782; /* SF flag navy */
 }
 
 .page-link {
-  color: #c0362d;
+  color: #092782; /* SF flag navy */
+}
+
+.page-header {
+  background-color: #ffca00; /* SF flag gold */
+  border-bottom: 2px solid #092782; /* Navy border */
+}
+
+/* SF Flag color utilities */
+.bg-sf-navy {
+  background-color: #092782;
+}
+
+.bg-sf-navy-dark {
+  background-color: #061b5c;
+}
+
+.bg-sf-navy-light {
+  background-color: #b3c5e8;
+}
+
+.text-sf-navy {
+  color: #092782;
+}
+
+.text-sf-navy-dark {
+  color: #061b5c;
+}
+
+.bg-sf-gold {
+  background-color: #ffca00;
+}
+
+.border-sf-gold {
+  border-color: #ffca00;
+}
+
+.ring-sf-gold {
+  --tw-ring-color: #ffca00;
 }
 
 body {
@@ -175,6 +213,7 @@ body {
   .game-tile:hover {
     background-color: var(--game-surface-hover);
     border-color: var(--game-border-hover);
+    box-shadow: 0 2px 8px rgba(255, 202, 0, 0.4); /* Gold shadow */
   }
 
   .game-tile:active {
@@ -183,9 +222,10 @@ body {
 
   .game-tile.selected {
     background-color: #787c7e;
-    border-color: #787c7e;
+    border-color: #ffca00; /* Gold border when selected */
     color: #ffffff;
     transform: scale(0.95);
+    box-shadow: 0 0 12px rgba(255, 202, 0, 0.6); /* Gold glow */
   }
 
   .game-tile.selected:hover {
@@ -266,8 +306,10 @@ body {
   }
 
   .game-button.primary:hover {
-    background-color: var(--text-primary);
+    background-color: #092782; /* Navy hover */
+    border-color: #ffca00; /* Gold border */
     color: var(--surface-primary);
+    box-shadow: 0 2px 8px rgba(255, 202, 0, 0.3);
   }
 
   .game-button.secondary {

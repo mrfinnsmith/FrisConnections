@@ -167,7 +167,7 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ isVisible, onClose })
               <div
                 key={index}
                 className={`w-2 h-2 rounded-full ${
-                  index === currentStep ? 'bg-blue-500' : 'bg-gray-300'
+                  index === currentStep ? 'bg-sf-navy' : 'bg-gray-300'
                 }`}
                 aria-label={`Step ${index + 1}${index === currentStep ? ' (current)' : ''}`}
                 aria-hidden="true"
@@ -178,7 +178,7 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ isVisible, onClose })
           <button
             ref={nextButtonRef}
             onClick={handleNext}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="bg-sf-navy hover:bg-sf-navy-dark text-white px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 ring-sf-gold focus:ring-offset-2"
             aria-label={
               currentStep === steps.length - 1
                 ? 'Finish tutorial and start playing'

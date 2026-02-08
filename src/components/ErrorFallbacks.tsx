@@ -8,7 +8,7 @@ export function GameErrorFallback() {
       <p className="text-red-600 mb-2">Game board error</p>
       <button
         onClick={() => window.location.reload()}
-        className="px-3 py-1 bg-blue-600 text-white rounded text-sm"
+        className="px-3 py-1 bg-sf-navy text-white rounded text-sm"
       >
         Restart Game
       </button>
@@ -35,7 +35,7 @@ export function PastPuzzlesErrorFallback() {
       <p className="text-red-600 mb-4">Error loading puzzle list</p>
       <button
         onClick={() => window.location.reload()}
-        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        className="px-4 py-2 bg-sf-navy text-white rounded hover:bg-sf-navy-dark"
       >
         Reload Page
       </button>
@@ -49,7 +49,7 @@ export function GameMainErrorFallback() {
       <p className="text-red-600 mb-4">Something went wrong with the game.</p>
       <button
         onClick={() => window.location.reload()}
-        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        className="px-4 py-2 bg-sf-navy text-white rounded hover:bg-sf-navy-dark"
       >
         Reload Game
       </button>
@@ -63,7 +63,7 @@ export function StatsErrorFallback() {
       <p className="text-red-600 mb-4">Error loading statistics</p>
       <button
         onClick={() => window.location.reload()}
-        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        className="px-4 py-2 bg-sf-navy text-white rounded hover:bg-sf-navy-dark"
       >
         Reload Page
       </button>
