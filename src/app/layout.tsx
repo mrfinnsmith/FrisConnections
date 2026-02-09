@@ -7,7 +7,7 @@ import './globals.css'
 export const metadata: Metadata = {
   title: 'FrisConnections - Daily San Francisco Word Puzzle',
   description:
-    'Daily San Francisco word puzzle game. Find connections between 16 words in 4 groups. New puzzle every day featuring SF neighborhoods, food, culture, and local knowledge.',
+    'Daily San Francisco word puzzle. Find connections between 16 words in 4 groups. New puzzle daily featuring SF neighborhoods, food, and culture.',
   keywords: [
     'san francisco puzzle',
     'sf word game',
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'FrisConnections - Daily San Francisco Word Puzzle',
     description:
-      'Daily San Francisco word puzzle game. Find connections between 16 words in 4 groups. New puzzle every day featuring SF neighborhoods, food, culture, and local knowledge.',
+      'Daily San Francisco word puzzle. Find connections between 16 words in 4 groups. New puzzle daily featuring SF neighborhoods, food, and culture.',
     url: 'https://frisconnections.lol',
     type: 'website',
     images: [
