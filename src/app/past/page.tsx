@@ -102,6 +102,30 @@ export default function PastPuzzlesPage() {
     <div className="w-full max-w-2xl mx-auto p-4">
       <h1 className="text-3xl font-bold text-center mb-8">Past FrisConnections</h1>
 
+      <div className="mb-8 space-y-4 max-w-xl mx-auto">
+        <p className="text-gray-700">
+          Every puzzle in this archive was previously featured as the daily puzzle. Replay any past
+          puzzle to test your San Francisco knowledge.
+        </p>
+        <p className="text-gray-700">
+          Each puzzle contains 16 words organized into 4 categories with varying difficulty levels.
+          Yellow categories are the most straightforward, while purple categories often involve
+          wordplay or require deep local knowledge. New to the game?{' '}
+          <Link href="/how-to-play" className="font-medium hover:underline text-sf-navy">
+            Learn how to play
+          </Link>
+          .
+        </p>
+        <p className="text-gray-700">
+          Your progress and stats for each puzzle are saved separately, so you can replay puzzles
+          without affecting your daily game statistics. View your overall performance on the{' '}
+          <Link href="/stats" className="font-medium hover:underline text-sf-navy">
+            stats page
+          </Link>
+          .
+        </p>
+      </div>
+
       <div className="mb-6 text-center">
         <Link
           href="/"

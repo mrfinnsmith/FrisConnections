@@ -82,6 +82,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <Link href="/how-to-play" className="page-link hover:underline">
                     How to Play
                   </Link>
+                  <Link href="/about" className="page-link hover:underline">
+                    About
+                  </Link>
                 </nav>
               </div>
             </div>

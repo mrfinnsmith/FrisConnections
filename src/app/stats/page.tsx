@@ -89,9 +89,28 @@ export default function StatsPage() {
 
   return (
     <div className="w-full max-w-4xl mx-auto p-4">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Your Statistics</h1>
-        <p className="text-gray-600">Track your FrisConnections performance over time</p>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2 text-center">Your Statistics</h1>
+        <div className="max-w-2xl mx-auto space-y-3 text-gray-700">
+          <p>
+            Your game statistics are stored locally in your browser. No account required, no
+            personal data collected.
+          </p>
+          <p>
+            Stats track your performance across all puzzles, including games played, win percentage,
+            current streak, and difficulty breakdown. The more you play, the more detailed analytics
+            you unlock. Want to understand the difficulty levels better?{' '}
+            <Link href="/how-to-play" className="font-medium hover:underline text-sf-navy">
+              Check the how-to-play guide
+            </Link>
+            .
+          </p>
+          <p>
+            Each puzzle you complete is recorded in your game history with details about which
+            categories you solved and how many attempts you used. Stats are preserved even when
+            replaying past puzzles.
+          </p>
+        </div>
       </div>
 
       <div className="mb-6 flex justify-center gap-4">
