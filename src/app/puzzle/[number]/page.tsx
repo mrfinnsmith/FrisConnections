@@ -67,7 +67,7 @@ export default function PuzzlePage({ params }: PuzzlePageProps) {
           <h1 className="text-2xl font-bold mb-4">Error</h1>
           <p className="mb-6">{error || 'Puzzle not found'}</p>
           <Link
-            href="/past"
+            href="/archive"
             className="px-4 py-2 bg-sf-navy text-white rounded-lg hover:bg-sf-navy-dark transition-colors"
           >
             Back to Past Puzzles
@@ -93,7 +93,7 @@ export default function PuzzlePage({ params }: PuzzlePageProps) {
             Today's Puzzle
           </Link>
           <Link
-            href="/past"
+            href="/archive"
             className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
           >
             All Past Puzzles

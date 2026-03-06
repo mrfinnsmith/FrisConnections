@@ -19,7 +19,7 @@ export default function Header() {
             </HeaderTag>
           </Link>
           <nav className="flex gap-4 sm:gap-6 text-xs sm:text-sm">
-            <Link href="/past" className="page-link hover:underline">
+            <Link href="/archive" className="page-link hover:underline">
               Past Puzzles
             </Link>
             <Link href="/stats" className="page-link hover:underline">

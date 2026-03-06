@@ -111,7 +111,7 @@ export default function HowToPlay() {
                 Try today's puzzle
               </Link>{' '}
               or browse the{' '}
-              <Link href="/past" className="font-medium hover:underline text-sf-navy">
+              <Link href="/archive" className="font-medium hover:underline text-sf-navy">
                 past puzzles archive
               </Link>
               . Learn more{' '}

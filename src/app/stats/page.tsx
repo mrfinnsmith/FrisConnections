@@ -121,7 +121,7 @@ export default function StatsPage() {
           Today's Puzzle
         </Link>
         <Link
-          href="/past"
+          href="/archive"
           className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
         >
           Past Puzzles
