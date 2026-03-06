@@ -1,80 +1,38 @@
-'use client'
-
-import { useState, useEffect } from 'react'
+import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { supabase } from '@/lib/supabase'
 import GameBoard from '@/components/Game/GameBoard'
-import GameBoardSkeleton from '@/components/Game/GameBoardSkeleton'
 import { Puzzle } from '@/types/game'
-import { Skeleton } from '@/components/UI/Skeleton'
+
+export const revalidate = 86400
 
 interface PuzzlePageProps {
   params: { number: string }
 }
 
-export default function PuzzlePage({ params }: PuzzlePageProps) {
-  const [puzzle, setPuzzle] = useState<Puzzle | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+async function getPuzzle(puzzleNumber: number): Promise<Puzzle | null> {
+  const { data, error } = await supabase.rpc('frisc_get_puzzle_by_number', {
+    puzzle_num: puzzleNumber,
+  })
 
-  useEffect(() => {
-    const fetchPuzzle = async () => {
-      try {
-        const response = await fetch(`/api/puzzle/${params.number}`)
-        if (!response.ok) {
-          if (response.status === 404) {
-            throw new Error('Puzzle not found')
-          }
-          throw new Error('Failed to fetch puzzle')
-        }
-        const data = await response.json()
-        setPuzzle(data)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unknown error')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchPuzzle()
-  }, [params.number])
-
-  if (loading) {
-    return (
-      <div className="space-y-4">
-        {/* Header skeleton */}
-        <div className="w-full max-w-lg mx-auto mb-6">
-          <div className="text-center mb-4 space-y-2">
-            <Skeleton height="h-8" width="w-32" className="mx-auto" />
-            <Skeleton height="h-4" width="w-24" className="mx-auto" />
-          </div>
-
-          <div className="flex justify-center gap-4 mb-6">
-            <Skeleton height="h-10" width="w-28" rounded="lg" />
-            <Skeleton height="h-10" width="w-32" rounded="lg" />
-          </div>
-        </div>
-
-        {/* Game board skeleton */}
-        <GameBoardSkeleton isPastPuzzle={true} />
-      </div>
-    )
+  if (error) {
+    throw new Error(error.message)
   }
 
-  if (error || !puzzle) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="w-full max-w-lg mx-auto text-center">
-          <h1 className="text-2xl font-bold mb-4">Error</h1>
-          <p className="mb-6">{error || 'Puzzle not found'}</p>
-          <Link
-            href="/archive"
-            className="px-4 py-2 bg-sf-navy text-white rounded-lg hover:bg-sf-navy-dark transition-colors"
-          >
-            Back to Past Puzzles
-          </Link>
-        </div>
-      </div>
-    )
+  return data || null
+}
+
+export default async function PuzzlePage({ params }: PuzzlePageProps) {
+  const puzzleNumber = parseInt(params.number)
+
+  if (isNaN(puzzleNumber)) {
+    notFound()
+  }
+
+  const puzzle = await getPuzzle(puzzleNumber)
+
+  if (!puzzle) {
+    notFound()
   }
 
   return (
@@ -101,7 +59,7 @@ export default function PuzzlePage({ params }: PuzzlePageProps) {
         </div>
       </div>
 
-      <GameBoard puzzle={puzzle} isPastPuzzle={true} puzzleNumber={parseInt(params.number)} />
+      <GameBoard puzzle={puzzle} isPastPuzzle={true} puzzleNumber={puzzleNumber} />
     </div>
   )
 }
