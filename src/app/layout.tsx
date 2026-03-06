@@ -58,6 +58,28 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <head>
         <link rel="canonical" href="https://frisconnections.lol" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'WebApplication',
+              name: 'FrisConnections',
+              url: 'https://frisconnections.lol',
+              description:
+                'Daily San Francisco word puzzle. Find connections between 16 words in 4 groups.',
+              applicationCategory: 'GameApplication',
+              genre: 'Puzzle',
+              operatingSystem: 'Any',
+              offers: {
+                '@type': 'Offer',
+                price: '0',
+                priceCurrency: 'USD',
+              },
+              inLanguage: 'en',
+            }),
+          }}
+        />
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-WV0Z43D7BR"></script>
         <script
           dangerouslySetInnerHTML={{
