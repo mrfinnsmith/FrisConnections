@@ -40,8 +40,7 @@ Players have 4 attempts to make incorrect guesses before the game ends.
 │   ├── status-memo.md      # Development status tracking
 │   └── tech-spec.md        # Technical specifications
 ├── public/
-│   ├── og-image.png        # Open Graph social sharing image
-│   └── robots.txt          # Search engine crawler instructions
+│   └── og-image.png        # Open Graph social sharing image
 ├── src/
 │   ├── app/
 │   │   ├── about/
@@ -59,11 +58,12 @@ Players have 4 attempts to make incorrect guesses before the game ends.
 │   │   │   └── page.tsx     # Game instructions page
 │   │   ├── layout.tsx       # Root layout with header navigation
 │   │   ├── page.tsx         # Main game page (fetches daily puzzle)
-│   │   ├── past/
+│   │   ├── archive/
 │   │   │   └── page.tsx     # Past puzzles archive page
 │   │   ├── puzzle/
 │   │   │   └── [number]/
 │   │   │       └── page.tsx # Individual past puzzle game page
+│   │   ├── robots.ts        # Search engine crawler rules
 │   │   └── sitemap.ts       # Dynamic sitemap generation
 │   ├── components/
 │   │   └── Game/
@@ -331,7 +331,7 @@ Puzzles are automatically published at 12 AM Pacific daily via GitHub Actions. W
 
 - **Daily puzzle**: `/`
 - **Specific puzzle**: `/puzzle/[number]` - Play any past puzzle by number
-- **Archive page**: `/past` - Browse all past puzzles with presentation dates
+- **Archive page**: `/archive` - Browse all past puzzles with presentation dates
 - **How to play**: `/how-to-play` - Game instructions and rules
 - **About page**: `/about` - Creator information and collaboration details
 
@@ -349,7 +349,7 @@ Puzzles are automatically published at 12 AM Pacific daily via GitHub Actions. W
 
 ## Past Puzzles Feature
 
-### Archive Page (`/past`)
+### Archive Page (`/archive`)
 
 - Browse all historical puzzles with puzzle numbers
 - Show last presentation date for each puzzle
@@ -557,7 +557,7 @@ The puzzle queue operates as an advancing queue with intelligent recycling:
    npm run dev
    ```
 
-Open http://localhost:3000 in your browser. The About page is accessible at http://localhost:3000/about and past puzzles at http://localhost:3000/past.
+Open http://localhost:3000 in your browser. The About page is accessible at http://localhost:3000/about and past puzzles at http://localhost:3000/archive.
 
 ## Development Commands
 
@@ -809,9 +809,10 @@ LIMIT 10;
 
 ✅ **SEO and Discoverability**
 
-- Dynamic sitemap generation including all routes
+- Dynamic sitemap with per-route change frequency and priority
 - Open Graph image for social sharing
-- Robots.txt for search engine guidance
+- Dynamic robots.txt blocking API routes from crawlers
+- Permanent redirect from `/past` to `/archive`
 
 ## Features Not Yet Implemented
 
