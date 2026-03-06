@@ -31,9 +31,20 @@ export const metadata: Metadata = {
         url: 'https://frisconnections.lol/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'FrisConnections - Daily San Francisco Word Puzzle Game',
+        alt: 'FrisConnections - A daily San Francisco word puzzle',
       },
     ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'FrisConnections - Daily San Francisco Word Puzzle',
+    description:
+      'Daily San Francisco word puzzle. Find connections between 16 words in 4 groups. New puzzle daily featuring SF neighborhoods, food, and culture.',
+    images: ['https://frisconnections.lol/og-image.png'],
+  },
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
   },
 }
 
