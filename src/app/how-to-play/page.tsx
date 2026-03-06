@@ -1,6 +1,13 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 
 export const revalidate = false
+
+export const metadata: Metadata = {
+  title: 'How to Play FrisConnections - Rules and Tips',
+  description:
+    'Learn how to play FrisConnections. Find four groups of four SF-themed words, use your attempts wisely, and watch for purple category wordplay.',
+}
 
 export default function HowToPlay() {
   return (

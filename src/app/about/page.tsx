@@ -1,6 +1,13 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 
 export const revalidate = false
+
+export const metadata: Metadata = {
+  title: 'About FrisConnections - SF Word Puzzle Game',
+  description:
+    'Learn about FrisConnections, a daily word puzzle game celebrating San Francisco neighborhoods, food, culture, and history.',
+}
 
 export default function About() {
   return (
