@@ -1,6 +1,8 @@
 import { supabase } from '@/lib/supabase'
 import { NextResponse } from 'next/server'
 
+export const revalidate = 3600
+
 export async function GET() {
   try {
     console.log('Calling frisc_get_past_puzzles RPC...')

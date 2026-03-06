@@ -1,5 +1,7 @@
 import Link from 'next/link'
 
+export const revalidate = false
+
 export default function About() {
   return (
     <div className="min-h-screen p-6 page-container">

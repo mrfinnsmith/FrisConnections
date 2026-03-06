@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
+export const revalidate = 86400
+
 export async function GET(request: NextRequest, { params }: { params: { number: string } }) {
   try {
     const puzzleNumber = parseInt(params.number)
