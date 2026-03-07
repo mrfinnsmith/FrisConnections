@@ -1,6 +1,9 @@
 import { MetadataRoute } from 'next'
 import { supabase } from '@/lib/supabase'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 3600
+
 const BASE_URL = 'https://frisconnections.lol'
 
 type RouteConfig = {
