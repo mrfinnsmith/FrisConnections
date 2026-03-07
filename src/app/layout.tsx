@@ -5,6 +5,10 @@ import Header from '@/components/Header'
 import './globals.css'
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://frisconnections.lol'),
+  alternates: {
+    canonical: './',
+  },
   title: 'FrisConnections - Daily San Francisco Word Puzzle',
   description:
     'Daily San Francisco word puzzle. Find connections between 16 words in 4 groups. New puzzle daily featuring SF neighborhoods, food, and culture.',
@@ -57,7 +61,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
-        <link rel="canonical" href="https://frisconnections.lol" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
