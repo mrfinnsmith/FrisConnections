@@ -167,9 +167,9 @@ The automation requires three GitHub repository secrets:
   - Used by the API endpoint to connect to the database
   - Must match the URL in your local `.env.local` file
 
-- **`NEXT_PUBLIC_SUPABASE_ANON_KEY`**: The Supabase anonymous/public API key
+- **`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`**: The Supabase publishable API key
   - Allows the API endpoint to authenticate with Supabase
-  - Must match the anon key in your local `.env.local` file
+  - Must match the publishable key in your local `.env.local` file
 
 - **`APP_DOMAIN`**: The production domain name (e.g., `frisconnections.lol`)
   - Used by GitHub Actions to know which URL to call
@@ -531,7 +531,7 @@ The puzzle queue operates as an advancing queue with intelligent recycling:
 3. **Set up Supabase**
    - Create a new Supabase project
    - Run the SQL schema to create tables and functions
-   - Get your project URL and anon key from Settings > API
+   - Get your project URL and publishable key from Settings > API
 
 4. **Configure environment variables**
 
@@ -543,13 +543,13 @@ The puzzle queue operates as an advancing queue with intelligent recycling:
 
    ```
    NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-supabase-publishable-key
    ```
 
 5. **Configure GitHub Secrets**
    In your GitHub repository, go to Settings → Secrets and variables → Actions, then add:
    - `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase project URL
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anon key
+   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: Your Supabase publishable key
    - `APP_DOMAIN`: Your production domain (e.g., `frisconnections.lol`)
 
 6. **Run the development server**

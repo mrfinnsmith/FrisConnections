@@ -298,7 +298,7 @@ Create `supabase/functions/daily-puzzle-assignment/index.ts`:
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+const supabaseServiceKey = Deno.env.get('SUPABASE_SECRET_KEY')!
 const adminEmail = Deno.env.get('ADMIN_EMAIL')!
 
 Deno.serve(async req => {
@@ -393,7 +393,7 @@ SELECT cron.schedule(
   'SELECT net.http_post(
     ''https://your-project.supabase.co/functions/v1/daily-puzzle-assignment'',
     ''{"trigger": "cron"}'',
-    ''{"Content-Type": "application/json", "Authorization": "Bearer YOUR_ANON_KEY"}''
+    ''{"Content-Type": "application/json", "Authorization": "Bearer YOUR_PUBLISHABLE_KEY"}''
   );'
 );
 ```
@@ -687,8 +687,8 @@ Create `.env.local`:
 ```bash
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-supabase-publishable-key
+SUPABASE_SECRET_KEY=your-supabase-secret-key
 
 # Admin alerts
 ADMIN_EMAIL=your-email@example.com
@@ -712,8 +712,8 @@ RESEND_API_KEY=your-resend-api-key
   },
   "env": {
     "NEXT_PUBLIC_SUPABASE_URL": "@supabase-url",
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "@supabase-anon-key",
-    "SUPABASE_SERVICE_ROLE_KEY": "@supabase-service-role-key",
+    "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "@supabase-publishable-key",
+    "SUPABASE_SECRET_KEY": "@supabase-secret-key",
     "ADMIN_EMAIL": "@admin-email"
   }
 }

@@ -14,5 +14,5 @@ jobs:
           curl -s -w "\nHTTP_STATUS:%{http_code}" \
             --max-time 30 \
             -X POST "${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}/functions/v1/frisc-daily-puzzle" \
-            -H "Authorization: Bearer ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}" \
             -H "Content-Type: application/json"
