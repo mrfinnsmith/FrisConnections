@@ -16,19 +16,6 @@ export default function ResultsModal({ gameState, isOpen, onClose }: ResultsModa
   const shareButtonRef = useRef<HTMLButtonElement>(null)
   const [showCopiedMessage, setShowCopiedMessage] = useState(false)
 
-  if (!isOpen || !gameState.puzzle) return null
-
-  const userStats = getUserStats()
-  const winPercentage =
-    userStats.gamesPlayed > 0 ? Math.round((userStats.gamesWon / userStats.gamesPlayed) * 100) : 0
-
-  const stats = {
-    completed: userStats.gamesPlayed,
-    winPercentage: winPercentage,
-    attemptsUsed: gameState.attemptsUsed,
-    gamesWon: userStats.gamesWon,
-  }
-
   const generateShareText = (): string => {
     const { puzzle, guessHistory } = gameState
     if (!puzzle) return ''
@@ -116,6 +103,22 @@ export default function ResultsModal({ gameState, isOpen, onClose }: ResultsModa
       document.body.style.overflow = 'unset'
     }
   }, [isOpen, onClose])
+
+  // Must come after all hooks so the hook count is stable across open/closed
+  // renders. getUserStats reads localStorage, so it also has to stay behind
+  // this guard to avoid running during server prerender.
+  if (!isOpen || !gameState.puzzle) return null
+
+  const userStats = getUserStats()
+  const winPercentage =
+    userStats.gamesPlayed > 0 ? Math.round((userStats.gamesWon / userStats.gamesPlayed) * 100) : 0
+
+  const stats = {
+    completed: userStats.gamesPlayed,
+    winPercentage: winPercentage,
+    attemptsUsed: gameState.attemptsUsed,
+    gamesWon: userStats.gamesWon,
+  }
 
   return (
     <div
