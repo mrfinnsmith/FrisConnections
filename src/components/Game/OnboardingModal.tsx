@@ -127,18 +127,24 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ isVisible, onClose })
         <button
           ref={closeButtonRef}
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl font-bold w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-2xl font-bold w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
           aria-label="Close onboarding tutorial"
         >
           ×
         </button>
 
-        <h2 id="onboarding-title" className="text-2xl font-bold text-center mb-6 text-gray-800">
+        <h2
+          id="onboarding-title"
+          className="text-2xl font-bold text-center mb-6 text-gray-800 px-8 text-balance"
+        >
           {steps[currentStep].title}
         </h2>
 
         <div className="mb-6">
-          <p id="onboarding-description" className="text-gray-600 text-center leading-relaxed">
+          <p
+            id="onboarding-description"
+            className="text-gray-600 text-center leading-relaxed text-balance"
+          >
             {steps[currentStep].content}
           </p>
         </div>

@@ -172,13 +172,30 @@ function TileGrid({
   }, [displayItems.length])
 
   // Measure and adjust font sizes to prevent overflow
-  useEffect(() => {
+  const measureFontSizes = useCallback(() => {
     if (!gridRef.current) return
 
     const newFontSizes: Record<string, number> = {}
     const buttons = Array.from(gridRef.current.children).filter(
       child => child.tagName === 'BUTTON'
     ) as HTMLButtonElement[]
+
+    const range = document.createRange()
+
+    // Width of the widest rendered line, measured via a Range. Unlike
+    // scrollWidth, this reports the true text bounding box even when the text
+    // is centered and overflows both edges of the tile. Returns 0 in
+    // environments without getClientRects (e.g. jsdom) so measurement no-ops.
+    const widestLine = (span: HTMLElement): number => {
+      if (typeof range.getClientRects !== 'function') return 0
+      range.selectNodeContents(span)
+      const rects = range.getClientRects()
+      let max = 0
+      for (let i = 0; i < rects.length; i++) {
+        if (rects[i].width > max) max = rects[i].width
+      }
+      return max
+    }
 
     buttons.forEach(button => {
       const textSpan = button.querySelector('.tile-text') as HTMLElement
@@ -190,31 +207,69 @@ function TileGrid({
       // Reset to base size
       textSpan.style.fontSize = ''
 
-      // Get computed base font size
       const computedStyle = window.getComputedStyle(button)
-      let fontSize = parseFloat(computedStyle.fontSize)
+      const baseFontSize = parseFloat(computedStyle.fontSize)
+      let fontSize = baseFontSize
       const minFontSize = 8 // 8px minimum
 
-      // Check if text overflows
+      // Available space is the BUTTON's content box, not the span. The span is
+      // width:100% inside a grid cell whose implicit column grows to max-content,
+      // so a too-wide word makes the span itself widen and overflow the tile;
+      // the button stays fixed and is the true boundary to fit within.
+      const paddingX =
+        parseFloat(computedStyle.paddingLeft) + parseFloat(computedStyle.paddingRight)
+      const paddingY =
+        parseFloat(computedStyle.paddingTop) + parseFloat(computedStyle.paddingBottom)
+      const availableWidth = button.clientWidth - paddingX
+      const availableHeight = button.clientHeight - paddingY
+
+      // Skip if the tile has not been laid out yet (avoids measuring against a
+      // zero-width box before the grid sizes itself)
+      if (availableWidth <= 0 || availableHeight <= 0) return
+
+      // Shrink only while the text actually overflows
       let iterations = 0
       while (
-        (textSpan.scrollWidth > button.clientWidth - 16 || // 16px for padding
-          textSpan.scrollHeight > button.clientHeight - 16) &&
+        (widestLine(textSpan) > availableWidth + 0.5 ||
+          textSpan.scrollHeight > availableHeight + 0.5) &&
         fontSize > minFontSize &&
-        iterations < 20
+        iterations < 30
       ) {
         fontSize *= 0.9 // Reduce by 10%
         textSpan.style.fontSize = `${fontSize}px`
         iterations++
       }
 
-      if (fontSize !== parseFloat(computedStyle.fontSize)) {
+      if (fontSize !== baseFontSize) {
         newFontSizes[tile] = fontSize
       }
     })
 
     setFontSizes(newFontSizes)
-  }, [displayItems, gameState.solvedGroups])
+  }, [displayItems])
+
+  useEffect(() => {
+    measureFontSizes()
+
+    // Re-measure once the web font finishes loading. The bold display font is
+    // wider than the fallback, so measuring too early under-shrinks the text.
+    let cancelled = false
+    if (typeof document !== 'undefined' && document.fonts?.ready) {
+      document.fonts.ready.then(() => {
+        if (!cancelled) measureFontSizes()
+      })
+    }
+
+    // Re-measure when the grid is resized (rotation, window resize, layout shifts)
+    const observer =
+      typeof ResizeObserver !== 'undefined' ? new ResizeObserver(() => measureFontSizes()) : null
+    if (observer && gridRef.current) observer.observe(gridRef.current)
+
+    return () => {
+      cancelled = true
+      observer?.disconnect()
+    }
+  }, [measureFontSizes, gameState.solvedGroups])
 
   // Helper function to determine text length category
   const getTextLengthCategory = (text: string): 'normal' | 'long' | 'very-long' => {
