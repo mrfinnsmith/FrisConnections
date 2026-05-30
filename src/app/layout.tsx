@@ -1,8 +1,16 @@
 import type { Metadata } from 'next'
+import { Libre_Franklin } from 'next/font/google'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { GameMainErrorFallback } from '@/components/ErrorFallbacks'
 import Header from '@/components/Header'
 import './globals.css'
+
+const franklin = Libre_Franklin({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-franklin',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://frisconnections.lol'),
@@ -59,7 +67,7 @@ export const viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={franklin.variable}>
       <head>
         <script
           type="application/ld+json"

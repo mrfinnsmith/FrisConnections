@@ -257,7 +257,8 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
           updateUserStats(true, puzzle.date)
         }
         announceToScreenReader(`Congratulations! You solved all 4 groups and won the puzzle!`)
-        setShowResults(true)
+        // Let the final banner's flip + pulse play before the modal covers it
+        setTimeout(() => setShowResults(true), 1000)
       }
     } else {
       // Wrong guess - trigger shake animation

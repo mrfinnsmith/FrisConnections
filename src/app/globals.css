@@ -163,6 +163,11 @@ body {
     background-color: var(--game-surface);
     border: 1px solid var(--game-border);
     color: var(--game-text);
+    font-family:
+      var(--font-franklin),
+      system-ui,
+      -apple-system,
+      sans-serif;
 
     /* Mobile: square tiles */
     @media (max-width: 639px) {
@@ -220,15 +225,11 @@ body {
     border-color: var(--game-border-hover);
   }
 
-  .game-tile:active {
-    transform: scale(0.98);
-  }
-
   .game-tile.selected {
     background-color: var(--game-surface-selected);
     border-color: var(--game-border-hover);
     color: #f8f8f8;
-    transform: scale(0.98);
+    z-index: 1;
   }
 
   .game-tile.selected:hover {
@@ -361,11 +362,38 @@ body {
     flex-shrink: 0;
   }
 
+  /* Solved category banner: NYT-style 3D card flip.
+     The outer element holds perspective and the post-flip pulse; the inner
+     element rotates on the X axis to reveal the colored back face. Keeping the
+     flip (inner) and the pulse (outer) on separate elements avoids the two
+     transforms clobbering each other. */
   .solved-group {
+    margin-bottom: 0.5rem;
+    perspective: 1000px;
+  }
+
+  .solved-group.pulse {
+    animation: pulse linear 0.3s 1;
+  }
+
+  .solved-group-inner {
+    display: grid;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+  }
+
+  .solved-group.flip .solved-group-inner {
+    transform: rotateX(180deg);
+  }
+
+  .solved-group-front,
+  .solved-group-back {
+    grid-area: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     padding: 1rem;
     border-radius: 0.5rem;
-    margin-bottom: 0.5rem;
-    animation: pulse linear 0.3s 1;
     text-transform: uppercase;
     font-weight: 700;
     text-align: center;
@@ -373,31 +401,43 @@ body {
     overflow-wrap: break-word;
     word-break: normal;
     hyphens: none;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
 
   @media (min-width: 1024px) {
-    .solved-group {
+    .solved-group-front,
+    .solved-group-back {
       padding: 1.5rem;
       font-size: 1.125rem;
     }
   }
 
-  .solved-group.difficulty-1 {
+  .solved-group-front {
+    background-color: var(--game-surface);
+    color: var(--game-text);
+  }
+
+  .solved-group-back {
+    transform: rotateX(180deg);
+  }
+
+  .solved-group.difficulty-1 .solved-group-back {
     background-color: var(--level-easy);
     color: #121212;
   }
 
-  .solved-group.difficulty-2 {
+  .solved-group.difficulty-2 .solved-group-back {
     background-color: var(--level-medium);
     color: #121212;
   }
 
-  .solved-group.difficulty-3 {
+  .solved-group.difficulty-3 .solved-group-back {
     background-color: var(--level-hard);
     color: #121212;
   }
 
-  .solved-group.difficulty-4 {
+  .solved-group.difficulty-4 .solved-group-back {
     background-color: var(--level-expert);
     color: #121212;
   }
@@ -473,6 +513,27 @@ body {
     }
   }
 
+  /* Mistakes-remaining dot: pop and shrink out when a guess is spent,
+     matching NYT's bubble animation. Color stays your gray. */
+  @keyframes mistake-pop {
+    25% {
+      transform: scale(1.2);
+    }
+
+    75% {
+      transform: scale(0.4);
+    }
+
+    100% {
+      transform: scale(0);
+    }
+  }
+
+  .mistake-dot-disappear {
+    background-color: #4b5563; /* gray-600, unchanged */
+    animation: mistake-pop 0.4s ease-in forwards;
+  }
+
   @keyframes textfadein {
     0% {
       color: rgba(0, 0, 0, 0);
@@ -509,17 +570,18 @@ body {
     transform: translateX(-50%);
     background-color: rgb(18, 18, 18);
     color: white;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-family: inherit;
-    transition: opacity 0.3s ease;
+    padding: 12px 20px;
+    border-radius: 4px;
+    font-family: var(--font-franklin), inherit;
+    transition: opacity 300ms cubic-bezier(0.645, 0.045, 0.355, 1);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   }
 
   .game-toast h2 {
     margin: 0;
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 14px;
+    line-height: 16px;
+    font-weight: 700;
   }
 
   .toast-visible {

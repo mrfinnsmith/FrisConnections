@@ -33,7 +33,7 @@ function GameControls({ gameState, onSubmit, onShuffle, onDeselectAll }: GameCon
       Array.from({ length: 4 }, (_, i) => (
         <div
           key={i}
-          className={`w-3 h-3 rounded-full ${
+          className={`w-4 h-4 rounded-full ${
             i < gameData.remainingAttempts ? 'bg-gray-600' : 'mistake-dot-disappear'
           }`}
         />

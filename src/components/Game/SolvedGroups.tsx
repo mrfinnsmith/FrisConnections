@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, memo } from 'react'
+import React, { useMemo, memo, useRef, useState, useEffect } from 'react'
 import { SolvedGroup } from '@/types/game'
 
 interface SolvedGroupsProps {
@@ -22,27 +22,82 @@ function SolvedGroups({ solvedGroups }: SolvedGroupsProps) {
     return [...solvedGroups].sort((a, b) => a.category.difficulty - b.category.difficulty)
   }, [solvedGroups])
 
+  // Groups already solved on first render (e.g. page reload, replaying a past
+  // puzzle) start flipped with no animation. Only groups that appear afterward
+  // get the 3D flip + pulse reveal.
+  const initialIds = useRef<Set<string | number>>(
+    new Set(solvedGroups.map(group => group.category.id))
+  )
+  const processedIds = useRef<Set<string | number>>(new Set(initialIds.current))
+  const [flipIds, setFlipIds] = useState<Set<string | number>>(() => new Set(initialIds.current))
+  const [pulseIds, setPulseIds] = useState<Set<string | number>>(() => new Set())
+
+  useEffect(() => {
+    const timers: ReturnType<typeof setTimeout>[] = []
+
+    sortedGroups.forEach(group => {
+      const id = group.category.id
+      if (processedIds.current.has(id)) return
+      processedIds.current.add(id)
+
+      // Render unflipped first, then flip on the next tick so the 0.6s
+      // transition actually runs. Pulse fires once the flip settles.
+      timers.push(
+        setTimeout(() => {
+          setFlipIds(prev => new Set(prev).add(id))
+        }, 30)
+      )
+      timers.push(
+        setTimeout(() => {
+          setPulseIds(prev => new Set(prev).add(id))
+        }, 30 + 600)
+      )
+      timers.push(
+        setTimeout(
+          () => {
+            setPulseIds(prev => {
+              const next = new Set(prev)
+              next.delete(id)
+              return next
+            })
+          },
+          30 + 600 + 320
+        )
+      )
+    })
+
+    return () => timers.forEach(clearTimeout)
+  }, [sortedGroups])
+
   // Memoize group elements to prevent recreation when parent re-renders
   const groupElements = useMemo(
     () =>
       sortedGroups.map(group => {
+        const id = group.category.id
         const itemsText = group.category.items.join(', ')
         const titleLength = getTextLengthCategory(group.category.name)
+        const flip = flipIds.has(id) ? ' flip' : ''
+        const pulse = pulseIds.has(id) ? ' pulse' : ''
 
         return (
           <div
-            key={group.category.id}
-            className={`solved-group difficulty-${group.category.difficulty}`}
+            key={id}
+            className={`solved-group difficulty-${group.category.difficulty}${flip}${pulse}`}
             data-text-length={titleLength}
           >
-            <div className="text-center">
-              <h3 className="font-bold text-lg mb-1">{group.category.name}</h3>
-              <p className="text-sm opacity-90">{itemsText}</p>
+            <div className="solved-group-inner">
+              <div className="solved-group-front" aria-hidden="true">
+                <p className="text-sm">{itemsText}</p>
+              </div>
+              <div className="solved-group-back">
+                <h3 className="font-bold text-lg mb-1">{group.category.name}</h3>
+                <p className="text-sm opacity-90">{itemsText}</p>
+              </div>
             </div>
           </div>
         )
       }),
-    [sortedGroups]
+    [sortedGroups, flipIds, pulseIds]
   )
 
   if (solvedGroups.length === 0) return null
