@@ -132,6 +132,7 @@ body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-start-rgb));
   font-family:
+    var(--font-franklin),
     system-ui,
     -apple-system,
     sans-serif;
@@ -143,11 +144,11 @@ body {
     min-width: 0;
     aspect-ratio: 15 / 8; /* Desktop: 150px × 80px = 1.875:1 ratio */
     min-height: 0;
-    border-radius: 5px;
+    border-radius: 6px;
     display: grid;
     place-items: center;
     padding: 0.5rem;
-    font-size: 0.875rem;
+    font-size: 1rem;
     font-weight: 700;
     text-transform: uppercase;
     line-height: 1.25;
@@ -161,7 +162,7 @@ body {
     text-align: center;
 
     background-color: var(--game-surface);
-    border: 1px solid var(--game-border);
+    border: none;
     color: var(--game-text);
     font-family:
       var(--font-franklin),
@@ -175,12 +176,10 @@ body {
     }
 
     @media (min-width: 640px) {
-      font-size: 1rem;
       padding: 0.625rem;
     }
 
     @media (min-width: 1024px) {
-      font-size: 1.25rem;
       padding: 0.75rem;
     }
   }
@@ -193,32 +192,9 @@ body {
     overflow-wrap: normal;
   }
 
-  /* Shrink font for longer text until it fits */
-  .game-tile[data-text-length='long'] {
-    font-size: 0.75rem;
-    line-height: 1.2;
-
-    @media (min-width: 640px) {
-      font-size: 0.875rem;
-    }
-
-    @media (min-width: 1024px) {
-      font-size: 1rem;
-    }
-  }
-
-  .game-tile[data-text-length='very-long'] {
-    font-size: 0.625rem;
-    line-height: 1.15;
-
-    @media (min-width: 640px) {
-      font-size: 0.75rem;
-    }
-
-    @media (min-width: 1024px) {
-      font-size: 0.875rem;
-    }
-  }
+  /* Every tile starts at the base 16px. The JS measurement in TileGrid.tsx
+     shrinks only the individual tiles whose text actually overflows, so tiles
+     that fit stay a uniform size (matching the solved-banner text and NYT). */
 
   .game-tile:hover {
     background-color: var(--game-surface-hover);
@@ -368,7 +344,6 @@ body {
      flip (inner) and the pulse (outer) on separate elements avoids the two
      transforms clobbering each other. */
   .solved-group {
-    margin-bottom: 0.5rem;
     perspective: 1000px;
   }
 
@@ -392,8 +367,9 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 1rem;
-    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    min-height: 22.5vw; /* match one square tile-row on mobile */
+    border-radius: 6px;
     text-transform: uppercase;
     font-weight: 700;
     text-align: center;
@@ -405,11 +381,11 @@ body {
     -webkit-backface-visibility: hidden;
   }
 
-  @media (min-width: 1024px) {
+  @media (min-width: 640px) {
     .solved-group-front,
     .solved-group-back {
-      padding: 1.5rem;
-      font-size: 1.125rem;
+      min-height: 80px; /* match one 150×80 tile-row on desktop */
+      padding: 0.5rem 1.5rem;
     }
   }
 

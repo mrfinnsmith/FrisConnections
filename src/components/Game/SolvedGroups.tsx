@@ -87,11 +87,11 @@ function SolvedGroups({ solvedGroups }: SolvedGroupsProps) {
           >
             <div className="solved-group-inner">
               <div className="solved-group-front" aria-hidden="true">
-                <p className="text-sm">{itemsText}</p>
+                <p className="text-base font-medium leading-tight">{itemsText}</p>
               </div>
               <div className="solved-group-back">
-                <h3 className="font-bold text-lg mb-1">{group.category.name}</h3>
-                <p className="text-sm opacity-90">{itemsText}</p>
+                <h3 className="font-bold text-base leading-tight mb-1">{group.category.name}</h3>
+                <p className="text-base font-medium leading-tight">{itemsText}</p>
               </div>
             </div>
           </div>
@@ -103,7 +103,7 @@ function SolvedGroups({ solvedGroups }: SolvedGroupsProps) {
   if (solvedGroups.length === 0) return null
 
   return (
-    <div className="mb-6 space-y-2 w-[calc(3_*_0.5rem_+_4_*_22.5vw)] sm:w-[calc(3_*_0.5rem_+_4_*_150px)] mx-auto">
+    <div className="mb-2 space-y-2 w-full sm:w-[calc(3_*_0.5rem_+_4_*_150px)] mx-auto">
       {groupElements}
     </div>
   )
