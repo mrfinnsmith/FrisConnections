@@ -89,7 +89,7 @@ describe('localStorage utilities', () => {
 
       localStorageMock.getItem.mockReturnValue(JSON.stringify(initialStats))
 
-      updateUserStats(true, '2025-01-02')
+      updateUserStats(true)
 
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
         'frisconnections-stats',
@@ -110,7 +110,7 @@ describe('localStorage utilities', () => {
 
       localStorageMock.getItem.mockReturnValue(JSON.stringify(initialStats))
 
-      updateUserStats(false, '2025-01-02')
+      updateUserStats(false)
 
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
         'frisconnections-stats',

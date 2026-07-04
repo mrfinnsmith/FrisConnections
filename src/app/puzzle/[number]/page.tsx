@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import GameBoard from '@/components/Game/GameBoard'
 import { Puzzle } from '@/types/game'
+import { mapPuzzleByNumber } from '@/lib/puzzleMapper'
 
 export const revalidate = 86400
 
@@ -19,7 +20,11 @@ async function getPuzzle(puzzleNumber: number): Promise<Puzzle | null> {
     throw new Error(error.message)
   }
 
-  return data || null
+  if (!data) {
+    return null
+  }
+
+  return mapPuzzleByNumber(data)
 }
 
 export default async function PuzzlePage({ params }: PuzzlePageProps) {

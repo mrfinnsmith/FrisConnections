@@ -98,13 +98,16 @@ export function clearGameProgress(puzzleId?: number) {
 
 export function updateUserStats(
   won: boolean,
-  date: string,
   puzzleId?: number,
   attemptsUsed?: number,
   solvedCategories?: { difficulty: number }[]
 ) {
   const stats = getUserStats()
-  const today = new Date().toISOString().split('T')[0]
+  // Stats record when the user *played*, which is always now. This is
+  // deliberately independent of any puzzle's presentation date: a replayed past
+  // puzzle is still played today, so the play date is stamped here rather than
+  // taken from the puzzle.
+  const playedDate = new Date().toISOString().split('T')[0]
 
   stats.gamesPlayed++
 
@@ -112,12 +115,12 @@ export function updateUserStats(
     stats.gamesWon++
   }
 
-  stats.lastPlayedDate = today
+  stats.lastPlayedDate = playedDate
   localStorage.setItem('frisconnections-stats', JSON.stringify(stats))
 
   // Update enhanced stats if provided
   if (puzzleId !== undefined && attemptsUsed !== undefined) {
-    updateEnhancedUserStats(puzzleId, date, won, attemptsUsed, solvedCategories)
+    updateEnhancedUserStats(puzzleId, playedDate, won, attemptsUsed, solvedCategories)
   }
 }
 
@@ -166,12 +169,6 @@ export function hasSeenFirstIncorrectToast(): boolean {
 export function markFirstIncorrectToastSeen(): void {
   if (typeof window === 'undefined') return
   localStorage.setItem(FIRST_INCORRECT_KEY, 'true')
-}
-
-function getPreviousDate(dateString: string): string {
-  const date = new Date(dateString)
-  date.setDate(date.getDate() - 1)
-  return date.toISOString().split('T')[0]
 }
 
 // Enhanced Statistics Functions

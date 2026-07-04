@@ -1,14 +1,6 @@
 import { supabase } from './supabase'
 import { Puzzle } from '@/types/game'
-
-interface DailyPuzzleRow {
-  puzzle_id: number
-  puzzle_number: number
-  category_id: number
-  category_name: string
-  difficulty: 1 | 2 | 3 | 4
-  items: string[]
-}
+import { mapDailyPuzzle } from './puzzleMapper'
 
 export async function getTodaysPuzzle(): Promise<Puzzle | null> {
   try {
@@ -23,20 +15,7 @@ export async function getTodaysPuzzle(): Promise<Puzzle | null> {
       return null
     }
 
-    const puzzleData = data[0]
-    const puzzle: Puzzle = {
-      id: puzzleData.puzzle_id,
-      date: new Date().toISOString().split('T')[0],
-      puzzle_number: puzzleData.puzzle_number,
-      categories: data.map((row: DailyPuzzleRow) => ({
-        id: row.category_id,
-        name: row.category_name,
-        difficulty: row.difficulty,
-        items: row.items,
-      })),
-    }
-
-    return puzzle
+    return mapDailyPuzzle(data)
   } catch (error) {
     console.error('Error fetching puzzle:', error)
     return null

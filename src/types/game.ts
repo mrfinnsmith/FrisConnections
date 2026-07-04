@@ -13,7 +13,13 @@ export interface GameState {
 
 export interface Puzzle {
   id: number
-  date: string
+  /**
+   * Presentation date, sourced from the database when available. Optional
+   * because a puzzle has no single fixed date — it is shown on many dates via
+   * the recycling algorithm — and the puzzle-fetch RPCs do not currently return
+   * one. Populated by the puzzle mapper only when a real value is present.
+   */
+  date?: string
   puzzle_number: number
   categories: Category[]
   difficulty_tier?: 1 | 2 | 3

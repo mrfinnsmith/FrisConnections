@@ -268,7 +268,7 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
       // Check if game is won
       if (newGameStatus === 'won') {
         if (!isPastPuzzle) {
-          updateUserStats(true, puzzle.date)
+          updateUserStats(true)
         }
         announceToScreenReader(`Congratulations! You solved all 4 groups and won the puzzle!`)
         // Let the final banner's flip + pulse play before the modal covers it
@@ -321,7 +321,7 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
         announceToScreenReader(screenReaderMessage)
 
         if (!isPastPuzzle) {
-          updateUserStats(false, puzzle.date)
+          updateUserStats(false)
         }
         announceToScreenReader(
           `Game over. You used all ${maxGuesses} attempts. Revealing the correct groups.`
