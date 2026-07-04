@@ -2,6 +2,7 @@ import {
   GameState,
   Puzzle,
   Category,
+  SolvedGroup,
   GuessResult,
   TILES_PER_GROUP,
   MAX_ATTEMPTS,
@@ -156,6 +157,25 @@ export async function makeGuess(
   }
 
   return { newGameState, isCorrect, category: category || undefined }
+}
+
+/**
+ * The whole board with every group revealed: the player's solved groups first,
+ * then each unsolved category appended in difficulty order. Used when the game
+ * is lost so the answers are shown through the same solved-group bars.
+ *
+ * Only the appended groups are new to the board, so SolvedGroups animates just
+ * those; the display re-sorts by difficulty, so the cascade always runs
+ * yellow to purple regardless of solve order.
+ */
+export function revealAllGroups(puzzle: Puzzle, solvedGroups: SolvedGroup[]): SolvedGroup[] {
+  const solvedIds = new Set(solvedGroups.map(group => group.category.id))
+  const unsolved = puzzle.categories
+    .filter(category => !solvedIds.has(category.id))
+    .sort((a, b) => a.difficulty - b.difficulty)
+    .map((category, index) => ({ category, solvedAt: solvedGroups.length + index }))
+
+  return [...solvedGroups, ...unsolved]
 }
 
 export function getAvailableTiles(gameState: GameState): string[] {

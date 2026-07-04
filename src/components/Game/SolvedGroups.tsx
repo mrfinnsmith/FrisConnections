@@ -2,6 +2,12 @@
 
 import React, { useMemo, memo, useRef, useState, useEffect } from 'react'
 import { SolvedGroup } from '@/types/game'
+import {
+  REVEAL_START_DELAY_MS,
+  REVEAL_STAGGER_MS,
+  REVEAL_FLIP_MS,
+  REVEAL_PULSE_MS,
+} from '@/lib/reveal'
 
 interface SolvedGroupsProps {
   solvedGroups: SolvedGroup[]
@@ -35,22 +41,31 @@ function SolvedGroups({ solvedGroups }: SolvedGroupsProps) {
   useEffect(() => {
     const timers: ReturnType<typeof setTimeout>[] = []
 
+    // Groups added since the last render reveal in a cascade: each starts its
+    // flip REVEAL_STAGGER_MS after the previous new one. A lone solved group
+    // (stagger index 0) reveals immediately; a lost game appends several at once
+    // and they flip in sequence by difficulty.
+    let revealIndex = 0
+
     sortedGroups.forEach(group => {
       const id = group.category.id
       if (processedIds.current.has(id)) return
       processedIds.current.add(id)
 
-      // Render unflipped first, then flip on the next tick so the 0.6s
-      // transition actually runs. Pulse fires once the flip settles.
+      const startDelay = REVEAL_START_DELAY_MS + revealIndex * REVEAL_STAGGER_MS
+      revealIndex++
+
+      // Render unflipped first, then flip so the transition actually runs.
+      // Pulse fires once the flip settles.
       timers.push(
         setTimeout(() => {
           setFlipIds(prev => new Set(prev).add(id))
-        }, 30)
+        }, startDelay)
       )
       timers.push(
         setTimeout(() => {
           setPulseIds(prev => new Set(prev).add(id))
-        }, 30 + 600)
+        }, startDelay + REVEAL_FLIP_MS)
       )
       timers.push(
         setTimeout(
@@ -61,7 +76,7 @@ function SolvedGroups({ solvedGroups }: SolvedGroupsProps) {
               return next
             })
           },
-          30 + 600 + 320
+          startDelay + REVEAL_FLIP_MS + REVEAL_PULSE_MS
         )
       )
     })

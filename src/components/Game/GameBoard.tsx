@@ -19,6 +19,8 @@ import {
   markOnboardingSeen,
 } from '@/lib/localStorage'
 import { trackGamePerformance } from '@/lib/performance'
+import { revealAllGroups } from '@/lib/gameLogic'
+import { revealDurationMs } from '@/lib/reveal'
 
 interface GameBoardProps {
   puzzle: Puzzle
@@ -48,6 +50,10 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
   >(null)
 
   const maxGuesses = 4
+
+  // After a losing reveal cascade settles, hold a beat so the completed board is
+  // visible before the results modal covers it.
+  const resultsRevealBufferMs = 500
 
   // Screen reader announcement handler
   const announceToScreenReader = useCallback((message: string) => {
@@ -104,14 +110,21 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
     const savedProgress = loadGameProgress(puzzle.id)
 
     if (savedProgress) {
-      const solvedGroups = reconstructSolvedGroupsFromHistory(savedProgress.guessHistory || [])
+      const status = savedProgress.gameStatus || 'playing'
+      let solvedGroups = reconstructSolvedGroupsFromHistory(savedProgress.guessHistory || [])
+
+      // A lost game reveals every category on the board; restore that on reload.
+      // These groups are present at mount, so they show without re-animating.
+      if (status === 'lost') {
+        solvedGroups = revealAllGroups(puzzle, solvedGroups)
+      }
 
       setGameState({
         puzzle,
         selectedTiles: savedProgress.selectedTiles || [],
         solvedGroups,
         attemptsUsed: savedProgress.attemptsUsed || 0,
-        gameStatus: savedProgress.gameStatus || 'playing',
+        gameStatus: status,
         guessHistory: savedProgress.guessHistory || [],
         sessionId,
         showToast: false,
@@ -286,28 +299,49 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
       setAnimatingTiles([])
       setAnimationType(null)
 
-      setGameState(prev => ({
-        ...prev,
-        selectedTiles: [],
-        attemptsUsed: newAttemptsUsed,
-        gameStatus: newGameStatus,
-        guessHistory: newGuessHistory,
-        showToast,
-        toastMessage,
-      }))
-
-      // Announce incorrect guess
-      announceToScreenReader(screenReaderMessage)
-
-      // Check if game is lost
       if (newGameStatus === 'lost') {
+        // Reveal every category on the board, then open the results modal once
+        // the reveal cascade has settled so the player sees the answers first.
+        const revealedGroups = revealAllGroups(puzzle, gameState.solvedGroups)
+        const newlyRevealed = revealedGroups.length - gameState.solvedGroups.length
+
+        setGameState(prev => ({
+          ...prev,
+          selectedTiles: [],
+          solvedGroups: revealedGroups,
+          attemptsUsed: newAttemptsUsed,
+          gameStatus: 'lost',
+          guessHistory: newGuessHistory,
+          showToast: false,
+          toastMessage: '',
+        }))
+
+        announceToScreenReader(screenReaderMessage)
+
         if (!isPastPuzzle) {
           updateUserStats(false, puzzle.date)
         }
         announceToScreenReader(
-          `Game over. You used all ${maxGuesses} attempts. The results will show the correct answers.`
+          `Game over. You used all ${maxGuesses} attempts. Revealing the correct groups.`
         )
-        setShowResults(true)
+
+        setTimeout(
+          () => setShowResults(true),
+          revealDurationMs(newlyRevealed) + resultsRevealBufferMs
+        )
+      } else {
+        setGameState(prev => ({
+          ...prev,
+          selectedTiles: [],
+          attemptsUsed: newAttemptsUsed,
+          gameStatus: 'playing',
+          guessHistory: newGuessHistory,
+          showToast,
+          toastMessage,
+        }))
+
+        // Announce incorrect guess
+        announceToScreenReader(screenReaderMessage)
       }
     }
 
