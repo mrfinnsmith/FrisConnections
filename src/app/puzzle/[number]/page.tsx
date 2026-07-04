@@ -53,7 +53,7 @@ export default async function PuzzlePage({ params }: PuzzlePageProps) {
             href="/"
             className="px-4 py-2 bg-sf-navy text-white rounded-lg hover:bg-sf-navy-dark transition-colors"
           >
-            Today's Puzzle
+            Today&apos;s Puzzle
           </Link>
           <Link
             href="/archive"

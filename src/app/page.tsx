@@ -22,7 +22,7 @@ export default async function Home() {
         </div>
         <div className="space-y-4">
           <h2 className="text-xl font-semibold text-gray-800">
-            Today's FrisConnections is still on the ship
+            Today&apos;s FrisConnections is still on the ship
           </h2>
           <p className="text-gray-600">In the meantime, check out some from the past!</p>
           <Link

@@ -12,10 +12,7 @@ interface GameBoardSkeletonProps {
   showSolvedGroups?: boolean
 }
 
-export default function GameBoardSkeleton({
-  isPastPuzzle = false,
-  showSolvedGroups = false,
-}: GameBoardSkeletonProps) {
+export default function GameBoardSkeleton({ showSolvedGroups = false }: GameBoardSkeletonProps) {
   return (
     <div className="max-w-md mx-auto p-4">
       {/* Game info skeleton */}

@@ -69,7 +69,7 @@ export default async function PastPuzzlesPage() {
           href="/"
           className="px-4 py-2 bg-sf-navy text-white rounded-lg hover:bg-sf-navy-dark transition-colors"
         >
-          Back to Today's Puzzle
+          Back to Today&apos;s Puzzle
         </Link>
       </div>
 

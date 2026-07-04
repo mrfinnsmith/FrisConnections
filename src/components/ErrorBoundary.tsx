@@ -65,8 +65,8 @@ export class ErrorBoundary extends Component<Props, State> {
             <div className="text-red-500 text-6xl mb-4">⚠️</div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Oops! Something went wrong</h1>
             <p className="text-gray-600 mb-6">
-              We're sorry, but something unexpected happened. Don't worry, your game progress is
-              saved.
+              We&apos;re sorry, but something unexpected happened. Don&apos;t worry, your game
+              progress is saved.
             </p>
 
             <div className="space-y-3">
@@ -136,11 +136,4 @@ export function useErrorHandler() {
       })
     }
   }, [])
-}
-
-// Declare gtag for TypeScript
-declare global {
-  interface Window {
-    gtag: (...args: any[]) => void
-  }
 }

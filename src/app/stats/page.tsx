@@ -6,7 +6,7 @@ import StatsOverview from '@/components/Stats/StatsOverview'
 import DifficultyBreakdown from '@/components/Stats/DifficultyBreakdown'
 import GameHistory from '@/components/Stats/GameHistory'
 import { getEnhancedUserStats, validateStatsData } from '@/lib/localStorage'
-import { injectMockData } from '@/lib/mockStatsData'
+import { injectMockData, SCENARIOS } from '@/lib/mockStatsData'
 import { EnhancedUserStats } from '@/types/game'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { StatsErrorFallback } from '@/components/ErrorFallbacks'
@@ -41,7 +41,7 @@ export default function StatsPage() {
 
   // Development tools
   const handleInjectMockData = (scenario: string) => {
-    injectMockData(scenario as any)
+    injectMockData(scenario as keyof typeof SCENARIOS)
     window.location.reload()
   }
 
@@ -70,7 +70,7 @@ export default function StatsPage() {
       <div className="w-full max-w-4xl mx-auto p-4 text-center">
         <h1 className="text-3xl font-bold mb-4">Error Loading Stats</h1>
         <p className="text-gray-600 mb-6">
-          We couldn't load your statistics. Please try refreshing the page.
+          We couldn&apos;t load your statistics. Please try refreshing the page.
         </p>
         <Link
           href="/"
@@ -118,7 +118,7 @@ export default function StatsPage() {
           href="/"
           className="px-4 py-2 bg-sf-navy text-white rounded-lg hover:bg-sf-navy-dark transition-colors"
         >
-          Today's Puzzle
+          Today&apos;s Puzzle
         </Link>
         <Link
           href="/archive"
@@ -165,8 +165,8 @@ export default function StatsPage() {
           {stats.gamesPlayed >= 3 && stats.gamesPlayed < 10 && (
             <div className="text-center py-6 bg-purple-50 rounded-lg">
               <p className="text-purple-700">
-                You're building a nice streak! Play {10 - stats.gamesPlayed} more games to unlock
-                advanced statistics.
+                You&apos;re building a nice streak! Play {10 - stats.gamesPlayed} more games to
+                unlock advanced statistics.
               </p>
             </div>
           )}

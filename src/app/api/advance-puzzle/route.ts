@@ -13,7 +13,7 @@ export async function POST() {
       success: true,
       newPuzzleId: data,
     })
-  } catch (_error) {
+  } catch {
     return NextResponse.json(
       {
         error: 'Failed to advance puzzle',

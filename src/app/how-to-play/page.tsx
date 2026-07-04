@@ -27,12 +27,12 @@ export default function HowToPlay() {
                 <strong>Select words:</strong> Click up to 4 words that you think belong together
               </p>
               <p>
-                <strong>Deselect:</strong> Click "Deselect All" or click selected words to unselect
-                them
+                <strong>Deselect:</strong> Click &quot;Deselect All&quot; or click selected words to
+                unselect them
               </p>
               <p>
-                <strong>Shuffle:</strong> Click "Shuffle" to rearrange the grid for a fresh
-                perspective
+                <strong>Shuffle:</strong> Click &quot;Shuffle&quot; to rearrange the grid for a
+                fresh perspective
               </p>
             </div>
           </section>
@@ -115,7 +115,7 @@ export default function HowToPlay() {
             <p>
               Ready to play?{' '}
               <Link href="/" className="font-medium hover:underline text-sf-navy">
-                Try today's puzzle
+                Try today&apos;s puzzle
               </Link>{' '}
               or browse the{' '}
               <Link href="/archive" className="font-medium hover:underline text-sf-navy">
