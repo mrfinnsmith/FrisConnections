@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import {
   shuffleArray,
   getAvailableTiles,
@@ -22,28 +22,24 @@ const mockCategories: Category[] = [
     name: 'SF Hills',
     difficulty: 1,
     items: ['Twin Peaks', 'Nob Hill', 'Russian Hill', 'Telegraph Hill'],
-    puzzle_id: 1,
   },
   {
     id: 2,
     name: 'Tech Companies',
     difficulty: 2,
     items: ['Oracle', 'Salesforce', 'Uber', 'Twitter'],
-    puzzle_id: 1,
   },
   {
     id: 3,
     name: 'MUNI Lines',
     difficulty: 3,
     items: ['N Judah', 'L Taraval', 'K Ingleside', 'M Ocean View'],
-    puzzle_id: 1,
   },
   {
     id: 4,
     name: 'Food Invented in SF',
     difficulty: 4,
     items: ['Irish Coffee', 'Sourdough', 'Mission Burrito', 'Cioppino'],
-    puzzle_id: 1,
   },
 ]
 
@@ -52,8 +48,6 @@ const mockPuzzle: Puzzle = {
   puzzle_number: 1,
   date: '2025-01-01',
   categories: mockCategories,
-  published: true,
-  created_at: '2025-01-01T00:00:00Z',
 }
 
 describe('gameLogic', () => {

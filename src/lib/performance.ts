@@ -4,7 +4,7 @@ interface PerformanceMetrics {
   name: string
   duration: number
   timestamp: number
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 class PerformanceTracker {
@@ -17,7 +17,7 @@ class PerformanceTracker {
   }
 
   // End tracking and record the measurement
-  end(name: string, metadata?: Record<string, any>): number {
+  end(name: string, metadata?: Record<string, unknown>): number {
     const startTime = this.measurements.get(name)
     if (!startTime) {
       console.warn(`Performance measurement '${name}' was not started`)
@@ -58,7 +58,7 @@ class PerformanceTracker {
   }
 
   // Measure a function execution time
-  measure<T>(name: string, fn: () => T, metadata?: Record<string, any>): T {
+  measure<T>(name: string, fn: () => T, metadata?: Record<string, unknown>): T {
     this.start(name)
     const result = fn()
     this.end(name, metadata)
@@ -69,7 +69,7 @@ class PerformanceTracker {
   async measureAsync<T>(
     name: string,
     fn: () => Promise<T>,
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ): Promise<T> {
     this.start(name)
     const result = await fn()
@@ -131,7 +131,7 @@ export const trackGamePerformance = {
   },
 
   // Track component re-render performance
-  componentRender: (componentName: string, props?: Record<string, any>) => {
+  componentRender: (componentName: string, props?: Record<string, unknown>) => {
     perf.start(`${componentName}_render`)
     return () => perf.end(`${componentName}_render`, props)
   },
@@ -144,17 +144,20 @@ export const trackGamePerformance = {
 }
 
 // React hook for component performance tracking
-export function usePerformanceTracking(componentName: string, dependencies: any[] = []) {
-  if (process.env.NODE_ENV === 'development') {
-    React.useEffect(() => {
-      const endTracking = trackGamePerformance.componentRender(componentName, {
-        dependency_count: dependencies.length,
-      })
-      return () => {
-        endTracking()
-      }
-    }, dependencies)
-  }
+export function usePerformanceTracking(componentName: string, dependencies: unknown[] = []) {
+  React.useEffect(() => {
+    if (process.env.NODE_ENV !== 'development') return
+
+    const endTracking = trackGamePerformance.componentRender(componentName, {
+      dependency_count: dependencies.length,
+    })
+    return () => {
+      endTracking()
+    }
+    // The dependency array is intentionally supplied by the caller so the effect
+    // re-runs on the caller's dependencies, not on componentName. This is by design.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, dependencies)
 }
 
 // Web Vitals tracking (if web-vitals library is available)
@@ -171,7 +174,17 @@ export function trackWebVitals() {
   }
 }
 
-function sendToAnalytics(metric: any) {
+interface WebVitalsMetric {
+  name: string
+  id: string
+  value: number
+  rating: string
+}
+
+// Reserved for wiring up the web-vitals library (see trackWebVitals). Currently
+// unused because the package is not installed yet; kept as intentional scaffolding.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function sendToAnalytics(metric: WebVitalsMetric) {
   if (typeof window !== 'undefined' && window.gtag) {
     window.gtag('event', metric.name, {
       event_category: 'Web Vitals',

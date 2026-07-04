@@ -1,5 +1,5 @@
 import React from 'react'
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import TileGrid from '../Game/TileGrid'
@@ -28,8 +28,6 @@ const mockGameState: GameState = {
     puzzle_number: 1,
     date: '2025-01-01',
     categories: [],
-    published: true,
-    created_at: '2025-01-01T00:00:00Z',
   },
   selectedTiles: ['Twin Peaks'],
   solvedGroups: [],

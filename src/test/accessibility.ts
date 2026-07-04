@@ -1,13 +1,10 @@
 import { within } from '@testing-library/react'
 import type { RenderResult } from '@testing-library/react'
+import type { UserEvent } from '@testing-library/user-event'
 import { expect } from 'vitest'
 
 export const accessibilityHelpers = {
-  testKeyboardNavigation: async (
-    screen: RenderResult,
-    user: any,
-    gridSelector: string = '[role="grid"]'
-  ) => {
+  testKeyboardNavigation: async (screen: RenderResult, user: UserEvent) => {
     const grid = screen.getByRole('grid')
     grid.focus()
 
@@ -32,11 +29,7 @@ export const accessibilityHelpers = {
     })
   },
 
-  testFocusTrap: async (
-    screen: RenderResult,
-    user: any,
-    modalSelector: string = '[role="dialog"]'
-  ) => {
+  testFocusTrap: async (screen: RenderResult, user: UserEvent) => {
     const modal = screen.getByRole('dialog')
     const focusableElements = within(modal).getAllByRole('button')
 
