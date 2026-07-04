@@ -190,7 +190,8 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
     setAnimatingTiles([])
     setAnimationType(null)
 
-    const newAttemptsUsed = gameState.attemptsUsed + 1
+    // A correct guess must not consume an attempt; only incorrect guesses do.
+    const newAttemptsUsed = matchingCategory ? gameState.attemptsUsed : gameState.attemptsUsed + 1
 
     // Check if guess is "one away" from any category
     const isOneAway =
