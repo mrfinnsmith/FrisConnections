@@ -11,3 +11,10 @@ docs/improvement-memo.md
 docs/db-migration-docs/
 supabase/.temp/
 memos/
+
+# Local puzzle-design tooling and content data (kept out of the public repo)
+__pycache__/
+puzzle_tools.py
+category_types.csv
+frisconnections - Item count.csv
+frisconnections - Items.csv
