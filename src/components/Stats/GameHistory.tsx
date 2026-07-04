@@ -84,11 +84,11 @@ export default function GameHistory({ puzzleHistory, showTitle = true }: GameHis
               </div>
               {puzzle.won && (
                 <div className="text-xs text-gray-500">
-                  {puzzle.attemptsUsed === 1
+                  {puzzle.attemptsUsed === 0
                     ? 'Perfect!'
-                    : puzzle.attemptsUsed === 2
+                    : puzzle.attemptsUsed === 1
                       ? 'Great!'
-                      : puzzle.attemptsUsed === 3
+                      : puzzle.attemptsUsed === 2
                         ? 'Good'
                         : 'Close call'}
                 </div>
@@ -130,13 +130,13 @@ export default function GameHistory({ puzzleHistory, showTitle = true }: GameHis
             <div className="flex justify-between">
               <span className="text-gray-600">Perfect games:</span>
               <span className="font-medium">
-                {puzzleHistory.filter(p => p.won && p.attemptsUsed === 1).length}
+                {puzzleHistory.filter(p => p.won && p.attemptsUsed === 0).length}
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Close calls:</span>
               <span className="font-medium">
-                {puzzleHistory.filter(p => p.won && p.attemptsUsed === 4).length}
+                {puzzleHistory.filter(p => p.won && p.attemptsUsed === 3).length}
               </span>
             </div>
           </div>

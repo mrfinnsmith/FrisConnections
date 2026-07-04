@@ -196,26 +196,27 @@ export function updateEnhancedUserStats(
   // Sort by puzzle ID (most recent first)
   enhancedStats.puzzleHistory.sort((a, b) => b.puzzleId - a.puzzleId)
 
-  // Update difficulty breakdown if categories provided
-  if (solvedCategories) {
-    solvedCategories.forEach(cat => {
-      const difficultyKey = getDifficultyKey(cat.difficulty)
-      if (difficultyKey) {
-        enhancedStats.difficultyBreakdown[difficultyKey].total++
-        if (won) {
-          enhancedStats.difficultyBreakdown[difficultyKey].won++
-        }
-      }
-    })
-  }
+  // Update difficulty breakdown. Every puzzle has exactly one category of each
+  // difficulty, so each color is *presented* once per completed puzzle (that's
+  // the `total`). A color's `won` counts the times the player solved that
+  // specific category, independent of whether the whole puzzle was won.
+  const solvedDifficulties = new Set((solvedCategories ?? []).map(cat => cat.difficulty))
+  ;([1, 2, 3, 4] as const).forEach(difficulty => {
+    const difficultyKey = getDifficultyKey(difficulty)
+    if (!difficultyKey) return
+    enhancedStats.difficultyBreakdown[difficultyKey].total++
+    if (solvedDifficulties.has(difficulty)) {
+      enhancedStats.difficultyBreakdown[difficultyKey].won++
+    }
+  })
 
-  // Update base stats
-  enhancedStats.gamesPlayed++
-  if (won) {
-    enhancedStats.gamesWon++
-  }
+  // Derive base counts from the history rather than incrementing counters, so a
+  // replay (which replaces its history entry above) never inflates them and the
+  // numbers always agree with the entries shown in the history list.
+  enhancedStats.gamesPlayed = enhancedStats.puzzleHistory.length
+  enhancedStats.gamesWon = enhancedStats.puzzleHistory.filter(p => p.won).length
 
-  enhancedStats.lastPlayedDate = new Date().toISOString().split('T')[0]
+  enhancedStats.lastPlayedDate = date
   enhancedStats.lastUpdated = new Date()
 
   localStorage.setItem(

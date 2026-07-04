@@ -28,7 +28,7 @@ interface GameBoardProps {
   puzzleNumber?: number
 }
 
-export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }: GameBoardProps) {
+export default function GameBoard({ puzzle }: GameBoardProps) {
   const [gameState, setGameState] = useState<GameState>({
     puzzle: null,
     selectedTiles: [],
@@ -267,9 +267,15 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
 
       // Check if game is won
       if (newGameStatus === 'won') {
-        if (!isPastPuzzle) {
-          updateUserStats(true)
-        }
+        // Record the finished puzzle. Past-puzzle replays count too, and stamp
+        // their play date as today (handled in updateUserStats). Use the public
+        // puzzle number, which is what the history list shows the player.
+        updateUserStats(
+          true,
+          puzzle.puzzle_number,
+          newAttemptsUsed,
+          newSolvedGroups.map(group => group.category)
+        )
         announceToScreenReader(`Congratulations! You solved all 4 groups and won the puzzle!`)
         // Let the final banner's flip + pulse play before the modal covers it
         setTimeout(() => setShowResults(true), 1000)
@@ -320,9 +326,16 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
 
         announceToScreenReader(screenReaderMessage)
 
-        if (!isPastPuzzle) {
-          updateUserStats(false)
-        }
+        // Record the loss. `alreadySolved` holds only the groups the player
+        // actually solved before running out of guesses (captured before the
+        // reveal cascade repopulates solvedGroups with every category), so the
+        // difficulty breakdown credits exactly those colors.
+        updateUserStats(
+          false,
+          puzzle.puzzle_number,
+          newAttemptsUsed,
+          alreadySolved.map(group => group.category)
+        )
         announceToScreenReader(
           `Game over. You used all ${maxGuesses} attempts. Revealing the correct groups.`
         )

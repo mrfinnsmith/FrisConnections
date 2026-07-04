@@ -180,7 +180,7 @@ export default function StatsPage() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <div className="text-center">
                   <div className="font-semibold text-purple-700">
-                    {stats.puzzleHistory.filter(p => p.won && p.attemptsUsed === 1).length}
+                    {stats.puzzleHistory.filter(p => p.won && p.attemptsUsed === 0).length}
                   </div>
                   <div className="text-purple-600">Perfect Games</div>
                 </div>
