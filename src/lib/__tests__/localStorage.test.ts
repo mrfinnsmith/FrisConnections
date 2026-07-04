@@ -4,6 +4,7 @@ import {
   loadGameProgress,
   updateUserStats,
   getUserStats,
+  getEnhancedUserStats,
   getOrCreateSessionId,
   hasSeenOnboarding,
   markOnboardingSeen,
@@ -191,6 +192,65 @@ describe('localStorage utilities', () => {
         'frisconnections_onboarding_version',
         '1'
       )
+    })
+  })
+
+  describe('enhanced stats recording', () => {
+    // Back the mock with a real in-memory store so read-after-write works: the
+    // enhanced-stats functions read the current value, mutate it, and write it
+    // back across two keys.
+    let store: Record<string, string>
+
+    beforeEach(() => {
+      store = {}
+      localStorageMock.getItem.mockImplementation((key: string) =>
+        key in store ? store[key] : null
+      )
+      localStorageMock.setItem.mockImplementation((key: string, value: string) => {
+        store[key] = String(value)
+      })
+      localStorageMock.removeItem.mockImplementation((key: string) => {
+        delete store[key]
+      })
+    })
+
+    const allFourCategories = [
+      { difficulty: 1 },
+      { difficulty: 2 },
+      { difficulty: 3 },
+      { difficulty: 4 },
+    ]
+
+    it('records a single game played on the first finish', () => {
+      updateUserStats(true, 20, 1, allFourCategories)
+
+      const stats = getEnhancedUserStats()
+      expect(stats.gamesPlayed).toBe(1)
+      expect(stats.gamesWon).toBe(1)
+      expect(stats.puzzleHistory).toHaveLength(1)
+      expect(stats.puzzleHistory[0]).toMatchObject({ puzzleId: 20, won: true, attemptsUsed: 1 })
+    })
+
+    it('credits every solved color even on a loss and counts all four colors in the total', () => {
+      // Player solved yellow and green, then ran out of guesses.
+      updateUserStats(false, 21, 4, [{ difficulty: 1 }, { difficulty: 2 }])
+
+      const { difficultyBreakdown } = getEnhancedUserStats()
+      expect(difficultyBreakdown.yellow).toEqual({ won: 1, total: 1 })
+      expect(difficultyBreakdown.green).toEqual({ won: 1, total: 1 })
+      expect(difficultyBreakdown.blue).toEqual({ won: 0, total: 1 })
+      expect(difficultyBreakdown.purple).toEqual({ won: 0, total: 1 })
+    })
+
+    it('does not duplicate history or inflate games played when a puzzle is replayed', () => {
+      updateUserStats(false, 30, 4, [{ difficulty: 1 }])
+      updateUserStats(true, 30, 2, allFourCategories)
+
+      const stats = getEnhancedUserStats()
+      expect(stats.puzzleHistory).toHaveLength(1)
+      expect(stats.puzzleHistory[0]).toMatchObject({ puzzleId: 30, won: true, attemptsUsed: 2 })
+      expect(stats.gamesPlayed).toBe(1)
+      expect(stats.gamesWon).toBe(1)
     })
   })
 })

@@ -1,9 +1,10 @@
 import React from 'react'
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import GameBoard from '../Game/GameBoard'
 import { Puzzle } from '@/types/game'
 import { losingRevealDurationMs } from '@/lib/reveal'
+import { getEnhancedUserStats } from '@/lib/localStorage'
 
 // Regression test for the bug where a CORRECT guess still removed one of the
 // player's remaining mistakes.
@@ -128,6 +129,91 @@ describe('GameBoard reveal on loss', () => {
     // board was revealed. Before the fix, only the player's solved groups showed.
     puzzle.categories.forEach(category => {
       expect(screen.getByText(category.name)).toBeInTheDocument()
+    })
+  }, 30000)
+})
+
+// Regression test for the dormant bug where the enhanced player-statistics
+// feature was fully built but never received data: GameBoard called
+// updateUserStats with only `won`, so the enhanced branch that records a
+// PuzzleResult never ran. Finishing a game must populate puzzleHistory.
+describe('GameBoard stats recording', () => {
+  const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+  // A correct guess resolves after its ~1.2s bounce animation.
+  const correctGuessSettleMs = 1400
+
+  let store: Record<string, string>
+
+  beforeEach(() => {
+    // The shared test setup stubs localStorage with non-storing vi.fn()s. Swap in
+    // a real in-memory store so the stats we write can be read back.
+    store = {}
+    Object.defineProperty(window, 'localStorage', {
+      value: {
+        getItem: (key: string) => (key in store ? store[key] : null),
+        setItem: (key: string, value: string) => {
+          store[key] = String(value)
+        },
+        removeItem: (key: string) => {
+          delete store[key]
+        },
+        clear: () => {
+          store = {}
+        },
+      },
+      writable: true,
+      configurable: true,
+    })
+  })
+
+  afterEach(() => {
+    Object.defineProperty(window, 'localStorage', {
+      value: { getItem: vi.fn(), setItem: vi.fn(), removeItem: vi.fn(), clear: vi.fn() },
+      writable: true,
+      configurable: true,
+    })
+  })
+
+  async function solveCategory(items: string[]) {
+    items.forEach(clickTile)
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
+    await sleep(correctGuessSettleMs)
+  }
+
+  it('records a won result in enhanced stats when the daily puzzle is solved', async () => {
+    render(<GameBoard puzzle={puzzle} />)
+
+    for (const category of puzzle.categories) {
+      await solveCategory(category.items)
+    }
+
+    await waitFor(() => expect(getEnhancedUserStats().puzzleHistory).toHaveLength(1), {
+      timeout: 3000,
+    })
+
+    // Perfect solve: no incorrect guesses, so attemptsUsed is 0. The history keys
+    // on the public puzzle number, which is what "Puzzle #N" shows the player.
+    expect(getEnhancedUserStats().puzzleHistory[0]).toMatchObject({
+      puzzleId: puzzle.puzzle_number,
+      won: true,
+      attemptsUsed: 0,
+    })
+  }, 30000)
+
+  it('records a replayed past puzzle in enhanced stats too', async () => {
+    render(<GameBoard puzzle={puzzle} isPastPuzzle puzzleNumber={puzzle.puzzle_number} />)
+
+    for (const category of puzzle.categories) {
+      await solveCategory(category.items)
+    }
+
+    await waitFor(() => expect(getEnhancedUserStats().puzzleHistory).toHaveLength(1), {
+      timeout: 3000,
+    })
+
+    expect(getEnhancedUserStats().puzzleHistory[0]).toMatchObject({
+      puzzleId: puzzle.puzzle_number,
+      won: true,
     })
   }, 30000)
 })
