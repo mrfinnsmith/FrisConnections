@@ -303,7 +303,7 @@ export function validateStatsData(): { isValid: boolean; issues: string[] } {
     }
 
     return { isValid: issues.length === 0, issues }
-  } catch (error) {
+  } catch {
     return { isValid: false, issues: ['Failed to validate stats data'] }
   }
 }
