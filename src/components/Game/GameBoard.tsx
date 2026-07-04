@@ -20,7 +20,7 @@ import {
 } from '@/lib/localStorage'
 import { trackGamePerformance } from '@/lib/performance'
 import { revealAllGroups } from '@/lib/gameLogic'
-import { revealDurationMs } from '@/lib/reveal'
+import { REVEAL_COLLAPSE_MS, revealDurationMs } from '@/lib/reveal'
 
 interface GameBoardProps {
   puzzle: Puzzle
@@ -300,15 +300,17 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
       setAnimationType(null)
 
       if (newGameStatus === 'lost') {
-        // Reveal every category on the board, then open the results modal once
-        // the reveal cascade has settled so the player sees the answers first.
-        const revealedGroups = revealAllGroups(puzzle, gameState.solvedGroups)
-        const newlyRevealed = revealedGroups.length - gameState.solvedGroups.length
+        // Reveal the answers NYT-style: each unsolved group reveals one at a
+        // time in difficulty order. Its four tiles collapse up and fade, then
+        // its colored bar flips in, exactly as a manual correct guess looks.
+        // revealAllGroups appends the unsolved categories (difficulty order)
+        // after the ones the player already solved.
+        const alreadySolved = gameState.solvedGroups
+        const groupsToReveal = revealAllGroups(puzzle, alreadySolved).slice(alreadySolved.length)
 
         setGameState(prev => ({
           ...prev,
           selectedTiles: [],
-          solvedGroups: revealedGroups,
           attemptsUsed: newAttemptsUsed,
           gameStatus: 'lost',
           guessHistory: newGuessHistory,
@@ -325,10 +327,26 @@ export default function GameBoard({ puzzle, isPastPuzzle = false, puzzleNumber }
           `Game over. You used all ${maxGuesses} attempts. Revealing the correct groups.`
         )
 
-        setTimeout(
-          () => setShowResults(true),
-          revealDurationMs(newlyRevealed) + resultsRevealBufferMs
-        )
+        // Reveal groups sequentially: collapse a group's tiles, then add it to
+        // solvedGroups so its bar flips in, and wait for that to settle before
+        // starting the next. The awaits use the reveal.ts timing constants, so
+        // the loop finishes exactly at the true end of the cascade.
+        const revealed = [...alreadySolved]
+        for (const group of groupsToReveal) {
+          setAnimatingTiles([...group.category.items])
+          setAnimationType('shrink')
+          await new Promise(resolve => setTimeout(resolve, REVEAL_COLLAPSE_MS))
+          setAnimatingTiles([])
+          setAnimationType(null)
+
+          revealed.push(group)
+          const nextRevealed = [...revealed]
+          setGameState(prev => ({ ...prev, solvedGroups: nextRevealed }))
+          await new Promise(resolve => setTimeout(resolve, revealDurationMs(1)))
+        }
+
+        // The cascade has fully settled; hold a beat, then open the modal.
+        setTimeout(() => setShowResults(true), resultsRevealBufferMs)
       } else {
         setGameState(prev => ({
           ...prev,

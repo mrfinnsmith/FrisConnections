@@ -3,6 +3,7 @@ import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import GameBoard from '../Game/GameBoard'
 import { Puzzle } from '@/types/game'
+import { losingRevealDurationMs } from '@/lib/reveal'
 
 // Regression test for the bug where a CORRECT guess still removed one of the
 // player's remaining mistakes.
@@ -117,11 +118,16 @@ describe('GameBoard reveal on loss', () => {
       await sleep(wrongGuessSettleMs)
     }
 
+    // The final guess kicks off the sequential reveal, which collapses and flips
+    // in each unsolved group one at a time. The player solved nothing here, so
+    // all four categories reveal; wait out that whole cascade.
+    await sleep(losingRevealDurationMs(puzzle.categories.length))
+
     // The loss reveal appends every category to the board. Category names are only
     // rendered by the solved-group bars, so finding all four proves the whole
     // board was revealed. Before the fix, only the player's solved groups showed.
     puzzle.categories.forEach(category => {
       expect(screen.getByText(category.name)).toBeInTheDocument()
     })
-  }, 20000)
+  }, 30000)
 })

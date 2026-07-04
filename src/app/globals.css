@@ -274,9 +274,11 @@ body {
     animation: textfadeinselected 1s;
   }
 
+  /* Losing reveal: a group's four tiles collapse up and fade just before the
+     colored bar flips in, matching NYT. Duration is kept in sync with
+     REVEAL_COLLAPSE_MS in src/lib/reveal.ts. */
   .game-tile.shrink {
-    transition: all 0.3s ease-in-out;
-    transform: scale(0.9);
+    animation: tile-collapse 0.3s ease-in forwards;
   }
 
   .game-button {
@@ -466,6 +468,18 @@ body {
 
     50% {
       transform: translateY(-10px);
+    }
+  }
+
+  @keyframes tile-collapse {
+    0% {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+
+    100% {
+      transform: translateY(-40%) scale(0.6);
+      opacity: 0;
     }
   }
 
