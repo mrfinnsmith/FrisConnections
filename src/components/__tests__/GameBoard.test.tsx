@@ -88,3 +88,40 @@ describe('GameBoard mistake counting', () => {
     expect(usedMistakes(container)).toBe(0)
   })
 })
+
+// Regression test for the bug where losing (exhausting all guesses) never showed
+// the player the correct groups. On a loss, every category should be revealed on
+// the board through the solved-group bars.
+describe('GameBoard reveal on loss', () => {
+  // handleSubmit resolves an incorrect guess only after its bounce (1000ms) and
+  // shake (300ms) animations run on real timers, so wait out that known duration
+  // between guesses rather than polling.
+  const wrongGuessSettleMs = 1600
+  const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
+  it('reveals every category on the board when the player runs out of guesses', async () => {
+    render(<GameBoard puzzle={puzzle} />)
+
+    // Four guesses that each take one tile from every category: never a match and
+    // never "one away", so all four are wrong and the game is lost.
+    const wrongGuesses = [
+      ['TWIN PEAKS', 'ORACLE', 'N JUDAH', 'IRISH COFFEE'],
+      ['NOB HILL', 'SALESFORCE', 'L TARAVAL', 'SOURDOUGH'],
+      ['RUSSIAN HILL', 'UBER', 'K INGLESIDE', 'MISSION BURRITO'],
+      ['TELEGRAPH HILL', 'TWITTER', 'M OCEAN VIEW', 'CIOPPINO'],
+    ]
+
+    for (const guess of wrongGuesses) {
+      guess.forEach(clickTile)
+      fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
+      await sleep(wrongGuessSettleMs)
+    }
+
+    // The loss reveal appends every category to the board. Category names are only
+    // rendered by the solved-group bars, so finding all four proves the whole
+    // board was revealed. Before the fix, only the player's solved groups showed.
+    puzzle.categories.forEach(category => {
+      expect(screen.getByText(category.name)).toBeInTheDocument()
+    })
+  }, 20000)
+})

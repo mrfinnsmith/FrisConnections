@@ -11,8 +11,9 @@ import {
   toggleTileSelection,
   canSubmitGuess,
   getRemainingAttempts,
+  revealAllGroups,
 } from '../gameLogic'
-import { GameState, Puzzle, Category } from '@/types/game'
+import { GameState, Puzzle, Category, SolvedGroup } from '@/types/game'
 
 // Mock puzzle data for testing
 const mockCategories: Category[] = [
@@ -192,6 +193,32 @@ describe('gameLogic', () => {
 
       gameState.attemptsUsed = 2
       expect(getRemainingAttempts(gameState)).toBe(2)
+    })
+  })
+
+  describe('revealAllGroups', () => {
+    it('appends every unsolved category in difficulty order', () => {
+      const solved: SolvedGroup[] = [{ category: mockCategories[1], solvedAt: 0 }] // difficulty 2
+
+      const result = revealAllGroups(mockPuzzle, solved)
+
+      // Solved group stays first; the rest fill in by ascending difficulty.
+      expect(result.map(group => group.category.difficulty)).toEqual([2, 1, 3, 4])
+      expect(result).toHaveLength(mockPuzzle.categories.length)
+    })
+
+    it('reveals all four when nothing was solved', () => {
+      const result = revealAllGroups(mockPuzzle, [])
+
+      expect(result.map(group => group.category.difficulty)).toEqual([1, 2, 3, 4])
+    })
+
+    it('does not duplicate an already-solved category', () => {
+      const solved: SolvedGroup[] = [{ category: mockCategories[0], solvedAt: 0 }]
+
+      const ids = revealAllGroups(mockPuzzle, solved).map(group => group.category.id)
+
+      expect(new Set(ids).size).toBe(ids.length)
     })
   })
 })
